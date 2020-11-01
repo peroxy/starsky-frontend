@@ -30,7 +30,6 @@ export default class LoginPage extends React.Component<any, ILoginState>{
         const password = data.get(this.htmlPasswordElement);
         const response = await fetch("http://localhost:8080/auth/token", {
             method: "POST",
-            mode: "cors",
             headers : {
                 "Content-Type": "application/json"
             },
