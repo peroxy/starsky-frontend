@@ -1,13 +1,24 @@
 import React from 'react';
-import LoginPage from "./components/LoginPage";
-//import './App.css';
+import {Login} from "./components/LoginPage";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import DashboardPage from "./components/DashboardPage";
+import HomePage from "./components/HomePage";
+import {PrivateRoute} from "./components/PrivateRoute"
+import {TopMenu} from "./components/TopMenu";
+import {AuthProvider} from "./components/AuthProvider";
 
-export default class App extends React.Component {
-  render() {
+export default function App() {
+
     return (
-        <div>
-          <LoginPage/>
-        </div>
+        <AuthProvider>
+            <Router>
+                <TopMenu/>
+                <Switch>
+                    <Route exact path='/' component={HomePage}/>
+                    <Route path='/login' component={Login}/>
+                    <PrivateRoute path='/dashboard' component={DashboardPage}/>
+                </Switch>
+            </Router>
+        </AuthProvider>
     );
-  }
 }

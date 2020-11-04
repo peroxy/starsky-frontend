@@ -8,12 +8,18 @@ export class StarskyApiClient {
     private readonly apiHostUrl : string
     constructor() {
         this.apiHostUrl = env("REACT_APP_BACKEND_HOST");
-        console.log(this.apiHostUrl)
     }
 
-    private getHeaders(){
+    private getNonAuthenticatedHeader(){
         return {
             "Content-Type": "application/json"
+        };
+    }
+
+    private getAuthenticatedHeaders(token : string){
+        return {
+            "Content-Type": "application/json",
+            "Authorization" : `Bearer ${token}`
         };
     }
 
@@ -44,11 +50,16 @@ export class StarskyApiClient {
         };
     }
 
+    /**
+     * Try to login to Starsky API by retrieving a JWT bearer token
+     * @param model Credentials for API
+     */
     login(model: LoginModel) {
+        console.log("get token called...")
         const getTokenUrl = this.getApiUrl("/auth/token");
         return fetch(getTokenUrl, {
             method: HttpMethod.POST,
-            headers: this.getHeaders(),
+            headers: this.getNonAuthenticatedHeader(),
             body: JSON.stringify(model)
         }).then(async (response) => {
             switch (response.status) {
@@ -63,6 +74,29 @@ export class StarskyApiClient {
         }).catch((error) => {
            console.error(error);
            return this.getUnexpectedError();
+        });
+    }
+
+    /**
+     * Validate a JWT token by sending an authenticated GET request
+     * @param token JWT token for Starsky API
+     */
+    validateToken(token : string) {
+        console.log("validating token called...")
+        const validateUrl = this.getApiUrl("/auth/token/validate");
+        return fetch(validateUrl, {
+            method: HttpMethod.GET,
+            headers: this.getAuthenticatedHeaders(token)
+        }).then(async (response) => {
+            switch (response.status) {
+                case HttpStatusCode.OK:
+                    return true;
+                default:
+                    return false;
+            }
+        }).catch((error) => {
+            console.error(error);
+            return false;
         });
     }
 
