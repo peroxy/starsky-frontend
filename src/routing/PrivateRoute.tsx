@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 
 import { Redirect, Route } from 'react-router-dom';
-import {AuthContext} from "./AuthProvider";
+import {AuthContext} from "../components/AuthProvider";
 import {StarskyApiClient} from "../api/starskyApiClient";
 import {Dimmer, Loader} from "semantic-ui-react";
+import {LOGIN_ROUTE} from "./routeConstants";
 
 export function PrivateRoute({component: Component, ...rest}: any) {
     const {token} = React.useContext(AuthContext);
@@ -13,7 +14,8 @@ export function PrivateRoute({component: Component, ...rest}: any) {
     const client = new StarskyApiClient();
 
     useEffect(() => {
-        onLoad();
+        // noinspection JSIgnoredPromiseFromCall
+        onLoad()
     }, []);
 
     async function onLoad() {
@@ -31,7 +33,7 @@ export function PrivateRoute({component: Component, ...rest}: any) {
         <Route {...rest}
                render={(props) => authenticated
                    ? <Component {...props} /> : loading ? <Dimmer active inverted><Loader content="loading" /></Dimmer> :
-                       <Redirect to={{pathname: '/login', state: {from: props.location}}}/>}
+                       <Redirect to={{pathname: LOGIN_ROUTE, state: {from: props.location}}}/>}
         />
     )
 }

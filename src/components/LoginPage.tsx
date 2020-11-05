@@ -3,7 +3,10 @@ import {LoginModel} from "../api/models";
 import {StarskyApiClient} from "../api/starskyApiClient";
 import {ErrorResponse, TokenResponse} from "../api/responses";
 import {AuthContext} from "./AuthProvider";
-import { useHistory } from 'react-router-dom';
+import {useHistory} from 'react-router-dom';
+import {DASHBOARD_ROUTE} from "../routing/routeConstants";
+import {Button, Form, Grid, Header, Message, Segment, Image} from 'semantic-ui-react';
+import logo from '../logo.svg'
 
 export function LoginPage() {
 
@@ -31,7 +34,7 @@ export function LoginPage() {
         } else {
             setLoginStatus("Successfully logged in!");
             setToken(response.access_token);
-            history.push("/app/dashboard");
+            history.push(DASHBOARD_ROUTE);
         }
     }
 
@@ -47,14 +50,37 @@ export function LoginPage() {
 
     return (
         <div>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor={htmlEmailElement}>Email:</label>
-                <input type="email" name={htmlEmailElement} id={htmlEmailElement} required/>
-                <label htmlFor={htmlPasswordElement}>Password:</label>
-                <input type="password" name={htmlPasswordElement} id={htmlPasswordElement} minLength={8} maxLength={72} required/>
-                <input type="submit" value="Login"/>
-            </form>
-            {errorLabel}
+            {/*<form onSubmit={handleSubmit}>*/}
+            {/*    <label htmlFor={htmlEmailElement}>Email:</label>*/}
+            {/*    <input type="email" name={htmlEmailElement} id={htmlEmailElement} required/>*/}
+            {/*    <label htmlFor={htmlPasswordElement}>Password:</label>*/}
+            {/*    <input type="password" name={htmlPasswordElement} id={htmlPasswordElement} minLength={8} maxLength={72} required/>*/}
+            {/*    <input type="submit" value="Login"/>*/}
+            {/*</form>*/}
+            {/*{errorLabel}*/}
+
+            <Grid textAlign='center' style={{height: '100vh'}} verticalAlign='middle'>
+                <Grid.Column style={{maxWidth: 450}}>
+                    <Header as='h2' color='teal' textAlign='center'>
+                        <Image src={logo}/> Log-in to your account
+                    </Header>
+                    <Form size='large' onSubmit={handleSubmit}>
+                        <Segment stacked>
+                            <Form.Input name={htmlEmailElement} fluid icon='user' iconPosition='left' placeholder='E-mail address' type='email' required/>
+                            <Form.Input name={htmlPasswordElement} fluid icon='lock' iconPosition='left' placeholder='Password' type='password' minLength={8}
+                                        maxLength={72} required/>
+                            <Button color='teal' fluid size='large' type='submit'>
+                                Login
+                            </Button>
+                        </Segment>
+                    </Form>
+                    <Message>
+                        New here? <a href='#'>Register now!</a>
+                    </Message>
+                </Grid.Column>
+            </Grid>
         </div>
+
+
     );
 }
