@@ -5,15 +5,15 @@ import {ErrorResponse, TokenResponse} from "../api/responses";
 import {AuthContext} from "./AuthProvider";
 import { useHistory } from 'react-router-dom';
 
-export function Login(props: any) {
+export function LoginPage() {
 
     const [loginStatus, setLoginStatus] = useState("");
     const {setToken, clearToken} = React.useContext(AuthContext);
     const history = useHistory()
+    const apiClient = new StarskyApiClient();
 
     const htmlEmailElement = "loginEmail";
     const htmlPasswordElement = "loginPassword";
-    const apiClient = new StarskyApiClient();
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -31,7 +31,7 @@ export function Login(props: any) {
         } else {
             setLoginStatus("Successfully logged in!");
             setToken(response.access_token);
-            history.push("/dashboard");
+            history.push("/app/dashboard");
         }
     }
 
@@ -51,13 +51,10 @@ export function Login(props: any) {
                 <label htmlFor={htmlEmailElement}>Email:</label>
                 <input type="email" name={htmlEmailElement} id={htmlEmailElement} required/>
                 <label htmlFor={htmlPasswordElement}>Password:</label>
-                <input type="password" name={htmlPasswordElement} id={htmlPasswordElement} minLength={8}
-                       maxLength={72} required/>
+                <input type="password" name={htmlPasswordElement} id={htmlPasswordElement} minLength={8} maxLength={72} required/>
                 <input type="submit" value="Login"/>
             </form>
             {errorLabel}
         </div>
     );
-
-
 }
