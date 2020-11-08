@@ -4,13 +4,16 @@ import {StarskyApiClient} from "../api/starskyApiClient";
 import {ErrorResponse, TokenResponse} from "../api/responses";
 import {AuthContext} from "./AuthProvider";
 import {useHistory} from 'react-router-dom';
-import {DASHBOARD_ROUTE} from "../routing/routeConstants";
-import {Button, Form, Grid, Header, Message, Segment, Image} from 'semantic-ui-react';
-import logo from '../logo.svg'
+import {DASHBOARD_ROUTE, REGISTER_ROUTE} from "../routing/routeConstants";
+import {Button, Form, Grid, Header, Message, Segment, Image, Transition} from 'semantic-ui-react';
+import logo from '../images/logo.png'
+import { Helmet } from 'react-helmet';
 
 export function LoginPage() {
 
     const [loginStatus, setLoginStatus] = useState("");
+    const [alert, setAlert] = useState(false);
+
     const {setToken, clearToken} = React.useContext(AuthContext);
     const history = useHistory()
     const apiClient = new StarskyApiClient();
@@ -20,19 +23,26 @@ export function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const data = new FormData(e.currentTarget);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
 
         const model: LoginModel = {
-            email: data.get(htmlEmailElement) as string,
-            password: data.get(htmlPasswordElement) as string
+            email: formData.get(htmlEmailElement) as string,
+            password: formData.get(htmlPasswordElement) as string
         }
 
         const response = await apiClient.login(model);
         if (isErrorResponse(response)) {
             setLoginStatus(response.error_detail);
-            clearToken()
+            setAlert(true);
+            setTimeout(() => {
+                setAlert(false);
+            }, 5000);
+            clearToken();
+            form.reset();
         } else {
-            setLoginStatus("Successfully logged in!");
+            setLoginStatus("");
+            setAlert(false);
             setToken(response.access_token);
             history.push(DASHBOARD_ROUTE);
         }
@@ -41,28 +51,13 @@ export function LoginPage() {
     const isErrorResponse = (response: TokenResponse | ErrorResponse): response is ErrorResponse => {
         return (response as ErrorResponse).error_code !== undefined;
     }
-
-
-    let errorLabel: JSX.Element | null = null;
-    if (loginStatus !== "") {
-        errorLabel = <label>{loginStatus}</label>;
-    }
-
     return (
         <div>
-            {/*<form onSubmit={handleSubmit}>*/}
-            {/*    <label htmlFor={htmlEmailElement}>Email:</label>*/}
-            {/*    <input type="email" name={htmlEmailElement} id={htmlEmailElement} required/>*/}
-            {/*    <label htmlFor={htmlPasswordElement}>Password:</label>*/}
-            {/*    <input type="password" name={htmlPasswordElement} id={htmlPasswordElement} minLength={8} maxLength={72} required/>*/}
-            {/*    <input type="submit" value="Login"/>*/}
-            {/*</form>*/}
-            {/*{errorLabel}*/}
-
+            <Helmet title={"Starsky | Login"}/>
             <Grid textAlign='center' style={{height: '100vh'}} verticalAlign='middle'>
                 <Grid.Column style={{maxWidth: 450}}>
                     <Header as='h2' color='teal' textAlign='center'>
-                        <Image src={logo}/> Log-in to your account
+                        <Image src={logo}/> Login to your account
                     </Header>
                     <Form size='large' onSubmit={handleSubmit}>
                         <Segment stacked>
@@ -72,15 +67,17 @@ export function LoginPage() {
                             <Button color='teal' fluid size='large' type='submit'>
                                 Login
                             </Button>
+
                         </Segment>
                     </Form>
+                    <Transition visible={alert} animation='fade' duration={1000}>
+                        <Message header={loginStatus} content={"We could not log you in. Please check your credentials."} negative compact size={"small"}/>
+                    </Transition>
                     <Message>
-                        New here? <a href='#'>Register now!</a>
+                        New here? <a href={REGISTER_ROUTE}>Register now!</a>
                     </Message>
                 </Grid.Column>
             </Grid>
         </div>
-
-
     );
 }
