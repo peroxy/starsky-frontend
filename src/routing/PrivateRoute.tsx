@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
 
 import { Redirect, Route } from 'react-router-dom';
-import {AuthContext} from "../components/AuthProvider";
+import {useAuth} from "../components/AuthProvider";
 import {StarskyApiClient} from "../api/starskyApiClient";
 import {Dimmer, Loader} from "semantic-ui-react";
 import {LOGIN_ROUTE} from "./routeConstants";
 
 export function PrivateRoute({component: Component, ...rest}: any) {
-    const {token} = React.useContext(AuthContext);
+    const {token} = useAuth();
     const [authenticated, setAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 

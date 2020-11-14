@@ -1,12 +1,12 @@
 import {Button} from "semantic-ui-react";
 import React from "react";
-import {AuthContext} from "./AuthProvider";
 import { useHistory } from "react-router-dom";
 import {HOME_ROUTE} from "../routing/routeConstants";
+import {useAuth} from "./AuthProvider";
 
 export function TopMenu() {
 
-    const {clearToken} = React.useContext(AuthContext);
+    const {clearToken} = useAuth();
     const history = useHistory();
 
     return(

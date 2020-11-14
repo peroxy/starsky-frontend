@@ -1,8 +1,8 @@
-import {LoginModel} from "./models";
+import {LoginModel, RegisterModel} from "./models";
 import {HttpMethod} from "./httpMethod";
 import {env} from "../util/envHelper";
 import {HttpStatusCode} from "./httpStatusCode";
-import {ErrorResponse, TokenResponse} from "./responses";
+import {ErrorResponse, TokenResponse, UserResponse} from "./responses";
 
 export class StarskyApiClient {
     private readonly apiHostUrl : string
@@ -55,7 +55,6 @@ export class StarskyApiClient {
      * @param model Credentials for API
      */
     login(model: LoginModel) {
-        console.log("get token called...")
         const getTokenUrl = this.getApiUrl("/auth/token");
         return fetch(getTokenUrl, {
             method: HttpMethod.POST,
@@ -74,6 +73,55 @@ export class StarskyApiClient {
         }).catch((error) => {
            console.error(error);
            return this.getUnexpectedError();
+        });
+    }
+
+    /**
+     * Try to call register method of Starsky API.
+     * @param model Credentials for new user
+     */
+    register(model: RegisterModel) {
+        const registerUrl = this.getApiUrl("/users/");
+        return fetch(registerUrl, {
+            method: HttpMethod.POST,
+            headers: this.getNonAuthenticatedHeader(),
+            body: JSON.stringify(model)
+        }).then(async (response) => {
+            switch (response.status) {
+                case HttpStatusCode.OK:
+                    return await response.json() as UserResponse;
+                case HttpStatusCode.CONFLICT:
+                case HttpStatusCode.BAD_REQUEST:
+                    return await response.json() as ErrorResponse;
+                default:
+                    return this.getErrorResponse(response);
+            }
+        }).catch((error) => {
+            console.error(error);
+            return this.getUnexpectedError();
+        });
+    }
+
+    /**
+     * Get user for specified token
+     */
+    getUser(token: string) {
+        const getUserUrl = this.getApiUrl("/user/");
+        return fetch(getUserUrl, {
+            method: HttpMethod.GET,
+            headers: this.getAuthenticatedHeaders(token)
+        }).then(async (response) => {
+            switch (response.status) {
+                case HttpStatusCode.OK:
+                    return await response.json() as UserResponse;
+                case HttpStatusCode.NOT_FOUND:
+                    return await response.json() as ErrorResponse;
+                default:
+                    return this.getErrorResponse(response);
+            }
+        }).catch((error) => {
+            console.error(error);
+            return this.getUnexpectedError();
         });
     }
 
