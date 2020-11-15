@@ -31,10 +31,21 @@ export default function DashboardPage() {
         }
     }
 
+    const getDashboard = () => {
+        return (
+            <div>
+                <h1>Dashboard</h1>
+                What do you want to do today?
+            </div>
+        );
+    };
+
     return (
         <div>
             <Helmet title={"Starsky | Dashboard"}/>
-            {user == null ? <Dimmer active inverted><Loader content="Loading..." /></Dimmer> : <h1>Welcome to your dashboard {user.name} ({user.email})!</h1>}
+            {user == null ?
+                <Dimmer active inverted><Loader content="Loading..."/></Dimmer>
+                : getDashboard()}
         </div>
     );
 }
