@@ -4,7 +4,7 @@ import {StarskyApiClient} from "../../api/starskyApiClient";
 import {isErrorResponse} from "../../api/responses";
 import {useAuth} from "../AuthProvider";
 import {Link, useHistory} from 'react-router-dom';
-import {TEAMS_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE} from "../../routing/routeConstants";
+import {LOGIN_ROUTE, REGISTER_ROUTE, APP_ROUTE} from "../../routing/routeConstants";
 import {Button, Form, Grid, Header, Message, Segment, Image, Transition} from 'semantic-ui-react';
 import logo from '../../images/logo.png'
 import { Helmet } from 'react-helmet';
@@ -44,7 +44,7 @@ export function LoginPage() {
             setLoginStatus("");
             setAlert(false);
             setToken(response.access_token);
-            history.push(TEAMS_ROUTE);
+            history.push(APP_ROUTE);
         }
     }
 

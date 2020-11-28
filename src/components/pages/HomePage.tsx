@@ -1,6 +1,6 @@
 import logo from '../../images/logo.svg'
 import {Link} from "react-router-dom";
-import {TEAMS_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE} from "../../routing/routeConstants";
+import {APP_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE} from "../../routing/routeConstants";
 import {Helmet} from "react-helmet";
 import React, {useState} from 'react'
 import {Button, Container, Divider, Grid, GridColumn, Header, Icon, Image, List, Menu, Segment, Sidebar, Visibility} from 'semantic-ui-react'
@@ -46,7 +46,7 @@ function HomepageHeading(props: IProps) {
                     marginTop: props.mobile ? '0.5em' : '1.5em',
                 }}
             />
-            <Link to={TEAMS_ROUTE}>
+            <Link to={APP_ROUTE}>
                 <Button primary size='huge'>
                     Try it now!
                     <Icon name='arrow right'/>

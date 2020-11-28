@@ -14,7 +14,7 @@ export enum ActiveMenuItem {
     Schedules
 }
 
-export function TopMenu() {
+export function NavigationBar() {
 
     const {clearToken, token} = useAuth();
     const history = useHistory();

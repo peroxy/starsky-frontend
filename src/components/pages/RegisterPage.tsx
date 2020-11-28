@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Helmet} from "react-helmet";
 import {Button, Form, Grid, Header, Image, Message, Segment, Transition} from "semantic-ui-react";
 import logo from "../../images/logo.png";
-import {TEAMS_ROUTE, LOGIN_ROUTE} from "../../routing/routeConstants";
+import {LOGIN_ROUTE, APP_ROUTE} from "../../routing/routeConstants";
 import {Link, useHistory} from "react-router-dom";
 import {LoginModel, RegisterModel} from "../../api/models";
 import {StarskyApiClient} from "../../api/starskyApiClient";
@@ -67,7 +67,7 @@ export function RegisterPage() {
             setAlertDescription("");
             setAlert(false);
             setToken(response.access_token);
-            history.push(TEAMS_ROUTE, user);
+            history.push(APP_ROUTE, user);
         }
     }
 
