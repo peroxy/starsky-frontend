@@ -1,12 +1,12 @@
 import React, {useState} from 'react';
-import {LoginModel} from "../api/models";
-import {StarskyApiClient} from "../api/starskyApiClient";
-import {isErrorResponse} from "../api/responses";
-import {useAuth} from "./AuthProvider";
+import {LoginModel} from "../../api/models";
+import {StarskyApiClient} from "../../api/starskyApiClient";
+import {isErrorResponse} from "../../api/responses";
+import {useAuth} from "../AuthProvider";
 import {Link, useHistory} from 'react-router-dom';
-import {TEAMS_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE} from "../routing/routeConstants";
+import {TEAMS_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE} from "../../routing/routeConstants";
 import {Button, Form, Grid, Header, Message, Segment, Image, Transition} from 'semantic-ui-react';
-import logo from '../images/logo.png'
+import logo from '../../images/logo.png'
 import { Helmet } from 'react-helmet';
 
 export function LoginPage() {

@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import {Helmet} from "react-helmet";
 import {Button, Form, Grid, Header, Image, Message, Segment, Transition} from "semantic-ui-react";
-import logo from "../images/logo.png";
-import {TEAMS_ROUTE, LOGIN_ROUTE} from "../routing/routeConstants";
+import logo from "../../images/logo.png";
+import {TEAMS_ROUTE, LOGIN_ROUTE} from "../../routing/routeConstants";
 import {Link, useHistory} from "react-router-dom";
-import {LoginModel, RegisterModel} from "../api/models";
-import {StarskyApiClient} from "../api/starskyApiClient";
-import {isErrorResponse, UserResponse} from "../api/responses";
-import {useAuth} from "./AuthProvider";
+import {LoginModel, RegisterModel} from "../../api/models";
+import {StarskyApiClient} from "../../api/starskyApiClient";
+import {isErrorResponse, UserResponse} from "../../api/responses";
+import {useAuth} from "../AuthProvider";
 
 export function RegisterPage() {
 

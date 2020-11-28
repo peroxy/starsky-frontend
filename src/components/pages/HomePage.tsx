@@ -1,6 +1,6 @@
-import logo from '../images/logo.svg'
+import logo from '../../images/logo.svg'
 import {Link} from "react-router-dom";
-import {TEAMS_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE} from "../routing/routeConstants";
+import {TEAMS_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE} from "../../routing/routeConstants";
 import {Helmet} from "react-helmet";
 import React, {useState} from 'react'
 import {Button, Container, Divider, Grid, GridColumn, Header, Icon, Image, List, Menu, Segment, Sidebar, Visibility} from 'semantic-ui-react'

@@ -1,6 +1,6 @@
 import {Route, Switch} from "react-router-dom";
 import {PrivateRoute} from "./PrivateRoute";
-import TeamsPage from "../components/TeamsPage";
+import TeamsPage from "../components/pages/TeamsPage";
 import React from "react";
 import {TopMenu} from "../components/TopMenu";
 import {TEAMS_ROUTE} from "./routeConstants";
