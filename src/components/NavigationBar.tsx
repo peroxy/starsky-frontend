@@ -7,11 +7,16 @@ import logo from "../images/logo.png";
 import {isErrorResponse} from "../api/responses";
 import {StarskyApiClient} from "../api/starskyApiClient";
 import {IUserState} from "../states/IUserState";
+import TeamsPage from "./pages/TeamsPage";
+import EmployeesPage from "./pages/EmployeesPage";
+import SchedulesPage from "./pages/SchedulesPages";
+import SettingsPage from "./pages/SettingsPage";
 
 export enum ActiveMenuItem {
     Teams,
     Employees,
-    Schedules
+    Schedules,
+    Settings
 }
 
 export function NavigationBar() {
@@ -40,19 +45,35 @@ export function NavigationBar() {
         }
     }
 
+    const getActiveComponent = () => {
+        switch (activeMenuItem) {
+            case ActiveMenuItem.Teams:
+                return <TeamsPage/>;
+            case ActiveMenuItem.Employees:
+                return <EmployeesPage/>;
+            case ActiveMenuItem.Schedules:
+                return <SchedulesPage/>;
+            case ActiveMenuItem.Settings:
+                return <SettingsPage/>;
+        }
+    }
+
     return (
         <div>
             <Menu stackable inverted>
                 <Menu.Item content='Home' style={{justifyContent: 'center'}} onClick={() => history.push(HOME_ROUTE)}>
                     <Image src={logo} height='25em'/>
                 </Menu.Item>
+
                 <Menu.Item content='Teams' active={activeMenuItem === ActiveMenuItem.Teams} onClick={() => setActiveMenuItem(ActiveMenuItem.Teams)}
                            color={"teal"} style={{justifyContent: 'center'}}/>
                 <Menu.Item content='Employees' active={activeMenuItem === ActiveMenuItem.Employees} onClick={() => setActiveMenuItem(ActiveMenuItem.Employees)}
                            color={"teal"} style={{justifyContent: 'center'}}/>
                 <Menu.Item content='Schedules' active={activeMenuItem === ActiveMenuItem.Schedules} onClick={() => setActiveMenuItem(ActiveMenuItem.Schedules)}
                            color={"teal"} style={{justifyContent: 'center'}}/>
-                <Menu.Item position={"right"} style={{justifyContent: 'center', width: '20em'}}>
+
+                <Menu.Item position={"right"} style={{justifyContent: 'center', width: '20em'}} active={activeMenuItem === ActiveMenuItem.Settings}
+                           color={"teal"}>
                     <Dropdown item text={"Settings"} style={{justifyContent: 'center', width: '20em',}}>
                         <Dropdown.Menu>
                             <Dropdown.Item style={{pointerEvents: "none"}}>
@@ -60,7 +81,7 @@ export function NavigationBar() {
                                 {userLoading ? <Loader active size='mini'/> : <label>{`${user?.name} (${user?.email})`}</label>}
                             </Dropdown.Item>
                             <Dropdown.Divider/>
-                            <Dropdown.Item icon='edit' text='Edit Profile'/>
+                            <Dropdown.Item icon='edit' text='Edit Profile' onClick={() => setActiveMenuItem(ActiveMenuItem.Settings)}/>
                             <Dropdown.Item icon='globe' text='Choose Language'/>
                             <Dropdown.Divider/>
                             <Dropdown.Item icon='log out' error onClick={() => {
@@ -76,6 +97,7 @@ export function NavigationBar() {
                     </Dropdown>
                 </Menu.Item>
             </Menu>
+            {getActiveComponent()}
         </div>
     );
 }
