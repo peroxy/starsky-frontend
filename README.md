@@ -1,46 +1,94 @@
-# Getting Started with Create React App
+# Starsky frontend :star:
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Starsky frontend represents the website of the starsky application for employee scheduling.
+It uses React, Node.js and TypeScript.
 
-## Available Scripts
+Backend Java REST API is located in a repository called [starsky-backend](https://github.com/peroxy/starsky-backend).
 
-In the project directory, you can run:
+## Requirements :clipboard:
 
-### `yarn start`
+- [docker](https://docs.docker.com/get-docker/)
+- [docker-compose](https://docs.docker.com/compose/install/) (at least 3.8 version support)
+- (optionally for debugging) [nodejs](https://nodejs.org/en/download/) (tested working with v14.15.5)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Development :computer:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Running with docker :whale2:
 
-### `yarn test`
+Please note that this has only been tested with docker on Ubuntu 20.04.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Download frontend source files and go to `docker` directory:
 
-### `yarn build`
+```shell script
+git clone https://github.com/peroxy/starsky-frontend.git
+cd starsky-frontend/docker
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. Build and run the entire stack with `docker-compose`:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```shell script
+docker-compose up
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. You will now be able to access:
 
-### `yarn eject`
+- Frontend application at http://localhost:3000/,
+- API at http://localhost:8080/ and swagger-ui at http://localhost:8080/api/swagger-ui.html,
+- database at http://localhost:5432/.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Debugging
+You can run and debug the frontend locally using your favorite JavaScript IDE:
+1. Run the backend REST API and database:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```shell script
+cd starsky-backend/docker
+docker-compose up database api
+```
+2. Run (`npm run start`) and debug the application with your IDE.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Testing
+TODO :bangbang:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### OpenAPI client
+We are using the OpenAPI client generator library [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api).
+The generator logic is specified inside `src/api/generateApiClient.ts` file.
+TypeScript definitions and HTTP client (using `fetch`) will be output to `src/api/__generated__` folder.
 
-## Learn More
+You can use the npm script specified inside `packages.json`:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```shell
+npm run generate-api-client
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Deployment :rocket:
+
+We host entire infrastructure on Azure, specifically using Azure Virtual Machine.
+
+Please see [server requirements](https://github.com/peroxy/starsky-backend#server-requirements) section from starsky-backend for more information.
+
+### Repository secrets
+
+These are the required secrets that should be stored inside Github repository secrets:
+
+- Dockerhub:
+    - `DOCKERHUB_USERNAME`
+    - `DOCKERHUB_TOKEN` - see [Create an access token](https://docs.docker.com/docker-hub/access-tokens/#create-an-access-token) for more information
+- Server host (Azure VM):
+    - `REMOTE_HOST` - remote host IP address / domain to SSH into
+    - `REMOTE_USER` - username to SSH with
+    - `SERVER_SSH_KEY` - private SSH key (OpenSSH, for example the contents of your `~/.ssh/id_rsa` key) to connect to your server
+- Frontend:
+    - `REACT_APP_BACKEND_HOST` - backend REST API base url (e.g. https://example.com/api) 
+
+### How to deploy
+
+Push a tag `*.*.*` (e.g. `1.0.3`) to `master` branch and it will automatically deploy everything via Github workflow.
+See `.github/main.yml` workflow for more info.
+
+In short, it does this if it gets triggered by a new tag:
+
+- Takes source code from `master` branch and extracts the newest version from tag.
+- Configures environment variables used by docker containers from Github repository's secrets.
+- Builds and pushes all apps as Docker images to DockerHub.
+- Copies environment variables and docker-compose files to Azure VM.
+- Stops `starsky-frontend` containers on Azure VM, pulls the newest images and starts the containers again.
