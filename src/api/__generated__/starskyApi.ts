@@ -997,12 +997,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @description Update specified properties of the currently authenticated user.
      *
      * @tags User
-     * @name UpdateSchedule
+     * @name UpdateUser
      * @summary Update user
      * @request PATCH:/user
      * @secure
      */
-    updateSchedule: (data: UpdateUserRequest, params: RequestParams = {}) =>
+    updateUser: (data: UpdateUserRequest, params: RequestParams = {}) =>
       this.request<UserResponse, void>({
         path: `/user`,
         method: "PATCH",
@@ -1144,12 +1144,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @description Update any property of the specified schedule. Authenticated user must have manager role.
      *
      * @tags Schedule
-     * @name UpdateSchedule1
+     * @name UpdateSchedule
      * @summary Update schedule
      * @request PATCH:/user/schedules/{schedule_id}
      * @secure
      */
-    updateSchedule1: (scheduleId: number, data: UpdateScheduleRequest, params: RequestParams = {}) =>
+    updateSchedule: (scheduleId: number, data: UpdateScheduleRequest, params: RequestParams = {}) =>
       this.request<ScheduleResponse, void>({
         path: `/user/schedules/${scheduleId}`,
         method: "PATCH",
@@ -1296,12 +1296,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @description Delete an invite. The invited employee will not be able to register after this operation.  Authenticated user must have manager role.
      *
      * @tags Invite
-     * @name DeleteScheduleShift1
+     * @name DeleteInvite
      * @summary Delete invite
      * @request DELETE:/user/invites/{invite_id}
      * @secure
      */
-    deleteScheduleShift1: (inviteId: number, params: RequestParams = {}) =>
+    deleteInvite: (inviteId: number, params: RequestParams = {}) =>
       this.request<void, void>({
         path: `/user/invites/${inviteId}`,
         method: "DELETE",
@@ -1324,6 +1324,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "GET",
         secure: true,
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * @description Check if the currently authenticated user has correct credentials (has logged in and has supplied correct bearer JWT token in header).
+     *
+     * @tags User
+     * @name ValidateAuthentication
+     * @summary Check if currently authenticated user is valid
+     * @request GET:/user/authentication
+     * @secure
+     */
+    validateAuthentication: (params: RequestParams = {}) =>
+      this.request<void, void>({
+        path: `/user/authentication`,
+        method: "GET",
+        secure: true,
         ...params,
       }),
   };
