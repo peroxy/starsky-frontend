@@ -5,9 +5,9 @@ import {HttpStatusCode} from "./httpStatusCode";
 import {ErrorResponse, TokenResponse, UserResponse} from "./responses";
 
 export class StarskyApiClient {
-    private readonly apiHostUrl : string
+    private readonly apiBaseUrl : string
     constructor() {
-        this.apiHostUrl = env("REACT_APP_BACKEND_HOST");
+        this.apiBaseUrl = env("REACT_APP_BACKEND_HOST");
     }
 
     private getNonAuthenticatedHeader(){
@@ -24,7 +24,7 @@ export class StarskyApiClient {
     }
 
     private getApiUrl(route: string){
-        const url : URL = new URL(route, this.apiHostUrl);
+        const url : URL = new URL(route, this.apiBaseUrl);
         return url.href;
     }
 
