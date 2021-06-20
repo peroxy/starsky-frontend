@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
-import {LoginModel} from "../../api/models";
-import {StarskyApiClient} from "../../api/starskyApiClient";
-import {isErrorResponse} from "../../api/responses";
 import {useAuth} from "../AuthProvider";
 import {Link, useHistory} from 'react-router-dom';
-import {LOGIN_ROUTE, REGISTER_ROUTE, APP_ROUTE} from "../../routing/routeConstants";
-import {Button, Form, Grid, Header, Message, Segment, Image, Transition} from 'semantic-ui-react';
+import {APP_ROUTE, REGISTER_ROUTE} from "../../routing/routeConstants";
+import {Button, Form, Grid, Header, Image, Message, Segment, Transition} from 'semantic-ui-react';
 import logo from '../../images/logo.png'
-import { Helmet } from 'react-helmet';
+import {Helmet} from 'react-helmet';
+import {useApi} from "../../api/starskyApiClient";
+import {responseToString} from "../../api/httpHelpers";
+import {LoginRequest} from "../../api/__generated__/starskyApi";
 
 export function LoginPage() {
 
@@ -15,8 +15,8 @@ export function LoginPage() {
     const [alert, setAlert] = useState(false);
 
     const {setToken, clearToken} = useAuth();
-    const history = useHistory()
-    const apiClient = new StarskyApiClient();
+    const history = useHistory();
+    const apiClient = useApi({accessToken: null});
 
     const htmlEmailElement = "loginEmail";
     const htmlPasswordElement = "loginPassword";
@@ -26,25 +26,27 @@ export function LoginPage() {
         const form = e.currentTarget;
         const formData = new FormData(form);
 
-        const model: LoginModel = {
+        const request: LoginRequest = {
             email: formData.get(htmlEmailElement) as string,
             password: formData.get(htmlPasswordElement) as string
         }
 
-        const response = await apiClient.login(model);
-        if (isErrorResponse(response)) {
-            setLoginStatus(response.error_detail);
+        const response = await apiClient.login.login({email: request.email, password: request.password});
+
+        if (response.ok) {
+            setLoginStatus("");
+            setAlert(false);
+            setToken(response.data.access_token as string);
+            history.push(APP_ROUTE);
+        } else {
+            setLoginStatus("Login failed.");
+            console.error(responseToString(response));
             setAlert(true);
             setTimeout(() => {
                 setAlert(false);
             }, 5000);
             clearToken();
             form.reset();
-        } else {
-            setLoginStatus("");
-            setAlert(false);
-            setToken(response.access_token);
-            history.push(APP_ROUTE);
         }
     }
 

@@ -4,10 +4,10 @@ import {Button, Form, Grid, Header, Image, Message, Segment, Transition} from "s
 import logo from "../../images/logo.png";
 import {APP_ROUTE, LOGIN_ROUTE} from "../../routing/routeConstants";
 import {Link, useHistory, useLocation} from "react-router-dom";
-import {LoginModel, RegisterModel} from "../../api/models";
-import {StarskyApiClient} from "../../api/starskyApiClient";
-import {isErrorResponse, UserResponse} from "../../api/responses";
 import {useAuth} from "../AuthProvider";
+import {useApi} from "../../api/starskyApiClient";
+import {CreateUserRequest, LoginRequest, UserResponse} from "../../api/__generated__/starskyApi";
+import {responseToString} from "../../api/httpHelpers";
 
 export function RegisterPage() {
 
@@ -24,7 +24,7 @@ export function RegisterPage() {
     const [showInviteHeader, setShowInviteHeader] = useState(false);
 
     const history = useHistory()
-    const apiClient = new StarskyApiClient();
+    const apiClient = useApi({accessToken: null});
 
     interface QueryParams {
         registerToken: string | null,
@@ -74,47 +74,45 @@ export function RegisterPage() {
         const form = e.currentTarget;
         const formData = new FormData(form);
 
-        const model: RegisterModel = {
+        const request : CreateUserRequest = {
             email: formData.get(formEmail) as string,
             password: formData.get(formPassword) as string,
-            name: formData.get(formName) as string
-        }
-
-        if (showInviteHeader){
-            //TODO: add register token to register model from query params and send it back to API
-        }
-
-        const response = await apiClient.register(model);
-        if (isErrorResponse(response)) {
-            setAlertDescription(response.error_detail);
+            name: formData.get(formName) as string,
+            job_title: "TODO",
+            invite_token: showInviteHeader ? queryParams.registerToken as string : undefined
+        };
+        const response = await apiClient.users.createUser(request);
+        if (response.ok) {
+            setAlertDescription("");
+            setAlert(false);
+            await loginNewUser(response.data, {email: request.email, password: request.password as string}, form);
+        } else {
+            setAlertDescription(await responseToString(response));
             setAlert(true);
             setTimeout(() => {
                 setAlert(false);
             }, 5000);
-        } else {
-            setAlertDescription("");
-            setAlert(false);
-            await loginNewUser(response, model, form);
         }
     }
 
     /*
         Logins the freshly registered user - this should probably be removed when email verification is implemented.
      */
-    const loginNewUser = async (user: UserResponse, model: LoginModel, form: HTMLFormElement) => {
-        const response = await apiClient.login(model);
-        if (isErrorResponse(response)) {
-            setAlertDescription(response.error_detail);
+    const loginNewUser = async (user: UserResponse, request: LoginRequest, form: HTMLFormElement) => {
+        const response = await apiClient.login.login(request);
+        if (response.ok) {
+            setAlertDescription("");
+            setAlert(false);
+            setToken(response.data.access_token as string);
+            history.push(APP_ROUTE, user);
+        } else {
+            setAlertDescription("Login failed!");
+            console.error(responseToString(response));
             setAlert(true);
             setTimeout(() => {
                 setAlert(false);
             }, 5000);
             clearToken();
-        } else {
-            setAlertDescription("");
-            setAlert(false);
-            setToken(response.access_token);
-            history.push(APP_ROUTE, user);
         }
     }
 

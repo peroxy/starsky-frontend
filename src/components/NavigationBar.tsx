@@ -4,13 +4,13 @@ import {useHistory} from "react-router-dom";
 import {HOME_ROUTE} from "../routing/routeConstants";
 import {useAuth} from "./AuthProvider";
 import logo from "../images/logo.png";
-import {isErrorResponse} from "../api/responses";
-import {StarskyApiClient} from "../api/starskyApiClient";
-import {IUserState} from "../states/IUserState";
+import {useApi} from "../api/starskyApiClient";
 import TeamsPage from "./pages/TeamsPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import SchedulesPage from "./pages/SchedulesPages";
 import SettingsPage from "./pages/SettingsPage";
+import {UserResponse} from "../api/__generated__/starskyApi";
+import {responseToString} from "../api/httpHelpers";
 
 export enum ActiveMenuItem {
     Teams,
@@ -23,24 +23,26 @@ export function NavigationBar() {
 
     const {clearToken, token} = useAuth();
     const history = useHistory();
-    const apiClient = new StarskyApiClient();
+    const apiClient = useApi({accessToken: token});
+    apiClient.setSecurityData({accessToken: token});
 
-    const [user, setUser] = useState<IUserState>();
+    const [user, setUser] = useState<UserResponse>();
     const [userLoading, setUserLoading] = useState(true);
     const [activeMenuItem, setActiveMenuItem] = useState(ActiveMenuItem.Teams);
 
     useEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
         onLoad()
     }, []);
 
     async function onLoad() {
         if (user == null) {
-            const response = await apiClient.getUser(token as string);
-            if (!isErrorResponse(response)) {
-                setUser(response);
+            const response = await apiClient.user.getUser();
+            if (response.ok) {
+                setUser(response.data);
                 setUserLoading(false);
             } else {
-                console.error(response.error_detail);
+                console.error(responseToString(response));
             }
         }
     }
