@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  frontend:
+    image: peroxy12/starsky-frontend:latest
+    environment:
+      - ENV_NAME=prod
+      - NODE_ENV=prod
+      - NODE_CONFIG_ENV=prod
+      - REACT_APP_BACKEND_HOST=${REACT_APP_BACKEND_HOST}
+    restart: always

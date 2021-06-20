@@ -9,7 +9,7 @@ Backend Java REST API is located in a repository called [starsky-backend](https:
 
 - [docker](https://docs.docker.com/get-docker/)
 - [docker-compose](https://docs.docker.com/compose/install/) (at least 3.8 version support)
-- (optionally for debugging) [nodejs](https://nodejs.org/en/download/) (tested working with v14.15.5)
+- (optionally for debugging) [nodejs](https://nodejs.org/en/download/) (v14.15.5 or higher)
 
 ## Development :computer:
 
@@ -35,6 +35,8 @@ docker-compose up
 - Frontend application at http://localhost:3000/,
 - API at http://localhost:8080/ and swagger-ui at http://localhost:8080/api/swagger-ui.html,
 - database at http://localhost:5432/.
+
+The `docker-compose.override.yml` file is used for development configuration. It will bind your local `starsky-frontend` folder as a docker volume to enable live-reload.
 
 ### Debugging
 You can run and debug the frontend locally using your favorite JavaScript IDE:
@@ -78,7 +80,7 @@ These are the required secrets that should be stored inside Github repository se
     - `REMOTE_USER` - username to SSH with
     - `SERVER_SSH_KEY` - private SSH key (OpenSSH, for example the contents of your `~/.ssh/id_rsa` key) to connect to your server
 - Frontend:
-    - `REACT_APP_BACKEND_HOST` - backend REST API base url (e.g. https://example.com/api) 
+    - `REACT_APP_BACKEND_HOST` - backend REST API base url (e.g. https://example.com/api)
 
 ### How to deploy
 

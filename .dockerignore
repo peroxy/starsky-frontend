@@ -1,0 +1,10 @@
+**/.git
+**/node_modules
+build/
+.idea/
+.env
+.gitignore
+log.txt
+README.md
+yarn-error.log
+docker/

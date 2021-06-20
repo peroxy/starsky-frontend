@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  database:
+    image: postgres:13.1-alpine
+    environment:
+      - POSTGRES_DB=starsky
+      - POSTGRES_USER=starsky
+      - POSTGRES_PASSWORD=starsky
+    ports:
+      - 5432:5432
+    networks:
+      - starskynet
+    restart: no
+  frontend:
+    environment:
+      - ENV_NAME=dev
+      - NODE_ENV=dev
+      - NODE_CONFIG_ENV=dev
+      - REACT_APP_BACKEND_HOST=http://localhost:8080/api
+    volumes:
+      - '../.:/app'
+      - '/app/node_modules'
+    depends_on:
+      - api
+      - database
+    restart: no
+  api:
+    image: peroxy12/starsky-backend-api:latest
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - POSTGRES_USER=starsky
+      - POSTGRES_PASSWORD=starsky
+      - STARSKY_JWT_SECRET=starsky
+      - STARSKY_FRONTEND_REGISTER_URL=http://localhost:3000/register
+    depends_on:
+      - database
+    ports:
+      - 8080:8080
+    networks:
+      - starskynet
+    restart: no
