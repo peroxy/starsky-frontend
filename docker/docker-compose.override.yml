@@ -10,7 +10,7 @@ services:
       - 5432:5432
     networks:
       - starskynet
-    restart: no
+    restart: "no"
   frontend:
     environment:
       - ENV_NAME=dev
@@ -23,7 +23,7 @@ services:
     depends_on:
       - api
       - database
-    restart: no
+    restart: "no"
   api:
     image: peroxy12/starsky-backend-api:latest
     environment:
@@ -38,4 +38,4 @@ services:
       - 8080:8080
     networks:
       - starskynet
-    restart: no
+    restart: "no"
