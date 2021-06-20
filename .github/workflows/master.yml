@@ -1,0 +1,58 @@
+name: Continuous Integration - Deployment
+
+on:
+  push:
+    tags: [ '*.*.*' ]
+
+jobs:
+  build:
+    name: Build and deploy to DockerHub and Azure VM
+    runs-on: ubuntu-latest
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Create .env file with secrets
+        run: |
+          echo "REACT_APP_BACKEND_HOST=${{ secrets.REACT_APP_BACKEND_HOST }}" > .env
+      - name: Extract Git Tag
+        run: echo "GIT_TAG=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push starsky-frontend image to dockerhub
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker/frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/starsky-frontend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/starsky-frontend:${{ env.GIT_TAG }}
+      - name: Copy files to Azure VM
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          source: "docker/docker-compose.yml,docker/docker-compose.prod.yml,.env"
+          target: "~/docker/starsky-frontend/"
+          key: ${{ secrets.SERVER_SSH_KEY }}
+      - name: Stop, pull and start application on Azure VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd ~/docker/starsky-frontend/
+            mv docker/*.yml .
+            rmdir docker
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml down
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml pull
+            docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
