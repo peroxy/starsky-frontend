@@ -15,4 +15,8 @@ parserOptions:
 plugins:
   - react
   - '@typescript-eslint'
-rules: {}
+rules: {
+  "react/prop-types": "off",
+  "prettier/prettier": "warn"
+}
+

@@ -6,7 +6,7 @@ import { Dimmer, Loader } from 'semantic-ui-react';
 import { LOGIN_ROUTE } from './routeConstants';
 import { useApi } from '../api/starskyApiClient';
 
-export function PrivateRoute({ component: Component, ...rest }: any) {
+export function PrivateRoute({ component: Component, ...rest }: any): JSX.Element {
     const { token } = useAuth();
     const [authenticated, setAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);

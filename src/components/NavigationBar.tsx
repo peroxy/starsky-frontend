@@ -9,7 +9,6 @@ import TeamsPage from './pages/TeamsPage';
 import EmployeesPage from './pages/EmployeesPage';
 import SchedulesPage from './pages/SchedulesPages';
 import SettingsPage from './pages/SettingsPage';
-import { responseToString } from '../api/httpHelpers';
 import { UserResponse } from '../api/__generated__';
 
 export enum ActiveMenuItem {
@@ -19,7 +18,7 @@ export enum ActiveMenuItem {
     Settings,
 }
 
-export function NavigationBar() {
+export function NavigationBar(): JSX.Element {
     const { clearToken, token } = useAuth();
     const history = useHistory();
     const apis = useApi(token);
@@ -35,13 +34,15 @@ export function NavigationBar() {
 
     async function onLoad() {
         if (user == null) {
-            const response = await apis.userApi.getUser();
-            if (response) {
-                setUser(response);
-                setUserLoading(false);
-            } else {
-                console.error(responseToString(response));
-            }
+            apis.userApi
+                .getUser()
+                .then((response) => {
+                    setUser(response);
+                    setUserLoading(false);
+                })
+                .catch((reason) => {
+                    console.error(reason);
+                });
         }
     }
 

@@ -14,8 +14,7 @@ interface NotFoundProps {
     goBackWhere: GoBackTo;
 }
 
-export default function NotFound(props: NotFoundProps) {
-    console.log(props.goBackWhere);
+export default function NotFound(props: NotFoundProps): JSX.Element {
     return (
         <div>
             <Helmet title={'Starsky | Not found'} />

@@ -6,10 +6,9 @@ import { APP_ROUTE, LOGIN_ROUTE } from '../../routing/routeConstants';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
-import { responseToString } from '../../api/httpHelpers';
 import { CreateUserRequest, LoginRequest, UserResponse } from '../../api/__generated__';
 
-export function RegisterPage() {
+export function RegisterPage(): JSX.Element {
     const [alertDescription, setAlertDescription] = useState('');
     const [alert, setAlert] = useState(false);
 
@@ -77,42 +76,50 @@ export function RegisterPage() {
             email: formData.get(formEmail) as string,
             password: formData.get(formPassword) as string,
             name: formData.get(formName) as string,
-            jobTitle: 'TODO',
+            jobTitle: 'TODO - frontend',
             inviteToken: showInviteHeader ? (queryParams.registerToken as string) : undefined,
         };
-        const response = await apis.userApi.createUser({ createUserRequest: request });
-        if (response) {
-            setAlertDescription('');
-            setAlert(false);
-            await loginNewUser(response, { email: request.email, password: request.password as string }, form);
-        } else {
-            setAlertDescription(await responseToString(response));
-            setAlert(true);
-            setTimeout(() => {
+        const userResponse = await apis.userApi
+            .createUser({ createUserRequest: request })
+            .then((response) => {
+                setAlertDescription('');
                 setAlert(false);
-            }, 5000);
+                return response;
+            })
+            .catch((response: Response) => {
+                console.error(response);
+                setAlertDescription('Registration failed due to server issues.');
+                setAlert(true);
+                setTimeout(() => {
+                    setAlert(false);
+                }, 5000);
+            });
+        if (userResponse) {
+            await loginNewUser(userResponse, { email: request.email, password: request.password as string });
         }
     };
 
     /*
         Logins the freshly registered user - this should probably be removed when email verification is implemented.
      */
-    const loginNewUser = async (user: UserResponse, request: LoginRequest, form: HTMLFormElement) => {
-        const response = await apis.authenticationApi.login({ loginRequest: request });
-        if (response) {
-            setAlertDescription('');
-            setAlert(false);
-            setToken(response.accessToken as string);
-            history.push(APP_ROUTE, user);
-        } else {
-            setAlertDescription('Login failed!');
-            console.error(responseToString(response));
-            setAlert(true);
-            setTimeout(() => {
+    const loginNewUser = async (user: UserResponse, request: LoginRequest) => {
+        return apis.authenticationApi
+            .login({ loginRequest: request })
+            .then((response) => {
+                setAlertDescription('');
                 setAlert(false);
-            }, 5000);
-            clearToken();
-        }
+                setToken(response.accessToken as string);
+                history.push(APP_ROUTE, user);
+            })
+            .catch((reason) => {
+                setAlertDescription('Automatic login failed after registration!');
+                console.error(reason);
+                setAlert(true);
+                setTimeout(() => {
+                    setAlert(false);
+                }, 5000);
+                clearToken();
+            });
     };
 
     return (

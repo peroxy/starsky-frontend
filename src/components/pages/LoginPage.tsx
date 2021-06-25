@@ -7,7 +7,7 @@ import logo from '../../images/logo.png';
 import { Helmet } from 'react-helmet';
 import { useApi } from '../../api/starskyApiClient';
 import { responseToString } from '../../api/httpHelpers';
-import { LoginRequest } from '../../api/__generated__';
+import { LoginRequest, TokenResponse } from '../../api/__generated__';
 
 export function LoginPage(): JSX.Element {
     const [loginStatus, setLoginStatus] = useState('');
@@ -28,13 +28,15 @@ export function LoginPage(): JSX.Element {
     async function onLoad() {
         // this does work - but we should be displaying a loader or something, so the screen does not change
         if (token != null) {
-            const response = await apis.userApi.validateAuthenticationRaw();
-            if (response.raw.ok) {
-                history.push(APP_ROUTE);
-            } else {
-                console.error(responseToString(response.raw));
-                clearToken();
-            }
+            await apis.userApi
+                .validateAuthenticationRaw()
+                .then(() => {
+                    history.push(APP_ROUTE);
+                })
+                .catch((reason: Response) => {
+                    console.error(responseToString(reason));
+                    clearToken();
+                });
         }
     }
 
@@ -48,24 +50,23 @@ export function LoginPage(): JSX.Element {
             password: formData.get(htmlPasswordElement) as string,
         };
 
-        apis.authenticationApi
+        await apis.authenticationApi
             .login({ loginRequest: request })
-            .then((response) => {
+            .then((response: TokenResponse) => {
                 console.log(response);
                 setLoginStatus('');
                 setAlert(false);
                 setToken(response.accessToken as string);
                 history.push(APP_ROUTE);
             })
-            .catch((reason) => {
-                console.error(reason);
-                setLoginStatus(`Login failed (${reason}).`);
+            .catch((response: Response) => {
+                console.error(response);
+                setLoginStatus(`Login failed.`);
                 setAlert(true);
                 setTimeout(() => {
                     setAlert(false);
                 }, 5000);
                 clearToken();
-                form.reset();
             });
     };
 
