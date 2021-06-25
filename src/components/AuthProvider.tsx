@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useState,} from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 interface AuthContextData {
     setToken(token: string): void;
@@ -8,9 +8,8 @@ interface AuthContextData {
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-export const AuthProvider: React.FC = ({children}) => {
-
-    const [accessToken, setAccessToken] = useState(localStorage.getItem("@Starsky:token"));
+export const AuthProvider: React.FC = ({ children }) => {
+    const [accessToken, setAccessToken] = useState(localStorage.getItem('@Starsky:token'));
 
     const setToken = (token: string) => {
         localStorage.setItem('@Starsky:token', token);
@@ -19,15 +18,10 @@ export const AuthProvider: React.FC = ({children}) => {
 
     const clearToken = () => {
         localStorage.removeItem('@Starsky:token');
-        setAccessToken("");
+        setAccessToken('');
     };
 
-    return (
-        <AuthContext.Provider
-            value={{setToken, clearToken, token: accessToken}}>
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={{ setToken, clearToken, token: accessToken }}>{children}</AuthContext.Provider>;
 };
 
 export function useAuth(): AuthContextData {

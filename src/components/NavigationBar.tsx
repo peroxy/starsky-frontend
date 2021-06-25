@@ -1,27 +1,26 @@
-import {Dropdown, Icon, Image, Loader, Menu} from "semantic-ui-react";
-import React, {useEffect, useState} from "react";
-import {useHistory} from "react-router-dom";
-import {HOME_ROUTE} from "../routing/routeConstants";
-import {useAuth} from "./AuthProvider";
-import logo from "../images/logo.png";
-import {useApi} from "../api/starskyApiClient";
-import TeamsPage from "./pages/TeamsPage";
-import EmployeesPage from "./pages/EmployeesPage";
-import SchedulesPage from "./pages/SchedulesPages";
-import SettingsPage from "./pages/SettingsPage";
-import {responseToString} from "../api/httpHelpers";
-import {UserResponse} from "../api/__generated__";
+import { Dropdown, Icon, Image, Loader, Menu } from 'semantic-ui-react';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { HOME_ROUTE } from '../routing/routeConstants';
+import { useAuth } from './AuthProvider';
+import logo from '../images/logo.png';
+import { useApi } from '../api/starskyApiClient';
+import TeamsPage from './pages/TeamsPage';
+import EmployeesPage from './pages/EmployeesPage';
+import SchedulesPage from './pages/SchedulesPages';
+import SettingsPage from './pages/SettingsPage';
+import { responseToString } from '../api/httpHelpers';
+import { UserResponse } from '../api/__generated__';
 
 export enum ActiveMenuItem {
     Teams,
     Employees,
     Schedules,
-    Settings
+    Settings,
 }
 
 export function NavigationBar() {
-
-    const {clearToken, token} = useAuth();
+    const { clearToken, token } = useAuth();
     const history = useHistory();
     const apis = useApi(token);
 
@@ -31,7 +30,7 @@ export function NavigationBar() {
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
-        onLoad()
+        onLoad();
     }, []);
 
     async function onLoad() {
@@ -49,48 +48,71 @@ export function NavigationBar() {
     const getActiveComponent = () => {
         switch (activeMenuItem) {
             case ActiveMenuItem.Teams:
-                return <TeamsPage/>;
+                return <TeamsPage />;
             case ActiveMenuItem.Employees:
-                return <EmployeesPage/>;
+                return <EmployeesPage />;
             case ActiveMenuItem.Schedules:
-                return <SchedulesPage/>;
+                return <SchedulesPage />;
             case ActiveMenuItem.Settings:
-                return <SettingsPage/>;
+                return <SettingsPage />;
         }
-    }
+    };
 
     return (
         <div>
             <Menu stackable inverted>
-                <Menu.Item content='Home' style={{justifyContent: 'center'}} onClick={() => history.push(HOME_ROUTE)}>
-                    <Image src={logo} height='25em'/>
+                <Menu.Item content="Home" style={{ justifyContent: 'center' }} onClick={() => history.push(HOME_ROUTE)}>
+                    <Image src={logo} height="25em" />
                 </Menu.Item>
 
-                <Menu.Item content='Teams' active={activeMenuItem === ActiveMenuItem.Teams} onClick={() => setActiveMenuItem(ActiveMenuItem.Teams)}
-                           color={"teal"} style={{justifyContent: 'center'}}/>
-                <Menu.Item content='Employees' active={activeMenuItem === ActiveMenuItem.Employees} onClick={() => setActiveMenuItem(ActiveMenuItem.Employees)}
-                           color={"teal"} style={{justifyContent: 'center'}}/>
-                <Menu.Item content='Schedules' active={activeMenuItem === ActiveMenuItem.Schedules} onClick={() => setActiveMenuItem(ActiveMenuItem.Schedules)}
-                           color={"teal"} style={{justifyContent: 'center'}}/>
+                <Menu.Item
+                    content="Teams"
+                    active={activeMenuItem === ActiveMenuItem.Teams}
+                    onClick={() => setActiveMenuItem(ActiveMenuItem.Teams)}
+                    color={'teal'}
+                    style={{ justifyContent: 'center' }}
+                />
+                <Menu.Item
+                    content="Employees"
+                    active={activeMenuItem === ActiveMenuItem.Employees}
+                    onClick={() => setActiveMenuItem(ActiveMenuItem.Employees)}
+                    color={'teal'}
+                    style={{ justifyContent: 'center' }}
+                />
+                <Menu.Item
+                    content="Schedules"
+                    active={activeMenuItem === ActiveMenuItem.Schedules}
+                    onClick={() => setActiveMenuItem(ActiveMenuItem.Schedules)}
+                    color={'teal'}
+                    style={{ justifyContent: 'center' }}
+                />
 
-                <Menu.Item position={"right"} style={{justifyContent: 'center', width: '20em'}} active={activeMenuItem === ActiveMenuItem.Settings}
-                           color={"teal"}>
-                    <Dropdown item text={"Settings"} style={{justifyContent: 'center', width: '20em',}}>
+                <Menu.Item
+                    position={'right'}
+                    style={{ justifyContent: 'center', width: '20em' }}
+                    active={activeMenuItem === ActiveMenuItem.Settings}
+                    color={'teal'}
+                >
+                    <Dropdown item text={'Settings'} style={{ justifyContent: 'center', width: '20em' }}>
                         <Dropdown.Menu>
-                            <Dropdown.Item style={{pointerEvents: "none"}}>
-                                <Icon name={"user"}/>
-                                {userLoading ? <Loader active size='mini'/> : <label>{`${user?.name} (${user?.email})`}</label>}
+                            <Dropdown.Item style={{ pointerEvents: 'none' }}>
+                                <Icon name={'user'} />
+                                {userLoading ? <Loader active size="mini" /> : <label>{`${user?.name} (${user?.email})`}</label>}
                             </Dropdown.Item>
-                            <Dropdown.Divider/>
-                            <Dropdown.Item icon='edit' text='Edit Profile' onClick={() => setActiveMenuItem(ActiveMenuItem.Settings)}/>
-                            <Dropdown.Item icon='globe' text='Choose Language'/>
-                            <Dropdown.Divider/>
-                            <Dropdown.Item icon='log out' error onClick={() => {
-                                clearToken();
-                                history.push(HOME_ROUTE);
-                            }}>
-                                <div style={{fontWeight: "bold"}}>
-                                    <Icon name={"log out"}/>
+                            <Dropdown.Divider />
+                            <Dropdown.Item icon="edit" text="Edit Profile" onClick={() => setActiveMenuItem(ActiveMenuItem.Settings)} />
+                            <Dropdown.Item icon="globe" text="Choose Language" />
+                            <Dropdown.Divider />
+                            <Dropdown.Item
+                                icon="log out"
+                                error
+                                onClick={() => {
+                                    clearToken();
+                                    history.push(HOME_ROUTE);
+                                }}
+                            >
+                                <div style={{ fontWeight: 'bold' }}>
+                                    <Icon name={'log out'} />
                                     Logout
                                 </div>
                             </Dropdown.Item>
@@ -102,4 +124,3 @@ export function NavigationBar() {
         </div>
     );
 }
-

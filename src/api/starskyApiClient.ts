@@ -1,4 +1,4 @@
-import {env} from "../util/envHelper";
+import { env } from '../util/envHelper';
 import {
     AuthenticationApi,
     Configuration,
@@ -10,29 +10,28 @@ import {
     ScheduleShiftApi,
     TeamApi,
     UserApi,
-    VersionApi
-} from "./__generated__";
+    VersionApi,
+} from './__generated__';
 
 export type Apis = {
-    authenticationApi: AuthenticationApi,
-    employeeApi: EmployeeApi,
-    employeeAssignmentApi: EmployeeAssignmentApi,
-    employeeAvailabilityApi: EmployeeAvailabilityApi,
-    inviteApi: InviteApi,
-    scheduleApi: ScheduleApi,
-    scheduleShiftApi: ScheduleShiftApi,
-    teamApi: TeamApi,
-    userApi: UserApi,
-    versionApi: VersionApi
+    authenticationApi: AuthenticationApi;
+    employeeApi: EmployeeApi;
+    employeeAssignmentApi: EmployeeAssignmentApi;
+    employeeAvailabilityApi: EmployeeAvailabilityApi;
+    inviteApi: InviteApi;
+    scheduleApi: ScheduleApi;
+    scheduleShiftApi: ScheduleShiftApi;
+    teamApi: TeamApi;
+    userApi: UserApi;
+    versionApi: VersionApi;
 };
 
-const basePath = env("REACT_APP_BACKEND_HOST");
-
+const basePath = env('REACT_APP_BACKEND_HOST');
 
 export function useApi(accessToken: string | null): Apis {
-    let configuration: Configuration = new Configuration({
+    const configuration: Configuration = new Configuration({
         basePath: basePath,
-        accessToken: accessToken ? accessToken : undefined
+        accessToken: accessToken ? accessToken : undefined,
     });
 
     return {
@@ -45,6 +44,6 @@ export function useApi(accessToken: string | null): Apis {
         teamApi: new TeamApi(configuration),
         userApi: new UserApi(configuration),
         scheduleShiftApi: new ScheduleShiftApi(configuration),
-        versionApi: new VersionApi(configuration)
+        versionApi: new VersionApi(configuration),
     };
 }
