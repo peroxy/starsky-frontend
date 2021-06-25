@@ -1,24 +1,50 @@
 import {env} from "../util/envHelper";
-import {Api} from "./__generated__/starskyApi";
+import {
+    AuthenticationApi,
+    Configuration,
+    EmployeeApi,
+    EmployeeAssignmentApi,
+    EmployeeAvailabilityApi,
+    InviteApi,
+    ScheduleApi,
+    ScheduleShiftApi,
+    TeamApi,
+    UserApi,
+    VersionApi
+} from "./__generated__";
 
-export type SecurityDataType = {
-    accessToken : string | null
+export type Apis = {
+    authenticationApi: AuthenticationApi,
+    employeeApi: EmployeeApi,
+    employeeAssignmentApi: EmployeeAssignmentApi,
+    employeeAvailabilityApi: EmployeeAvailabilityApi,
+    inviteApi: InviteApi,
+    scheduleApi: ScheduleApi,
+    scheduleShiftApi: ScheduleShiftApi,
+    teamApi: TeamApi,
+    userApi: UserApi,
+    versionApi: VersionApi
 };
 
-const api = new Api({
-    baseUrl: env("REACT_APP_BACKEND_HOST"),
-    securityWorker(securityData: SecurityDataType | null) {
-        if (securityData && securityData.accessToken){
-            return {
-                headers : {
-                    Authorization: `Bearer ${securityData.accessToken}`
-                }
-            };
-        }
-    }
-});
+const basePath = env("REACT_APP_BACKEND_HOST");
 
-export function useApi(security : SecurityDataType) : Api<SecurityDataType> {
-    api.setSecurityData(security);
-    return api;
+
+export function useApi(accessToken: string | null): Apis {
+    let configuration: Configuration = new Configuration({
+        basePath: basePath,
+        accessToken: accessToken ? accessToken : undefined
+    });
+
+    return {
+        authenticationApi: new AuthenticationApi(configuration),
+        employeeApi: new EmployeeApi(configuration),
+        employeeAssignmentApi: new EmployeeAssignmentApi(configuration),
+        employeeAvailabilityApi: new EmployeeAvailabilityApi(configuration),
+        inviteApi: new InviteApi(configuration),
+        scheduleApi: new ScheduleApi(configuration),
+        teamApi: new TeamApi(configuration),
+        userApi: new UserApi(configuration),
+        scheduleShiftApi: new ScheduleShiftApi(configuration),
+        versionApi: new VersionApi(configuration)
+    };
 }

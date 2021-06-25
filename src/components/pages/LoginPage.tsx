@@ -1,25 +1,42 @@
-import React, {useState} from 'react';
-import {useAuth} from "../AuthProvider";
-import {Link, useHistory} from 'react-router-dom';
-import {APP_ROUTE, REGISTER_ROUTE} from "../../routing/routeConstants";
-import {Button, Form, Grid, Header, Image, Message, Segment, Transition} from 'semantic-ui-react';
-import logo from '../../images/logo.png'
-import {Helmet} from 'react-helmet';
-import {useApi} from "../../api/starskyApiClient";
-import {responseToString} from "../../api/httpHelpers";
-import {LoginRequest} from "../../api/__generated__/starskyApi";
+import React, { useEffect, useState } from 'react';
+import { useAuth } from '../AuthProvider';
+import { Link, useHistory } from 'react-router-dom';
+import { APP_ROUTE, REGISTER_ROUTE } from '../../routing/routeConstants';
+import { Button, Form, Grid, Header, Image, Message, Segment, Transition } from 'semantic-ui-react';
+import logo from '../../images/logo.png';
+import { Helmet } from 'react-helmet';
+import { useApi } from '../../api/starskyApiClient';
+import { responseToString } from '../../api/httpHelpers';
+import { LoginRequest } from '../../api/__generated__';
 
-export function LoginPage() {
-
-    const [loginStatus, setLoginStatus] = useState("");
+export function LoginPage(): JSX.Element {
+    const [loginStatus, setLoginStatus] = useState('');
     const [alert, setAlert] = useState(false);
 
-    const {setToken, clearToken} = useAuth();
+    const { setToken, clearToken, token } = useAuth();
     const history = useHistory();
-    const apiClient = useApi({accessToken: null});
+    const apis = useApi(token);
 
-    const htmlEmailElement = "loginEmail";
-    const htmlPasswordElement = "loginPassword";
+    const htmlEmailElement = 'loginEmail';
+    const htmlPasswordElement = 'loginPassword';
+
+    useEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
+        onLoad();
+    }, []);
+
+    async function onLoad() {
+        // this does work - but we should be displaying a loader or something, so the screen does not change
+        if (token != null) {
+            const response = await apis.userApi.validateAuthenticationRaw();
+            if (response.raw.ok) {
+                history.push(APP_ROUTE);
+            } else {
+                console.error(responseToString(response.raw));
+                clearToken();
+            }
+        }
+    }
 
     const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -28,49 +45,59 @@ export function LoginPage() {
 
         const request: LoginRequest = {
             email: formData.get(htmlEmailElement) as string,
-            password: formData.get(htmlPasswordElement) as string
-        }
+            password: formData.get(htmlPasswordElement) as string,
+        };
 
-        const response = await apiClient.login.login({email: request.email, password: request.password});
-
-        if (response.ok) {
-            setLoginStatus("");
-            setAlert(false);
-            setToken(response.data.access_token as string);
-            history.push(APP_ROUTE);
-        } else {
-            setLoginStatus("Login failed.");
-            console.error(responseToString(response));
-            setAlert(true);
-            setTimeout(() => {
+        apis.authenticationApi
+            .login({ loginRequest: request })
+            .then((response) => {
+                console.log(response);
+                setLoginStatus('');
                 setAlert(false);
-            }, 5000);
-            clearToken();
-            form.reset();
-        }
-    }
+                setToken(response.accessToken as string);
+                history.push(APP_ROUTE);
+            })
+            .catch((reason) => {
+                console.error(reason);
+                setLoginStatus(`Login failed (${reason}).`);
+                setAlert(true);
+                setTimeout(() => {
+                    setAlert(false);
+                }, 5000);
+                clearToken();
+                form.reset();
+            });
+    };
 
     return (
         <div>
-            <Helmet title={"Starsky | Login"}/>
-            <Grid textAlign='center' style={{height: '100vh'}} verticalAlign='middle'>
-                <Grid.Column style={{maxWidth: 450}}>
-                    <Header as='h2' color='teal' textAlign='center'>
-                        <Image src={logo}/> Login to your account
+            <Helmet title={'Starsky | Login'} />
+            <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
+                <Grid.Column style={{ maxWidth: 450 }}>
+                    <Header as="h2" color="teal" textAlign="center">
+                        <Image src={logo} /> Login to your account
                     </Header>
-                    <Form size='large' onSubmit={handleOnSubmit}>
+                    <Form size="large" onSubmit={handleOnSubmit}>
                         <Segment stacked>
-                            <Form.Input name={htmlEmailElement} fluid icon='mail' iconPosition='left' placeholder='E-mail address' type='email' required/>
-                            <Form.Input name={htmlPasswordElement} fluid icon='lock' iconPosition='left' placeholder='Password' type='password' minLength={8}
-                                        maxLength={72} required/>
-                            <Button color='teal' fluid size='large' type='submit'>
+                            <Form.Input name={htmlEmailElement} fluid icon="mail" iconPosition="left" placeholder="E-mail address" type="email" required />
+                            <Form.Input
+                                name={htmlPasswordElement}
+                                fluid
+                                icon="lock"
+                                iconPosition="left"
+                                placeholder="Password"
+                                type="password"
+                                minLength={8}
+                                maxLength={72}
+                                required
+                            />
+                            <Button color="teal" fluid size="large" type="submit">
                                 Login
                             </Button>
-
                         </Segment>
                     </Form>
-                    <Transition visible={alert} animation='fade' duration={1000}>
-                        <Message header={loginStatus} content={"We could not log you in. Please check your credentials."} negative compact size={"small"}/>
+                    <Transition visible={alert} animation="fade" duration={1000}>
+                        <Message header={loginStatus} content={'We could not log you in. Please check your credentials.'} negative compact size={'small'} />
                     </Transition>
                     <Message>
                         New here? <Link to={REGISTER_ROUTE}>Register now!</Link>

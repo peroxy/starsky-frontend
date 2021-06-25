@@ -28,7 +28,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "generate-api-client": "ts-node ./src/api/generateApiClient.ts"
+    "generate-api-client": "openapi-generator-cli generate -i 'http://localhost:8080/api/v3/api-docs' -g typescript-fetch -o ./src/api/__generated__ --skip-validate-spec --additional-properties=typescriptThreePlus=true"
   },
   "eslintConfig": {
     "extends": [
@@ -49,7 +49,14 @@
     ]
   },
   "devDependencies": {
-    "swagger-typescript-api": "^9.1.2",
+    "@openapitools/openapi-generator-cli": "^2.3.5",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.0",
+    "eslint": "^7.29.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-react": "^7.24.0",
+    "prettier": "^2.3.1",
     "ts-node": "^10.0.0"
   }
 }

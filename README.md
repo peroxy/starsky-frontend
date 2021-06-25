@@ -52,11 +52,10 @@ docker-compose up database api
 TODO :bangbang:
 
 ### OpenAPI client
-We are using the OpenAPI client generator library [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api).
-The generator logic is specified inside `src/api/generateApiClient.ts` file.
-TypeScript definitions and HTTP client (using `fetch`) will be output to `src/api/__generated__` folder.
+We are using the [OpenAPI client generator](https://github.com/OpenAPITools/openapi-generator) library with [typescript-fetch generator](https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/typescript-fetch.md).
+TypeScript code files (using `fetch`) will be output to `src/api/__generated__` folder.
 
-You can use the npm script specified inside `packages.json`:
+To generate/update the client you can use the npm script specified inside `packages.json`:
 
 ```shell
 npm run generate-api-client

@@ -11,7 +11,7 @@ export function PrivateRoute({component: Component, ...rest}: any) {
     const [authenticated, setAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const client = useApi({accessToken: token});
+    const apis = useApi(token);
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
@@ -24,8 +24,8 @@ export function PrivateRoute({component: Component, ...rest}: any) {
             setLoading(false);
             return;
         }
-        const response = await client.user.validateAuthentication();
-        setAuthenticated(response.ok);
+        const response = await apis.userApi.validateAuthenticationRaw();
+        setAuthenticated(response.raw.ok);
         setLoading(false);
     }
 

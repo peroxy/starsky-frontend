@@ -6,8 +6,8 @@ import {APP_ROUTE, LOGIN_ROUTE} from "../../routing/routeConstants";
 import {Link, useHistory, useLocation} from "react-router-dom";
 import {useAuth} from "../AuthProvider";
 import {useApi} from "../../api/starskyApiClient";
-import {CreateUserRequest, LoginRequest, UserResponse} from "../../api/__generated__/starskyApi";
 import {responseToString} from "../../api/httpHelpers";
+import {CreateUserRequest, LoginRequest, UserResponse} from "../../api/__generated__";
 
 export function RegisterPage() {
 
@@ -24,7 +24,7 @@ export function RegisterPage() {
     const [showInviteHeader, setShowInviteHeader] = useState(false);
 
     const history = useHistory()
-    const apiClient = useApi({accessToken: null});
+    const apis = useApi(null);
 
     interface QueryParams {
         registerToken: string | null,
@@ -78,14 +78,14 @@ export function RegisterPage() {
             email: formData.get(formEmail) as string,
             password: formData.get(formPassword) as string,
             name: formData.get(formName) as string,
-            job_title: "TODO",
-            invite_token: showInviteHeader ? queryParams.registerToken as string : undefined
+            jobTitle: "TODO",
+            inviteToken: showInviteHeader ? queryParams.registerToken as string : undefined
         };
-        const response = await apiClient.users.createUser(request);
-        if (response.ok) {
+        const response = await apis.userApi.createUser({createUserRequest: request});
+        if (response) {
             setAlertDescription("");
             setAlert(false);
-            await loginNewUser(response.data, {email: request.email, password: request.password as string}, form);
+            await loginNewUser(response, {email: request.email, password: request.password as string}, form);
         } else {
             setAlertDescription(await responseToString(response));
             setAlert(true);
@@ -99,11 +99,11 @@ export function RegisterPage() {
         Logins the freshly registered user - this should probably be removed when email verification is implemented.
      */
     const loginNewUser = async (user: UserResponse, request: LoginRequest, form: HTMLFormElement) => {
-        const response = await apiClient.login.login(request);
-        if (response.ok) {
+        const response = await apis.authenticationApi.login({ loginRequest: request});
+        if (response) {
             setAlertDescription("");
             setAlert(false);
-            setToken(response.data.access_token as string);
+            setToken(response.accessToken as string);
             history.push(APP_ROUTE, user);
         } else {
             setAlertDescription("Login failed!");

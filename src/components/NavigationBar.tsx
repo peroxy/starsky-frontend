@@ -9,8 +9,8 @@ import TeamsPage from "./pages/TeamsPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import SchedulesPage from "./pages/SchedulesPages";
 import SettingsPage from "./pages/SettingsPage";
-import {UserResponse} from "../api/__generated__/starskyApi";
 import {responseToString} from "../api/httpHelpers";
+import {UserResponse} from "../api/__generated__";
 
 export enum ActiveMenuItem {
     Teams,
@@ -23,8 +23,7 @@ export function NavigationBar() {
 
     const {clearToken, token} = useAuth();
     const history = useHistory();
-    const apiClient = useApi({accessToken: token});
-    apiClient.setSecurityData({accessToken: token});
+    const apis = useApi(token);
 
     const [user, setUser] = useState<UserResponse>();
     const [userLoading, setUserLoading] = useState(true);
@@ -37,9 +36,9 @@ export function NavigationBar() {
 
     async function onLoad() {
         if (user == null) {
-            const response = await apiClient.user.getUser();
-            if (response.ok) {
-                setUser(response.data);
+            const response = await apis.userApi.getUser();
+            if (response) {
+                setUser(response);
                 setUserLoading(false);
             } else {
                 console.error(responseToString(response));
