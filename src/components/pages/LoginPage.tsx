@@ -42,6 +42,7 @@ export function LoginPage(): JSX.Element {
     }
 
     const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        setLoading(true);
         e.preventDefault();
         const form = e.currentTarget;
         const formData = new FormData(form);
@@ -66,7 +67,8 @@ export function LoginPage(): JSX.Element {
                 setLoginStatus(`Login failed.`);
                 setAlert(true);
                 clearToken();
-            });
+            })
+            .finally(() => setLoading(true));
     };
 
     return loading ? (

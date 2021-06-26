@@ -37,7 +37,7 @@ export function PrivateRoute({ component: Component, ...rest }: any): JSX.Elemen
                     <Component {...props} />
                 ) : loading ? (
                     <Dimmer active inverted>
-                        <Loader content="loading" />
+                        <Loader content="Please wait..." />
                     </Dimmer>
                 ) : (
                     <Redirect to={{ pathname: LOGIN_ROUTE, state: { from: props.location } }} />

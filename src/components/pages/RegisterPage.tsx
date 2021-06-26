@@ -6,8 +6,8 @@ import { APP_ROUTE, LOGIN_ROUTE } from '../../routing/routeConstants';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
-import { CreateUserRequest, LoginRequest, UserResponse } from '../../api/__generated__';
-import { responseToString } from '../../api/httpHelpers';
+import { CreateUserRequest, InviteInvalidResponse, LoginRequest, UserResponse } from '../../api/__generated__';
+import { HttpStatusCode, responseToString } from '../../api/httpHelpers';
 
 export function RegisterPage(): JSX.Element {
     const [alertDescription, setAlertDescription] = useState('');
@@ -19,6 +19,7 @@ export function RegisterPage(): JSX.Element {
     const formEmail = 'registerEmail';
     const formPassword = 'registerPassword';
     const formName = 'registerName';
+    const formJobTitle = 'registerJobTitle';
 
     const [inviteHeader, setInviteHeader] = useState('');
     const [showInviteHeader, setShowInviteHeader] = useState(false);
@@ -51,6 +52,7 @@ export function RegisterPage(): JSX.Element {
     }, []);
 
     async function onLoad() {
+        setLoading(true);
         if (token != null) {
             await apis.userApi
                 .validateAuthentication()
@@ -62,10 +64,10 @@ export function RegisterPage(): JSX.Element {
                     clearToken();
                 });
         }
-        setLoading(false);
 
         if (queryParams.registerToken == null) {
             setShowInviteHeader(false);
+            setLoading(false);
             return;
         }
 
@@ -81,12 +83,15 @@ export function RegisterPage(): JSX.Element {
             setInviteHeader(`You have been invited by ${queryParams.manager}!`);
             setShowInviteHeader(true);
         }
+        setLoading(false);
     }
 
     /*
       Register a new user - event that gets triggered on registration form submittal.
      */
     const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        setLoading(true);
+        setAlert(false);
         e.preventDefault();
         const form = e.currentTarget;
         const formData = new FormData(form);
@@ -95,26 +100,29 @@ export function RegisterPage(): JSX.Element {
             email: formData.get(formEmail) as string,
             password: formData.get(formPassword) as string,
             name: formData.get(formName) as string,
-            jobTitle: 'TODO - frontend',
+            jobTitle: formData.get(formJobTitle) as string,
             inviteToken: showInviteHeader ? (queryParams.registerToken as string) : undefined,
         };
-        const userResponse = await apis.userApi
-            .createUser({ createUserRequest: request })
-            .then((response) => {
-                setAlertDescription('');
-                setAlert(false);
-                return response;
-            })
-            .catch((response: Response) => {
-                console.error(response);
-                setAlertDescription('Registration failed due to server issues.');
-                setAlert(true);
-                setTimeout(() => {
-                    setAlert(false);
-                }, 5000);
-            });
-        if (userResponse) {
+
+        try {
+            const userResponse = await apis.userApi.createUser({ createUserRequest: request });
+            setAlertDescription('');
             await loginNewUser(userResponse, { email: request.email, password: request.password as string });
+        } catch (error) {
+            console.error(error);
+            let alertMessage = 'Registration failed.';
+            if (error instanceof Response) {
+                if (error.status === HttpStatusCode.CONFLICT) {
+                    alertMessage = `Email (${request.email}) already exists!`;
+                } else if (error.status === HttpStatusCode.UNPROCESSABLE_ENTITY) {
+                    const errorResponse = (await error.json()) as InviteInvalidResponse;
+                    alertMessage = errorResponse.error as string;
+                }
+            }
+            setAlertDescription(alertMessage);
+            setAlert(true);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -134,80 +142,91 @@ export function RegisterPage(): JSX.Element {
                 setAlertDescription('Automatic login failed after registration!');
                 console.error(reason);
                 setAlert(true);
-                setTimeout(() => {
-                    setAlert(false);
-                }, 5000);
                 clearToken();
             });
     };
 
-    return loading ? (
-        <Dimmer active inverted>
-            <Loader content="Please wait..." />
-        </Dimmer>
-    ) : (
+    return (
         <div>
-            <Helmet title={'Starsky | Register'} />
-            <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
-                <Grid.Column style={{ maxWidth: 450 }}>
-                    <Header as="h2" color="teal" textAlign="center">
-                        <Image src={logo} /> Register a new account
-                    </Header>
-                    <Message
-                        header={inviteHeader}
-                        hidden={!showInviteHeader}
-                        content={`We have prefilled your info supplied by ${queryParams.manager}, feel free to change it.`}
-                        positive
-                        compact
-                        size={'small'}
-                    />
-                    <Form size="large" onSubmit={handleOnSubmit}>
-                        <Segment stacked>
-                            <Form.Input
-                                name={formName}
-                                id={formName}
-                                fluid
-                                icon="user"
-                                iconPosition="left"
-                                placeholder="Your name"
-                                type="text"
-                                required
-                                minLength={1}
-                            />
-                            <Form.Input
-                                name={formEmail}
-                                id={formEmail}
-                                fluid
-                                icon="mail"
-                                iconPosition="left"
-                                placeholder="E-mail address"
-                                type="email"
-                                required
-                            />
-                            <Form.Input
-                                name={formPassword}
-                                fluid
-                                icon="lock"
-                                iconPosition="left"
-                                placeholder="Password"
-                                type="password"
-                                minLength={8}
-                                maxLength={72}
-                                required
-                            />
-                            <Button color="teal" fluid size="large" type="submit">
-                                Register
-                            </Button>
-                        </Segment>
-                    </Form>
-                    <Transition visible={alert} animation="fade" duration={1000}>
-                        <Message header={alertDescription} content={'Registration failed. Please try again.'} negative compact size={'small'} />
-                    </Transition>
-                    <Message>
-                        Already have an account? <Link to={LOGIN_ROUTE}>Login now!</Link>
-                    </Message>
-                </Grid.Column>
-            </Grid>
+            <div hidden={!loading}>
+                <Dimmer active inverted>
+                    <Loader content="Please wait..." />
+                </Dimmer>
+            </div>
+            <div hidden={loading}>
+                <Helmet title={'Starsky | Register'} />
+                <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
+                    <Grid.Column style={{ maxWidth: 450 }}>
+                        <Header as="h2" color="teal" textAlign="center">
+                            <Image src={logo} /> Register a new account
+                        </Header>
+                        <Message
+                            header={inviteHeader}
+                            hidden={!showInviteHeader}
+                            content={`We have prefilled your info supplied by ${queryParams.manager}, feel free to change it.`}
+                            positive
+                            compact
+                            size={'small'}
+                        />
+                        <Form size="large" onSubmit={handleOnSubmit}>
+                            <Segment stacked>
+                                <Form.Input
+                                    name={formName}
+                                    id={formName}
+                                    fluid
+                                    icon="user"
+                                    iconPosition="left"
+                                    placeholder="Your name"
+                                    type="text"
+                                    required
+                                    minLength={1}
+                                />
+                                <Form.Input
+                                    name={formJobTitle}
+                                    fluid
+                                    icon="briefcase"
+                                    iconPosition="left"
+                                    placeholder="Job Title"
+                                    type="text"
+                                    minLength={1}
+                                    maxLength={128}
+                                    required
+                                />
+                                <Form.Input
+                                    name={formEmail}
+                                    id={formEmail}
+                                    fluid
+                                    icon="mail"
+                                    iconPosition="left"
+                                    placeholder="E-mail address"
+                                    type="email"
+                                    required
+                                />
+                                <Form.Input
+                                    name={formPassword}
+                                    fluid
+                                    icon="lock"
+                                    iconPosition="left"
+                                    placeholder="Password"
+                                    type="password"
+                                    minLength={8}
+                                    maxLength={72}
+                                    required
+                                />
+                                <Button color="teal" fluid size="large" type="submit">
+                                    Register
+                                </Button>
+                            </Segment>
+                        </Form>
+                        <Transition visible={alert} animation="fade" duration={1000}>
+                            <Message header={alertDescription} content={'Registration failed. Please try again.'} negative compact size={'small'} />
+                        </Transition>
+                        <Message>
+                            Already have an account? <Link to={LOGIN_ROUTE}>Login now!</Link>
+                        </Message>
+                    </Grid.Column>
+                </Grid>
+            </div>
         </div>
     );
 }
