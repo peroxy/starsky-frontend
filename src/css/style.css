@@ -2,3 +2,11 @@ html,
 body {
     background: #f3f3f3 !important;
 }
+
+/* List class */
+.list.left-margin {
+    margin-left: 2rem;
+}
+.list.right-margin {
+    margin-right: 2rem;
+}

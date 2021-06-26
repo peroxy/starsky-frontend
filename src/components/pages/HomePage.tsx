@@ -1,15 +1,15 @@
 import logo from '../../images/logo.svg';
 import { Link } from 'react-router-dom';
-import { APP_ROUTE, LOGIN_ROUTE, REGISTER_ROUTE } from '../../routing/routeConstants';
+import { LOGIN_ROUTE, REGISTER_ROUTE, TEAMS_ROUTE } from '../../routing/routeConstants';
 import { Helmet } from 'react-helmet';
 import React, { useEffect, useState } from 'react';
 import { Button, Container, Dimmer, Divider, Grid, Header, Icon, Image, List, Loader, Menu, Segment, Sidebar, Visibility } from 'semantic-ui-react';
 import { createMedia } from '@artsy/fresnel';
-import { Simulate } from 'react-dom/test-utils';
 import { useAuth } from '../AuthProvider';
 import { responseToString } from '../../api/httpHelpers';
 import { useApi } from '../../api/starskyApiClient';
 import { UserResponse } from '../../api/__generated__';
+import { IUserProps } from '../props/IUserProps';
 
 const { MediaContextProvider, Media } = createMedia({
     breakpoints: {
@@ -51,7 +51,7 @@ function HomepageHeading(props: IProps) {
                     marginTop: props.mobile ? '0.5em' : '1.5em',
                 }}
             />
-            <Link to={APP_ROUTE}>
+            <Link to={TEAMS_ROUTE}>
                 <Button primary size="huge">
                     Try it now!
                     <Icon name="arrow right" />
@@ -61,7 +61,7 @@ function HomepageHeading(props: IProps) {
     );
 }
 
-const DesktopContainer: React.FC<IResponsiveContainerProps> = ({ children, authenticatedUser }) => {
+const DesktopContainer: React.FC<IUserProps> = ({ children, authenticatedUser }) => {
     const [showFixedMenu, setShowFixedMenu] = useState(false);
 
     return (
@@ -105,7 +105,7 @@ const DesktopContainer: React.FC<IResponsiveContainerProps> = ({ children, authe
     );
 };
 
-const MobileContainer: React.FC<IResponsiveContainerProps> = ({ children, authenticatedUser }) => {
+const MobileContainer: React.FC<IUserProps> = ({ children, authenticatedUser }) => {
     const [sidebarOpened, setSidebarOpened] = useState(false);
 
     return (
@@ -169,11 +169,7 @@ const MobileContainer: React.FC<IResponsiveContainerProps> = ({ children, authen
     );
 };
 
-interface IResponsiveContainerProps {
-    authenticatedUser: UserResponse | null;
-}
-
-const ResponsiveContainer: React.FC<IResponsiveContainerProps> = ({ children, authenticatedUser }) => (
+const ResponsiveContainer: React.FC<IUserProps> = ({ children, authenticatedUser }) => (
     /* Heads up!
      * For large applications it may not be best option to put all page into these containers at
      * they will be rendered twice for SSR.
@@ -219,7 +215,7 @@ const HomePage = () => {
             </div>
             <div hidden={loading}>
                 <ResponsiveContainer authenticatedUser={authenticatedUser}>
-                    <Helmet title={'Starsky | Home'} />
+                    <Helmet title={'Home | Starsky'} />
                     <Segment style={{ padding: '8em 0em' }} vertical>
                         <Grid container stackable verticalAlign="middle">
                             <Grid.Row>

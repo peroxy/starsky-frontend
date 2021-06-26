@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../AuthProvider';
 import { Link, useHistory } from 'react-router-dom';
-import { APP_ROUTE, REGISTER_ROUTE } from '../../routing/routeConstants';
+import { REGISTER_ROUTE, TEAMS_ROUTE } from '../../routing/routeConstants';
 import { Button, Dimmer, Form, Grid, Header, Image, Loader, Message, Segment, Transition } from 'semantic-ui-react';
 import logo from '../../images/logo.png';
 import { Helmet } from 'react-helmet';
@@ -31,7 +31,7 @@ export function LoginPage(): JSX.Element {
             await apis.userApi
                 .validateAuthentication()
                 .then(() => {
-                    history.replace(APP_ROUTE);
+                    history.replace(TEAMS_ROUTE);
                 })
                 .catch((reason: Response) => {
                     console.error(responseToString(reason));
@@ -60,7 +60,7 @@ export function LoginPage(): JSX.Element {
                 console.log(response);
                 setLoginStatus('');
                 setToken(response.accessToken as string);
-                history.push(APP_ROUTE);
+                history.push(TEAMS_ROUTE);
             })
             .catch((response: Response) => {
                 console.error(response);
@@ -77,7 +77,7 @@ export function LoginPage(): JSX.Element {
         </Dimmer>
     ) : (
         <div>
-            <Helmet title={'Starsky | Login'} />
+            <Helmet title={'Login | Starsky'} />
             <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
                 <Grid.Column style={{ maxWidth: 450 }}>
                     <Header as="h2" color="teal" textAlign="center">

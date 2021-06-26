@@ -1,15 +1,15 @@
 import { Dropdown, Icon, Image, Loader, Menu } from 'semantic-ui-react';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { HOME_ROUTE } from '../routing/routeConstants';
+import { EMPLOYEES_ROUTE, HOME_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROUTE } from '../routing/routeConstants';
 import { useAuth } from './AuthProvider';
 import logo from '../images/logo.png';
 import { useApi } from '../api/starskyApiClient';
-import TeamsPage from './pages/TeamsPage';
-import EmployeesPage from './pages/EmployeesPage';
-import SchedulesPage from './pages/SchedulesPages';
-import SettingsPage from './pages/SettingsPage';
+import { EmployeesPage } from './pages/EmployeesPage';
+import { SchedulesPage } from './pages/SchedulesPages';
 import { UserResponse } from '../api/__generated__';
+import { TeamsPage } from './pages/TeamsPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 export enum ActiveMenuItem {
     Teams,
@@ -18,49 +18,16 @@ export enum ActiveMenuItem {
     Settings,
 }
 
-export function NavigationBar(): JSX.Element {
-    const { clearToken, token } = useAuth();
+export interface INavigationBarProps {
+    activeMenuItem: ActiveMenuItem;
+    authenticatedUser: UserResponse;
+}
+
+export const NavigationBarV2: React.FC<INavigationBarProps> = ({ activeMenuItem, authenticatedUser }) => {
     const history = useHistory();
-    const apis = useApi(token);
-
-    const [user, setUser] = useState<UserResponse>();
-    const [userLoading, setUserLoading] = useState(true);
-    const [activeMenuItem, setActiveMenuItem] = useState(ActiveMenuItem.Teams);
-
-    useEffect(() => {
-        // noinspection JSIgnoredPromiseFromCall
-        onLoad();
-    }, []);
-
-    async function onLoad() {
-        if (user == null) {
-            apis.userApi
-                .getUser()
-                .then((response) => {
-                    setUser(response);
-                    setUserLoading(false);
-                })
-                .catch((reason) => {
-                    console.error(reason);
-                });
-        }
-    }
-
-    const getActiveComponent = () => {
-        switch (activeMenuItem) {
-            case ActiveMenuItem.Teams:
-                return <TeamsPage />;
-            case ActiveMenuItem.Employees:
-                return <EmployeesPage />;
-            case ActiveMenuItem.Schedules:
-                return <SchedulesPage />;
-            case ActiveMenuItem.Settings:
-                return <SettingsPage />;
-        }
-    };
-
+    const { clearToken } = useAuth();
     return (
-        <div>
+        <>
             <Menu stackable inverted>
                 <Menu.Item content="Home" style={{ justifyContent: 'center' }} onClick={() => history.push(HOME_ROUTE)}>
                     <Image src={logo} height="25em" />
@@ -69,21 +36,21 @@ export function NavigationBar(): JSX.Element {
                 <Menu.Item
                     content="Teams"
                     active={activeMenuItem === ActiveMenuItem.Teams}
-                    onClick={() => setActiveMenuItem(ActiveMenuItem.Teams)}
+                    onClick={() => history.push(TEAMS_ROUTE, authenticatedUser)}
                     color={'teal'}
                     style={{ justifyContent: 'center' }}
                 />
                 <Menu.Item
                     content="Employees"
                     active={activeMenuItem === ActiveMenuItem.Employees}
-                    onClick={() => setActiveMenuItem(ActiveMenuItem.Employees)}
+                    onClick={() => history.push(EMPLOYEES_ROUTE, authenticatedUser)}
                     color={'teal'}
                     style={{ justifyContent: 'center' }}
                 />
                 <Menu.Item
                     content="Schedules"
                     active={activeMenuItem === ActiveMenuItem.Schedules}
-                    onClick={() => setActiveMenuItem(ActiveMenuItem.Schedules)}
+                    onClick={() => history.push(SCHEDULES_ROUTE, authenticatedUser)}
                     color={'teal'}
                     style={{ justifyContent: 'center' }}
                 />
@@ -98,11 +65,12 @@ export function NavigationBar(): JSX.Element {
                         <Dropdown.Menu>
                             <Dropdown.Item style={{ pointerEvents: 'none' }}>
                                 <Icon name={'user'} />
-                                {userLoading ? <Loader active size="mini" /> : <label>{`${user?.name} (${user?.email})`}</label>}
+                                <label>{`${authenticatedUser?.name} (${authenticatedUser?.email})`}</label>
                             </Dropdown.Item>
                             <Dropdown.Divider />
-                            <Dropdown.Item icon="edit" text="Edit Profile" onClick={() => setActiveMenuItem(ActiveMenuItem.Settings)} />
-                            <Dropdown.Item icon="globe" text="Choose Language" />
+                            <Dropdown.Item icon="edit" text="Edit Profile" onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)} />
+                            {/*TODO:*/}
+                            <Dropdown.Item icon="globe" text="Choose Language" onClick={() => console.warn('TODO')} />
                             <Dropdown.Divider />
                             <Dropdown.Item
                                 icon="log out"
@@ -121,7 +89,6 @@ export function NavigationBar(): JSX.Element {
                     </Dropdown>
                 </Menu.Item>
             </Menu>
-            {getActiveComponent()}
-        </div>
+        </>
     );
-}
+};

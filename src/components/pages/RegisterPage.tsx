@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button, Dimmer, Form, Grid, Header, Image, Loader, Message, Segment, Transition } from 'semantic-ui-react';
 import logo from '../../images/logo.png';
-import { APP_ROUTE, LOGIN_ROUTE } from '../../routing/routeConstants';
+import { LOGIN_ROUTE, TEAMS_ROUTE } from '../../routing/routeConstants';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
@@ -57,7 +57,7 @@ export function RegisterPage(): JSX.Element {
             await apis.userApi
                 .validateAuthentication()
                 .then(() => {
-                    history.replace(APP_ROUTE);
+                    history.replace(TEAMS_ROUTE);
                 })
                 .catch((reason: Response) => {
                     console.error(responseToString(reason));
@@ -136,7 +136,7 @@ export function RegisterPage(): JSX.Element {
                 setAlertDescription('');
                 setAlert(false);
                 setToken(response.accessToken as string);
-                history.push(APP_ROUTE, user);
+                history.push(TEAMS_ROUTE, user);
             })
             .catch((reason) => {
                 setAlertDescription('Automatic login failed after registration!');
@@ -154,7 +154,7 @@ export function RegisterPage(): JSX.Element {
                 </Dimmer>
             </div>
             <div hidden={loading}>
-                <Helmet title={'Starsky | Register'} />
+                <Helmet title={'Register | Starsky'} />
                 <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
                     <Grid.Column style={{ maxWidth: 450 }}>
                         <Header as="h2" color="teal" textAlign="center">
