@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Button, Form, Grid, Header, Image, Message, Segment, Transition } from 'semantic-ui-react';
+import { Button, Dimmer, Form, Grid, Header, Image, Loader, Message, Segment, Transition } from 'semantic-ui-react';
 import logo from '../../images/logo.png';
 import { APP_ROUTE, LOGIN_ROUTE } from '../../routing/routeConstants';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
 import { CreateUserRequest, LoginRequest, UserResponse } from '../../api/__generated__';
+import { responseToString } from '../../api/httpHelpers';
 
 export function RegisterPage(): JSX.Element {
     const [alertDescription, setAlertDescription] = useState('');
     const [alert, setAlert] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    const { setToken, clearToken } = useAuth();
+    const { setToken, clearToken, token } = useAuth();
 
     const formEmail = 'registerEmail';
     const formPassword = 'registerPassword';
@@ -22,7 +24,7 @@ export function RegisterPage(): JSX.Element {
     const [showInviteHeader, setShowInviteHeader] = useState(false);
 
     const history = useHistory();
-    const apis = useApi(null);
+    const apis = useApi(token);
 
     interface QueryParams {
         registerToken: string | null;
@@ -45,6 +47,23 @@ export function RegisterPage(): JSX.Element {
     const queryParams = getQueryParams(search);
 
     useEffect(() => {
+        onLoad();
+    }, []);
+
+    async function onLoad() {
+        if (token != null) {
+            await apis.userApi
+                .validateAuthentication()
+                .then(() => {
+                    history.replace(APP_ROUTE);
+                })
+                .catch((reason: Response) => {
+                    console.error(responseToString(reason));
+                    clearToken();
+                });
+        }
+        setLoading(false);
+
         if (queryParams.registerToken == null) {
             setShowInviteHeader(false);
             return;
@@ -62,7 +81,7 @@ export function RegisterPage(): JSX.Element {
             setInviteHeader(`You have been invited by ${queryParams.manager}!`);
             setShowInviteHeader(true);
         }
-    }, []);
+    }
 
     /*
       Register a new user - event that gets triggered on registration form submittal.
@@ -122,7 +141,11 @@ export function RegisterPage(): JSX.Element {
             });
     };
 
-    return (
+    return loading ? (
+        <Dimmer active inverted>
+            <Loader content="Please wait..." />
+        </Dimmer>
+    ) : (
         <div>
             <Helmet title={'Starsky | Register'} />
             <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">

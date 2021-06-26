@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../AuthProvider';
 import { Link, useHistory } from 'react-router-dom';
 import { APP_ROUTE, REGISTER_ROUTE } from '../../routing/routeConstants';
-import { Button, Form, Grid, Header, Image, Message, Segment, Transition } from 'semantic-ui-react';
+import { Button, Dimmer, Form, Grid, Header, Image, Loader, Message, Segment, Transition } from 'semantic-ui-react';
 import logo from '../../images/logo.png';
 import { Helmet } from 'react-helmet';
 import { useApi } from '../../api/starskyApiClient';
@@ -12,6 +12,7 @@ import { LoginRequest, TokenResponse } from '../../api/__generated__';
 export function LoginPage(): JSX.Element {
     const [loginStatus, setLoginStatus] = useState('');
     const [alert, setAlert] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const { setToken, clearToken, token } = useAuth();
     const history = useHistory();
@@ -26,18 +27,18 @@ export function LoginPage(): JSX.Element {
     }, []);
 
     async function onLoad() {
-        // this does work - but we should be displaying a loader or something, so the screen does not change
         if (token != null) {
             await apis.userApi
-                .validateAuthenticationRaw()
+                .validateAuthentication()
                 .then(() => {
-                    history.push(APP_ROUTE);
+                    history.replace(APP_ROUTE);
                 })
                 .catch((reason: Response) => {
                     console.error(responseToString(reason));
                     clearToken();
                 });
         }
+        setLoading(false);
     }
 
     const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,12 +51,13 @@ export function LoginPage(): JSX.Element {
             password: formData.get(htmlPasswordElement) as string,
         };
 
+        setAlert(false);
+
         await apis.authenticationApi
             .login({ loginRequest: request })
             .then((response: TokenResponse) => {
                 console.log(response);
                 setLoginStatus('');
-                setAlert(false);
                 setToken(response.accessToken as string);
                 history.push(APP_ROUTE);
             })
@@ -63,14 +65,15 @@ export function LoginPage(): JSX.Element {
                 console.error(response);
                 setLoginStatus(`Login failed.`);
                 setAlert(true);
-                setTimeout(() => {
-                    setAlert(false);
-                }, 5000);
                 clearToken();
             });
     };
 
-    return (
+    return loading ? (
+        <Dimmer active inverted>
+            <Loader content="Please wait..." />
+        </Dimmer>
+    ) : (
         <div>
             <Helmet title={'Starsky | Login'} />
             <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
