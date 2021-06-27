@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Button, Dimmer, Form, Grid, Header, Image, Loader, Message, Segment, Transition } from 'semantic-ui-react';
+import { Button, Dimmer, Divider, Form, Grid, Header, Image, Loader, Message, Segment, Transition } from 'semantic-ui-react';
 import logo from '../../images/logo.png';
 import { LOGIN_ROUTE, TEAMS_ROUTE } from '../../routing/routeConstants';
 import { Link, useHistory, useLocation } from 'react-router-dom';
@@ -13,6 +13,7 @@ export function RegisterPage(): JSX.Element {
     const [alertDescription, setAlertDescription] = useState('');
     const [alert, setAlert] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [passwordsMatch, setPasswordsMatch] = useState(true);
 
     const { setToken, clearToken, token } = useAuth();
 
@@ -20,6 +21,7 @@ export function RegisterPage(): JSX.Element {
     const formPassword = 'registerPassword';
     const formName = 'registerName';
     const formJobTitle = 'registerJobTitle';
+    const formPasswordConfirm = 'registerPasswordConfirm';
 
     const [inviteHeader, setInviteHeader] = useState('');
     const [showInviteHeader, setShowInviteHeader] = useState(false);
@@ -72,6 +74,7 @@ export function RegisterPage(): JSX.Element {
         }
 
         if (queryParams.email != null && queryParams.name != null && queryParams.manager != null) {
+            //TODO: rework this to use state and defaultValue field instead
             const emailNode = document.getElementById(formEmail) as HTMLInputElement;
             if (emailNode) {
                 emailNode.value = queryParams.email;
@@ -96,9 +99,20 @@ export function RegisterPage(): JSX.Element {
         const form = e.currentTarget;
         const formData = new FormData(form);
 
+        const password = formData.get(formPassword) as string;
+        const passwordConfirm = formData.get(formPasswordConfirm) as string;
+
+        if (password != passwordConfirm) {
+            setPasswordsMatch(false);
+            setLoading(false);
+            return;
+        }
+
+        setPasswordsMatch(true);
+
         const request: CreateUserRequest = {
             email: formData.get(formEmail) as string,
-            password: formData.get(formPassword) as string,
+            password: password,
             name: formData.get(formName) as string,
             jobTitle: formData.get(formJobTitle) as string,
             inviteToken: showInviteHeader ? (queryParams.registerToken as string) : undefined,
@@ -202,17 +216,36 @@ export function RegisterPage(): JSX.Element {
                                     type="email"
                                     required
                                 />
-                                <Form.Input
-                                    name={formPassword}
-                                    fluid
-                                    icon="lock"
-                                    iconPosition="left"
-                                    placeholder="Password"
-                                    type="password"
-                                    minLength={8}
-                                    maxLength={72}
-                                    required
-                                />
+                                <Grid columns={2}>
+                                    <Grid.Column>
+                                        <Form.Input
+                                            name={formPassword}
+                                            fluid
+                                            icon="lock"
+                                            iconPosition="left"
+                                            placeholder="Password"
+                                            type="password"
+                                            minLength={8}
+                                            maxLength={72}
+                                            required
+                                            error={passwordsMatch ? false : "Passwords didn't match."}
+                                        />
+                                    </Grid.Column>
+                                    <Grid.Column>
+                                        <Form.Input
+                                            name={formPasswordConfirm}
+                                            fluid
+                                            placeholder="Confirm"
+                                            type="password"
+                                            minLength={8}
+                                            maxLength={72}
+                                            required
+                                            error={!passwordsMatch}
+                                        />
+                                    </Grid.Column>
+                                </Grid>
+                                <Divider />
+
                                 <Button color="teal" fluid size="large" type="submit">
                                     Register
                                 </Button>
