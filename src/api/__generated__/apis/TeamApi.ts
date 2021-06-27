@@ -16,17 +16,13 @@
 import * as runtime from '../runtime';
 import {
     CreateTeamRequest,
-    CreateTeamRequestFromJSON,
     CreateTeamRequestToJSON,
     TeamResponse,
     TeamResponseFromJSON,
-    TeamResponseToJSON,
     UpdateTeamRequest,
-    UpdateTeamRequestFromJSON,
     UpdateTeamRequestToJSON,
     UserResponse,
     UserResponseFromJSON,
-    UserResponseToJSON,
 } from '../models';
 
 export interface CreateTeamOperationRequest {

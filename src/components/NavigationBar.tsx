@@ -1,15 +1,10 @@
-import { Dropdown, Icon, Image, Loader, Menu } from 'semantic-ui-react';
-import React, { useEffect, useState } from 'react';
+import { Dropdown, Icon, Image, Menu } from 'semantic-ui-react';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { EMPLOYEES_ROUTE, HOME_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROUTE } from '../routing/routeConstants';
 import { useAuth } from './AuthProvider';
 import logo from '../images/logo.png';
-import { useApi } from '../api/starskyApiClient';
-import { EmployeesPage } from './pages/EmployeesPage';
-import { SchedulesPage } from './pages/SchedulesPages';
 import { UserResponse } from '../api/__generated__';
-import { TeamsPage } from './pages/TeamsPage';
-import { SettingsPage } from './pages/SettingsPage';
 
 export enum ActiveMenuItem {
     Teams,

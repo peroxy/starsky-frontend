@@ -14,20 +14,7 @@
 
 
 import * as runtime from '../runtime';
-import {
-    CreateUserRequest,
-    CreateUserRequestFromJSON,
-    CreateUserRequestToJSON,
-    InviteInvalidResponse,
-    InviteInvalidResponseFromJSON,
-    InviteInvalidResponseToJSON,
-    UpdateUserRequest,
-    UpdateUserRequestFromJSON,
-    UpdateUserRequestToJSON,
-    UserResponse,
-    UserResponseFromJSON,
-    UserResponseToJSON,
-} from '../models';
+import {CreateUserRequest, CreateUserRequestToJSON, UpdateUserRequest, UpdateUserRequestToJSON, UserResponse, UserResponseFromJSON,} from '../models';
 
 export interface CreateUserOperationRequest {
     createUserRequest: CreateUserRequest;

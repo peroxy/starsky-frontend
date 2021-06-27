@@ -16,11 +16,9 @@
 import * as runtime from '../runtime';
 import {
     CreateEmployeeAssignmentRequest,
-    CreateEmployeeAssignmentRequestFromJSON,
     CreateEmployeeAssignmentRequestToJSON,
     EmployeeAssignmentResponse,
     EmployeeAssignmentResponseFromJSON,
-    EmployeeAssignmentResponseToJSON,
 } from '../models';
 
 export interface CreateEmployeeAssignmentOperationRequest {

@@ -6,7 +6,7 @@ import { PrivateLayout } from './routing/PrivateLayout';
 import { APP_ROUTE, HOME_ROUTE } from './routing/routeConstants';
 import './css/style.css';
 
-export default function App() {
+export default function App(): JSX.Element {
     return (
         <AuthProvider>
             <Router>

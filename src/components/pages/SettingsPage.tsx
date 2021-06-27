@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Button, Dimmer, Divider, Form, Grid, GridColumn, Header, Icon, Image, List, Loader, Message, Segment, Transition } from 'semantic-ui-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Button, Dimmer, Divider, Form, Grid, Header, Loader, Message, Segment, Transition } from 'semantic-ui-react';
+import { useLocation } from 'react-router-dom';
 import { UpdateUserRequest, UserResponse } from '../../api/__generated__';
 import { ActiveMenuItem, NavigationBarV2 } from '../NavigationBar';
 import { useAuth } from '../AuthProvider';
