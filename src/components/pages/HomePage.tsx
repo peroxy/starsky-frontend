@@ -180,7 +180,7 @@ const ResponsiveContainer: React.FC<IUserProps> = ({ children, authenticatedUser
     </MediaContextProvider>
 );
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [authenticatedUser, setAuthenticatedUser] = useState<UserResponse | null>(null);
 
