@@ -10,3 +10,7 @@ body {
 .list.right-margin {
     margin-right: 2rem;
 }
+
+.hidden {
+    display: none;
+}

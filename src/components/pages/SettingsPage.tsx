@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Button, Dimmer, Divider, Form, Grid, GridColumn, Header, Icon, Image, List, Loader, Message, Segment, Transition } from 'semantic-ui-react';
 import { Link, useLocation } from 'react-router-dom';
-import { UserResponse } from '../../api/__generated__';
+import { UpdateUserRequest, UserResponse } from '../../api/__generated__';
 import { ActiveMenuItem, NavigationBarV2 } from '../NavigationBar';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
@@ -12,6 +12,9 @@ export const SettingsPage: React.FC = () => {
     const [authenticatedUser, setAuthenticatedUser] = useState<UserResponse | null>(null);
     const [alertDescription, setAlertDescription] = useState('');
     const [alert, setAlert] = useState(false);
+    const [showPasswordFields, setShowPasswordFields] = useState(false);
+    const [passwordsMatch, setPasswordsMatch] = useState(true);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const formEmail = 'registerEmail';
     const formPassword = 'registerPassword';
@@ -42,6 +45,66 @@ export const SettingsPage: React.FC = () => {
         setLoading(false);
     }
 
+    const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setAlert(false);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
+
+        const request: UpdateUserRequest = {};
+
+        const password = formData.get(formPassword) as string;
+        const passwordConfirm = formData.get(formPasswordConfirm) as string;
+        const email = formData.get(formEmail) as string;
+        const name = formData.get(formName) as string;
+        const jobTitle = formData.get(formJobTitle) as string;
+
+        if (showPasswordFields) {
+            if (password != passwordConfirm) {
+                setPasswordsMatch(false);
+                setLoading(false);
+                return;
+            }
+            request.password = password;
+            setPasswordsMatch(true);
+        }
+
+        if (email != authenticatedUser?.email) {
+            request.email = email;
+        }
+        if (name != authenticatedUser?.name) {
+            request.name = name;
+        }
+        if (jobTitle != authenticatedUser?.jobTitle) {
+            request.jobTitle = jobTitle;
+        }
+
+        if (request.email || request.password || request.name || request.jobTitle) {
+            console.log(request);
+            apis.userApi
+                .updateUser({ updateUserRequest: request })
+                .then((user) => {
+                    setAlert(false);
+                    setAlertDescription('');
+                    setAuthenticatedUser(user);
+                    setShowSuccess(true);
+                })
+                .catch((reason: Response) => {
+                    setAlert(true);
+                    setShowSuccess(false);
+                    console.error(reason);
+                    setAlertDescription(`API issue occurred (${reason.status}).`);
+                })
+                .finally(() => setLoading(false));
+        } else {
+            setShowSuccess(false);
+            setAlert(true);
+            setAlertDescription('You did not change anything!');
+            setLoading(false);
+        }
+    };
+
     return loading ? (
         <Dimmer active inverted>
             <Loader content="Please wait..." />
@@ -56,7 +119,7 @@ export const SettingsPage: React.FC = () => {
                     <Header as="h2" color="teal" textAlign="center">
                         Edit your profile
                     </Header>
-                    <Form size="large">
+                    <Form size="large" onSubmit={(e) => handleOnSubmit(e)}>
                         <Segment stacked>
                             <Form.Input
                                 name={formName}
@@ -93,42 +156,57 @@ export const SettingsPage: React.FC = () => {
                                 required
                                 defaultValue={authenticatedUser?.email}
                             />
-                            <Grid columns={2}>
-                                <Grid.Column>
-                                    <Form.Input
-                                        name={formPassword}
-                                        fluid
-                                        icon="lock"
-                                        iconPosition="left"
-                                        placeholder="New Password"
-                                        type="password"
-                                        minLength={8}
-                                        maxLength={72}
-                                    />
-                                </Grid.Column>
-                                <Divider vertical />
-                                <Grid.Column>
-                                    <Form.Input
-                                        name={formPasswordConfirm}
-                                        fluid
-                                        icon="lock"
-                                        iconPosition="left"
-                                        placeholder="Confirm"
-                                        type="password"
-                                        minLength={8}
-                                        maxLength={72}
-                                    />
-                                </Grid.Column>
-                            </Grid>
+                            <Button onClick={() => setShowPasswordFields(!showPasswordFields)} fluid size={'small'}>
+                                Change password
+                            </Button>
+
+                            <div hidden={!showPasswordFields}>
+                                <Divider />
+                                <Grid columns={2}>
+                                    <Grid.Column>
+                                        <Form.Input
+                                            name={formPassword}
+                                            fluid
+                                            icon="lock"
+                                            iconPosition="left"
+                                            placeholder="New Password"
+                                            type="password"
+                                            minLength={8}
+                                            maxLength={72}
+                                            required={showPasswordFields}
+                                            error={passwordsMatch ? false : "Passwords didn't match."}
+                                        />
+                                    </Grid.Column>
+                                    <Divider vertical />
+                                    <Grid.Column>
+                                        <Form.Input
+                                            name={formPasswordConfirm}
+                                            fluid
+                                            icon="lock"
+                                            iconPosition="left"
+                                            placeholder="Confirm"
+                                            type="password"
+                                            minLength={8}
+                                            maxLength={72}
+                                            required={showPasswordFields}
+                                            error={!passwordsMatch}
+                                        />
+                                    </Grid.Column>
+                                </Grid>
+                            </div>
+
                             <Divider />
 
-                            <Button color="teal" fluid size="large" type="submit">
+                            <Button color="teal" fluid size="large" type="submit" tooltip>
                                 Save
                             </Button>
                         </Segment>
                     </Form>
                     <Transition visible={alert} animation="fade" duration={1000}>
                         <Message header={alertDescription} content={'Saving failed. Please try again.'} negative compact size={'small'} />
+                    </Transition>
+                    <Transition visible={showSuccess} animation="fade" duration={1000}>
+                        <Message header="Success!" content={'Saved your profile changes successfully.'} positive compact size={'small'} />
                     </Transition>
                 </Grid.Column>
             </Grid>
