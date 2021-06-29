@@ -16,13 +16,17 @@
 import * as runtime from '../runtime';
 import {
     CreateTeamRequest,
+    CreateTeamRequestFromJSON,
     CreateTeamRequestToJSON,
     TeamResponse,
     TeamResponseFromJSON,
+    TeamResponseToJSON,
     UpdateTeamRequest,
+    UpdateTeamRequestFromJSON,
     UpdateTeamRequestToJSON,
     UserResponse,
     UserResponseFromJSON,
+    UserResponseToJSON,
 } from '../models';
 
 export interface CreateTeamOperationRequest {
@@ -61,7 +65,7 @@ export class TeamApi extends runtime.BaseAPI {
      * Create a new team - manager only route. Team name must be unique for this user, can\'t have 2 teams with same name.
      * Create a new team
      */
-    async createTeamRaw(requestParameters: CreateTeamOperationRequest): Promise<runtime.ApiResponse<Array<TeamResponse>>> {
+    async createTeamRaw(requestParameters: CreateTeamOperationRequest): Promise<runtime.ApiResponse<TeamResponse>> {
         if (requestParameters.createTeamRequest === null || requestParameters.createTeamRequest === undefined) {
             throw new runtime.RequiredError('createTeamRequest','Required parameter requestParameters.createTeamRequest was null or undefined when calling createTeam.');
         }
@@ -88,14 +92,14 @@ export class TeamApi extends runtime.BaseAPI {
             body: CreateTeamRequestToJSON(requestParameters.createTeamRequest),
         });
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TeamResponseFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => TeamResponseFromJSON(jsonValue));
     }
 
     /**
      * Create a new team - manager only route. Team name must be unique for this user, can\'t have 2 teams with same name.
      * Create a new team
      */
-    async createTeam(requestParameters: CreateTeamOperationRequest): Promise<Array<TeamResponse>> {
+    async createTeam(requestParameters: CreateTeamOperationRequest): Promise<TeamResponse> {
         const response = await this.createTeamRaw(requestParameters);
         return await response.value();
     }

@@ -69,9 +69,7 @@ export const TeamsPage: React.FC = () => {
                 employees={employees}
                 modalOkButtonText={'Create'}
                 trigger={<Button color={'green'} icon={'users'} content={'Create a new team'} className={'left-margin right-margin'} size={'big'} />}
-                onOkButtonClick={async (teamName, teamMembers) => {
-                    const team = await apis.teamApi.createTeam({ createTeamRequest: { name: teamName } });
-                }}
+                onOkButtonClick={handleCreateTeamButton}
             />
 
             <List divided relaxed size={'massive'} selection className={'left-margin right-margin'}>
@@ -81,10 +79,33 @@ export const TeamsPage: React.FC = () => {
                         <List.Content>
                             <List.Header as={'a'}>{team.name}</List.Header>
                             <List.Description>Lead: {team.ownerName}</List.Description>
+                            <TeamModal
+                                modalHeader={'Edit team'}
+                                employees={employees}
+                                modalOkButtonText={'Save'}
+                                trigger={<Button color={'orange'} icon={'edit'} content={'Edit team'} className={'left-margin right-margin'} size={'small'} />}
+                                onOkButtonClick={handleEditTeamButton}
+                                teamName={team.name}
+                                //TODO: teamMembers=()=>UserResponse[] <-- change teammembers to a function call so we dont have to load all of team members of all teams.. this should be probably just apis.teamApi call?
+                            />
                         </List.Content>
                     </List.Item>
                 ))}
             </List>
         </>
     );
+
+    async function handleCreateTeamButton(teamName: string, teamMembers: UserResponse[]) {
+        const team = await apis.teamApi.createTeam({ createTeamRequest: { name: teamName } });
+        const assignTeamMemberPromises: Promise<void>[] = [];
+        for (const teamMember of teamMembers) {
+            //TODO: this will only assign, but also has to delete the previous team members.. should first implement the PUT method at backend...
+            assignTeamMemberPromises.push(apis.teamApi.createTeamMember({ teamId: team.id as number, userId: teamMember.id as number }));
+        }
+        await Promise.all(assignTeamMemberPromises);
+    }
+
+    async function handleEditTeamButton(teamName: string, teamMembers: UserResponse[]) {
+        throw Error('TODO: NOT IMPLEMENTED');
+    }
 };

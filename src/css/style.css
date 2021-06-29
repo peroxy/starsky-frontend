@@ -3,14 +3,17 @@ body {
     background: #f3f3f3 !important;
 }
 
-/* List class */
-.list.left-margin {
+.button.left-margin, .list.left-margin {
     margin-left: 2rem;
 }
-.list.right-margin {
+.button.right-margin, .list.right-margin {
     margin-right: 2rem;
 }
 
 .hidden {
     display: none;
+}
+
+.invisible {
+    visibility: hidden;
 }
