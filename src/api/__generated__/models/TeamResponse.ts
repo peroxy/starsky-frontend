@@ -12,8 +12,7 @@
  * Do not edit the class manually.
  */
 
-import {exists} from '../runtime';
-
+import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export

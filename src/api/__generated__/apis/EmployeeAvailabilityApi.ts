@@ -16,10 +16,16 @@
 import * as runtime from '../runtime';
 import {
     CreateEmployeeAvailabilityRequest,
+    CreateEmployeeAvailabilityRequestFromJSON,
     CreateEmployeeAvailabilityRequestToJSON,
     EmployeeAvailabilityResponse,
     EmployeeAvailabilityResponseFromJSON,
+    EmployeeAvailabilityResponseToJSON,
+    ForbiddenResponse,
+    ForbiddenResponseFromJSON,
+    ForbiddenResponseToJSON,
     UpdateEmployeeAvailabilityRequest,
+    UpdateEmployeeAvailabilityRequestFromJSON,
     UpdateEmployeeAvailabilityRequestToJSON,
 } from '../models';
 

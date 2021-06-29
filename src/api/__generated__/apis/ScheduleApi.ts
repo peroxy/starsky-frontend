@@ -16,10 +16,16 @@
 import * as runtime from '../runtime';
 import {
     CreateScheduleRequest,
+    CreateScheduleRequestFromJSON,
     CreateScheduleRequestToJSON,
     ScheduleResponse,
     ScheduleResponseFromJSON,
+    ScheduleResponseToJSON,
+    ScheduleUnsolvableResponse,
+    ScheduleUnsolvableResponseFromJSON,
+    ScheduleUnsolvableResponseToJSON,
     UpdateScheduleRequest,
+    UpdateScheduleRequestFromJSON,
     UpdateScheduleRequestToJSON,
 } from '../models';
 

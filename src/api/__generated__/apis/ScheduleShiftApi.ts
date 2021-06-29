@@ -16,10 +16,16 @@
 import * as runtime from '../runtime';
 import {
     CreateScheduleShiftRequest,
+    CreateScheduleShiftRequestFromJSON,
     CreateScheduleShiftRequestToJSON,
+    ForbiddenResponse,
+    ForbiddenResponseFromJSON,
+    ForbiddenResponseToJSON,
     ScheduleShiftResponse,
     ScheduleShiftResponseFromJSON,
+    ScheduleShiftResponseToJSON,
     UpdateScheduleShiftRequest,
+    UpdateScheduleShiftRequestFromJSON,
     UpdateScheduleShiftRequestToJSON,
 } from '../models';
 

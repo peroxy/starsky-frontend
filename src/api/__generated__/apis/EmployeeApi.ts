@@ -14,7 +14,11 @@
 
 
 import * as runtime from '../runtime';
-import {UserResponse, UserResponseFromJSON,} from '../models';
+import {
+    UserResponse,
+    UserResponseFromJSON,
+    UserResponseToJSON,
+} from '../models';
 
 /**
  * 

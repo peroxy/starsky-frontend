@@ -3,15 +3,19 @@ import { Helmet } from 'react-helmet';
 import { ActiveMenuItem, NavigationBarV2 } from '../NavigationBar';
 import { useLocation } from 'react-router-dom';
 import { TeamResponse, UserResponse } from '../../api/__generated__';
-import { Dimmer, Icon, List, Loader } from 'semantic-ui-react';
+import { Button, Dimmer, Divider, Dropdown, Form, Grid, GridColumn, Header, Icon, Input, Label, List, Loader, Message, Modal, Table } from 'semantic-ui-react';
 import { useApi } from '../../api/starskyApiClient';
 import { useAuth } from '../AuthProvider';
 import { responseToString } from '../../api/httpHelpers';
+import { TeamModal } from '../modals/TeamModal';
 
 export const TeamsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [authenticatedUser, setAuthenticatedUser] = useState<UserResponse | null>(null);
     const [teams, setTeams] = useState<TeamResponse[]>([]);
+    const [modalOpen, setModalOpen] = React.useState(false);
+
+    const [employees, setEmployees] = useState<UserResponse[]>([]);
 
     const location = useLocation();
 
@@ -39,6 +43,9 @@ export const TeamsPage: React.FC = () => {
             apis.teamApi.getTeams().then((value) => {
                 setTeams(value);
             }),
+            apis.employeeApi.getEmployees().then((value) => {
+                setEmployees(value);
+            }),
         );
 
         await Promise.all(loadData)
@@ -56,6 +63,17 @@ export const TeamsPage: React.FC = () => {
         <>
             <NavigationBarV2 activeMenuItem={ActiveMenuItem.Teams} authenticatedUser={authenticatedUser!} />
             <Helmet title={'Teams | Starsky'} />
+
+            <TeamModal
+                modalHeader={'Create a new team'}
+                employees={employees}
+                modalOkButtonText={'Create'}
+                trigger={<Button color={'green'} icon={'users'} content={'Create a new team'} className={'left-margin right-margin'} size={'big'} />}
+                onOkButtonClick={async (teamName, teamMembers) => {
+                    const team = await apis.teamApi.createTeam({ createTeamRequest: { name: teamName } });
+                }}
+            />
+
             <List divided relaxed size={'massive'} selection className={'left-margin right-margin'}>
                 {teams.map((team) => (
                     <List.Item key={team.id}>

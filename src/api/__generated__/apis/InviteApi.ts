@@ -14,7 +14,14 @@
 
 
 import * as runtime from '../runtime';
-import {CreateInviteRequest, CreateInviteRequestToJSON, InviteResponse, InviteResponseFromJSON,} from '../models';
+import {
+    CreateInviteRequest,
+    CreateInviteRequestFromJSON,
+    CreateInviteRequestToJSON,
+    InviteResponse,
+    InviteResponseFromJSON,
+    InviteResponseToJSON,
+} from '../models';
 
 export interface CreateInviteOperationRequest {
     createInviteRequest: CreateInviteRequest;

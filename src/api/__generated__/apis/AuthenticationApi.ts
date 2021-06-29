@@ -14,7 +14,14 @@
 
 
 import * as runtime from '../runtime';
-import {LoginRequest, LoginRequestToJSON, TokenResponse, TokenResponseFromJSON,} from '../models';
+import {
+    LoginRequest,
+    LoginRequestFromJSON,
+    LoginRequestToJSON,
+    TokenResponse,
+    TokenResponseFromJSON,
+    TokenResponseToJSON,
+} from '../models';
 
 export interface LoginOperationRequest {
     loginRequest: LoginRequest;

@@ -14,7 +14,11 @@
 
 
 import * as runtime from '../runtime';
-import {VersionResponse, VersionResponseFromJSON,} from '../models';
+import {
+    VersionResponse,
+    VersionResponseFromJSON,
+    VersionResponseToJSON,
+} from '../models';
 
 /**
  * 
