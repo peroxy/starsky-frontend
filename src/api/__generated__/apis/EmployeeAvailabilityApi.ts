@@ -15,6 +15,9 @@
 
 import * as runtime from '../runtime';
 import {
+    CreateEmployeeAvailabilitiesRequest,
+    CreateEmployeeAvailabilitiesRequestFromJSON,
+    CreateEmployeeAvailabilitiesRequestToJSON,
     CreateEmployeeAvailabilityRequest,
     CreateEmployeeAvailabilityRequestFromJSON,
     CreateEmployeeAvailabilityRequestToJSON,
@@ -28,6 +31,10 @@ import {
     UpdateEmployeeAvailabilityRequestFromJSON,
     UpdateEmployeeAvailabilityRequestToJSON,
 } from '../models';
+
+export interface CreateEmployeeAvailabilitiesOperationRequest {
+    createEmployeeAvailabilitiesRequest: Array<CreateEmployeeAvailabilitiesRequest>;
+}
 
 export interface CreateEmployeeAvailabilityOperationRequest {
     shiftId: number;
@@ -55,6 +62,48 @@ export interface UpdateEmployeeAvailabilityOperationRequest {
  * 
  */
 export class EmployeeAvailabilityApi extends runtime.BaseAPI {
+
+    /**
+     * Creates or updates employee availabilities. Please note that this operation can be destructive - it will always delete all of the previous/existing employee availabilities (if they exist) for the specified shift and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update multiple employee availabilities
+     */
+    async createEmployeeAvailabilitiesRaw(requestParameters: CreateEmployeeAvailabilitiesOperationRequest): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.createEmployeeAvailabilitiesRequest === null || requestParameters.createEmployeeAvailabilitiesRequest === undefined) {
+            throw new runtime.RequiredError('createEmployeeAvailabilitiesRequest','Required parameter requestParameters.createEmployeeAvailabilitiesRequest was null or undefined when calling createEmployeeAvailabilities.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/availabilities`,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters.createEmployeeAvailabilitiesRequest.map(CreateEmployeeAvailabilitiesRequestToJSON),
+        });
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Creates or updates employee availabilities. Please note that this operation can be destructive - it will always delete all of the previous/existing employee availabilities (if they exist) for the specified shift and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update multiple employee availabilities
+     */
+    async createEmployeeAvailabilities(requestParameters: CreateEmployeeAvailabilitiesOperationRequest): Promise<void> {
+        await this.createEmployeeAvailabilitiesRaw(requestParameters);
+    }
 
     /**
      * Creates a new employee availability that is assigned to the specified schedule shift. Authenticated user must have manager role.

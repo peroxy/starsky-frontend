@@ -11,10 +11,12 @@ apis/VersionApi.ts
 apis/index.ts
 index.ts
 models/CreateEmployeeAssignmentRequest.ts
+models/CreateEmployeeAvailabilitiesRequest.ts
 models/CreateEmployeeAvailabilityRequest.ts
 models/CreateInviteRequest.ts
 models/CreateScheduleRequest.ts
 models/CreateScheduleShiftRequest.ts
+models/CreateTeamMemberRequest.ts
 models/CreateTeamRequest.ts
 models/CreateUserRequest.ts
 models/EmployeeAssignmentResponse.ts

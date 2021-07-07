@@ -34,6 +34,11 @@ export interface CreateScheduleShiftOperationRequest {
     createScheduleShiftRequest: CreateScheduleShiftRequest;
 }
 
+export interface CreateScheduleShiftsRequest {
+    scheduleId: number;
+    createScheduleShiftRequest: Array<CreateScheduleShiftRequest>;
+}
+
 export interface DeleteScheduleShiftRequest {
     shiftId: number;
 }
@@ -101,6 +106,52 @@ export class ScheduleShiftApi extends runtime.BaseAPI {
     async createScheduleShift(requestParameters: CreateScheduleShiftOperationRequest): Promise<ScheduleShiftResponse> {
         const response = await this.createScheduleShiftRaw(requestParameters);
         return await response.value();
+    }
+
+    /**
+     * Creates or updates schedule shifts. Please note that this operation can be destructive - it will always delete all of the previous/existing schedule shifts (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update multiple schedule shifts
+     */
+    async createScheduleShiftsRaw(requestParameters: CreateScheduleShiftsRequest): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.scheduleId === null || requestParameters.scheduleId === undefined) {
+            throw new runtime.RequiredError('scheduleId','Required parameter requestParameters.scheduleId was null or undefined when calling createScheduleShifts.');
+        }
+
+        if (requestParameters.createScheduleShiftRequest === null || requestParameters.createScheduleShiftRequest === undefined) {
+            throw new runtime.RequiredError('createScheduleShiftRequest','Required parameter requestParameters.createScheduleShiftRequest was null or undefined when calling createScheduleShifts.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/schedules/{schedule_id}/shifts`.replace(`{${"schedule_id"}}`, encodeURIComponent(String(requestParameters.scheduleId))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters.createScheduleShiftRequest.map(CreateScheduleShiftRequestToJSON),
+        });
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Creates or updates schedule shifts. Please note that this operation can be destructive - it will always delete all of the previous/existing schedule shifts (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update multiple schedule shifts
+     */
+    async createScheduleShifts(requestParameters: CreateScheduleShiftsRequest): Promise<void> {
+        await this.createScheduleShiftsRaw(requestParameters);
     }
 
     /**

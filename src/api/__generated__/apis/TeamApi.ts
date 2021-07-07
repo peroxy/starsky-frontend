@@ -15,6 +15,7 @@
 
 import * as runtime from '../runtime';
 import {
+    CreateTeamMemberRequestToJSON,
     CreateTeamRequest,
     CreateTeamRequestFromJSON,
     CreateTeamRequestToJSON,
@@ -36,6 +37,11 @@ export interface CreateTeamOperationRequest {
 export interface CreateTeamMemberRequest {
     teamId: number;
     userId: number;
+}
+
+export interface CreateTeamMembersRequest {
+    teamId: number;
+    createTeamMemberRequest: Array<CreateTeamMemberRequest>;
 }
 
 export interface DeleteTeamRequest {
@@ -145,6 +151,52 @@ export class TeamApi extends runtime.BaseAPI {
      */
     async createTeamMember(requestParameters: CreateTeamMemberRequest): Promise<void> {
         await this.createTeamMemberRaw(requestParameters);
+    }
+
+    /**
+     * Creates or updates team members. Please note that this operation can be destructive - it will always delete all of the previous/existing team members (if they exist) for the specified team and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update team members
+     */
+    async createTeamMembersRaw(requestParameters: CreateTeamMembersRequest): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
+            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling createTeamMembers.');
+        }
+
+        if (requestParameters.createTeamMemberRequest === null || requestParameters.createTeamMemberRequest === undefined) {
+            throw new runtime.RequiredError('createTeamMemberRequest','Required parameter requestParameters.createTeamMemberRequest was null or undefined when calling createTeamMembers.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/teams/{team_id}/members`.replace(`{${"team_id"}}`, encodeURIComponent(String(requestParameters.teamId))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters.createTeamMemberRequest.map(CreateTeamMemberRequestToJSON),
+        });
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Creates or updates team members. Please note that this operation can be destructive - it will always delete all of the previous/existing team members (if they exist) for the specified team and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update team members
+     */
+    async createTeamMembers(requestParameters: CreateTeamMembersRequest): Promise<void> {
+        await this.createTeamMembersRaw(requestParameters);
     }
 
     /**
