@@ -119,7 +119,7 @@ export function RegisterPage(): JSX.Element {
         };
 
         try {
-            const userResponse = await apis.userApi.createUser({ createUserRequest: request });
+            const userResponse = await apis.userApi.postUser({ createUserRequest: request });
             setAlertDescription('');
             await loginNewUser(userResponse, { email: request.email, password: request.password as string });
         } catch (error) {

@@ -83,7 +83,7 @@ export const SettingsPage: React.FC = () => {
         if (request.email || request.password || request.name || request.jobTitle) {
             console.log(request);
             apis.userApi
-                .updateUser({ updateUserRequest: request })
+                .patchUser({ updateUserRequest: request })
                 .then((user) => {
                     setAlert(false);
                     setAlertDescription('');
