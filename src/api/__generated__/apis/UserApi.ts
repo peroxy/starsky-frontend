@@ -29,53 +29,18 @@ import {
     UserResponseToJSON,
 } from '../models';
 
-export interface CreateUserOperationRequest {
-    createUserRequest: CreateUserRequest;
+export interface PatchUserRequest {
+    updateUserRequest: UpdateUserRequest;
 }
 
-export interface UpdateUserOperationRequest {
-    updateUserRequest: UpdateUserRequest;
+export interface PostUserRequest {
+    createUserRequest: CreateUserRequest;
 }
 
 /**
  * 
  */
 export class UserApi extends runtime.BaseAPI {
-
-    /**
-     * You can register a new user with the manager role by only supplying their name, email, password and job title. By adding a valid invite token (which the employee receives by mail) to the request body, the newly registered user will have the employee role.
-     * Register a new user
-     */
-    async createUserRaw(requestParameters: CreateUserOperationRequest): Promise<runtime.ApiResponse<UserResponse>> {
-        if (requestParameters.createUserRequest === null || requestParameters.createUserRequest === undefined) {
-            throw new runtime.RequiredError('createUserRequest','Required parameter requestParameters.createUserRequest was null or undefined when calling createUser.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        const response = await this.request({
-            path: `/users`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: CreateUserRequestToJSON(requestParameters.createUserRequest),
-        });
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => UserResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * You can register a new user with the manager role by only supplying their name, email, password and job title. By adding a valid invite token (which the employee receives by mail) to the request body, the newly registered user will have the employee role.
-     * Register a new user
-     */
-    async createUser(requestParameters: CreateUserOperationRequest): Promise<UserResponse> {
-        const response = await this.createUserRaw(requestParameters);
-        return await response.value();
-    }
 
     /**
      * Returns the currently authenticated user\'s information.
@@ -117,9 +82,9 @@ export class UserApi extends runtime.BaseAPI {
      * Update specified properties of the currently authenticated user.
      * Update user
      */
-    async updateUserRaw(requestParameters: UpdateUserOperationRequest): Promise<runtime.ApiResponse<UserResponse>> {
+    async patchUserRaw(requestParameters: PatchUserRequest): Promise<runtime.ApiResponse<UserResponse>> {
         if (requestParameters.updateUserRequest === null || requestParameters.updateUserRequest === undefined) {
-            throw new runtime.RequiredError('updateUserRequest','Required parameter requestParameters.updateUserRequest was null or undefined when calling updateUser.');
+            throw new runtime.RequiredError('updateUserRequest','Required parameter requestParameters.updateUserRequest was null or undefined when calling patchUser.');
         }
 
         const queryParameters: any = {};
@@ -151,8 +116,43 @@ export class UserApi extends runtime.BaseAPI {
      * Update specified properties of the currently authenticated user.
      * Update user
      */
-    async updateUser(requestParameters: UpdateUserOperationRequest): Promise<UserResponse> {
-        const response = await this.updateUserRaw(requestParameters);
+    async patchUser(requestParameters: PatchUserRequest): Promise<UserResponse> {
+        const response = await this.patchUserRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * You can register a new user with the manager role by only supplying their name, email, password and job title. By adding a valid invite token (which the employee receives by mail) to the request body, the newly registered user will have the employee role.
+     * Register a new user
+     */
+    async postUserRaw(requestParameters: PostUserRequest): Promise<runtime.ApiResponse<UserResponse>> {
+        if (requestParameters.createUserRequest === null || requestParameters.createUserRequest === undefined) {
+            throw new runtime.RequiredError('createUserRequest','Required parameter requestParameters.createUserRequest was null or undefined when calling postUser.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        const response = await this.request({
+            path: `/users`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateUserRequestToJSON(requestParameters.createUserRequest),
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * You can register a new user with the manager role by only supplying their name, email, password and job title. By adding a valid invite token (which the employee receives by mail) to the request body, the newly registered user will have the employee role.
+     * Register a new user
+     */
+    async postUser(requestParameters: PostUserRequest): Promise<UserResponse> {
+        const response = await this.postUserRaw(requestParameters);
         return await response.value();
     }
 

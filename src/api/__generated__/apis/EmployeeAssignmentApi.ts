@@ -23,65 +23,19 @@ import {
     EmployeeAssignmentResponseToJSON,
 } from '../models';
 
-export interface CreateEmployeeAssignmentOperationRequest {
-    scheduleId: number;
-    createEmployeeAssignmentRequest: Array<CreateEmployeeAssignmentRequest>;
-}
-
 export interface GetEmployeeAssignmentsRequest {
     scheduleId: number;
+}
+
+export interface PutEmployeeAssignmentRequest {
+    scheduleId: number;
+    createEmployeeAssignmentRequest: Array<CreateEmployeeAssignmentRequest>;
 }
 
 /**
  * 
  */
 export class EmployeeAssignmentApi extends runtime.BaseAPI {
-
-    /**
-     * Creates or updates a schedule with all of the specified schedule employee assignments. Please note that this operation can be destructive - it will always delete all of the previous/existing employee assignments (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
-     * Create or update employee assignments
-     */
-    async createEmployeeAssignmentRaw(requestParameters: CreateEmployeeAssignmentOperationRequest): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.scheduleId === null || requestParameters.scheduleId === undefined) {
-            throw new runtime.RequiredError('scheduleId','Required parameter requestParameters.scheduleId was null or undefined when calling createEmployeeAssignment.');
-        }
-
-        if (requestParameters.createEmployeeAssignmentRequest === null || requestParameters.createEmployeeAssignmentRequest === undefined) {
-            throw new runtime.RequiredError('createEmployeeAssignmentRequest','Required parameter requestParameters.createEmployeeAssignmentRequest was null or undefined when calling createEmployeeAssignment.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/user/schedules/{schedule_id}/assignments`.replace(`{${"schedule_id"}}`, encodeURIComponent(String(requestParameters.scheduleId))),
-            method: 'PUT',
-            headers: headerParameters,
-            query: queryParameters,
-            body: requestParameters.createEmployeeAssignmentRequest.map(CreateEmployeeAssignmentRequestToJSON),
-        });
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     * Creates or updates a schedule with all of the specified schedule employee assignments. Please note that this operation can be destructive - it will always delete all of the previous/existing employee assignments (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
-     * Create or update employee assignments
-     */
-    async createEmployeeAssignment(requestParameters: CreateEmployeeAssignmentOperationRequest): Promise<void> {
-        await this.createEmployeeAssignmentRaw(requestParameters);
-    }
 
     /**
      * Get all of the employee assignments for the specified schedule. 
@@ -121,6 +75,52 @@ export class EmployeeAssignmentApi extends runtime.BaseAPI {
     async getEmployeeAssignments(requestParameters: GetEmployeeAssignmentsRequest): Promise<Array<EmployeeAssignmentResponse>> {
         const response = await this.getEmployeeAssignmentsRaw(requestParameters);
         return await response.value();
+    }
+
+    /**
+     * Creates or updates a schedule with all of the specified schedule employee assignments. Please note that this operation can be destructive - it will always delete all of the previous/existing employee assignments (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update employee assignments
+     */
+    async putEmployeeAssignmentRaw(requestParameters: PutEmployeeAssignmentRequest): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.scheduleId === null || requestParameters.scheduleId === undefined) {
+            throw new runtime.RequiredError('scheduleId','Required parameter requestParameters.scheduleId was null or undefined when calling putEmployeeAssignment.');
+        }
+
+        if (requestParameters.createEmployeeAssignmentRequest === null || requestParameters.createEmployeeAssignmentRequest === undefined) {
+            throw new runtime.RequiredError('createEmployeeAssignmentRequest','Required parameter requestParameters.createEmployeeAssignmentRequest was null or undefined when calling putEmployeeAssignment.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/schedules/{schedule_id}/assignments`.replace(`{${"schedule_id"}}`, encodeURIComponent(String(requestParameters.scheduleId))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters.createEmployeeAssignmentRequest.map(CreateEmployeeAssignmentRequestToJSON),
+        });
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Creates or updates a schedule with all of the specified schedule employee assignments. Please note that this operation can be destructive - it will always delete all of the previous/existing employee assignments (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update employee assignments
+     */
+    async putEmployeeAssignment(requestParameters: PutEmployeeAssignmentRequest): Promise<void> {
+        await this.putEmployeeAssignmentRaw(requestParameters);
     }
 
 }

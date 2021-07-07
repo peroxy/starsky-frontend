@@ -23,10 +23,6 @@ import {
     InviteResponseToJSON,
 } from '../models';
 
-export interface CreateInviteOperationRequest {
-    createInviteRequest: CreateInviteRequest;
-}
-
 export interface DeleteInviteRequest {
     inviteId: number;
 }
@@ -35,53 +31,14 @@ export interface GetInviteByIdRequest {
     inviteId: number;
 }
 
+export interface PostInviteRequest {
+    createInviteRequest: CreateInviteRequest;
+}
+
 /**
  * 
  */
 export class InviteApi extends runtime.BaseAPI {
-
-    /**
-     * Send an invite email to the specified employee so they can create a new Starsky account and join the manager\'s team. Authenticated user must have manager role.
-     * Send a new invite
-     */
-    async createInviteRaw(requestParameters: CreateInviteOperationRequest): Promise<runtime.ApiResponse<InviteResponse>> {
-        if (requestParameters.createInviteRequest === null || requestParameters.createInviteRequest === undefined) {
-            throw new runtime.RequiredError('createInviteRequest','Required parameter requestParameters.createInviteRequest was null or undefined when calling createInvite.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/user/invites`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: CreateInviteRequestToJSON(requestParameters.createInviteRequest),
-        });
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => InviteResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Send an invite email to the specified employee so they can create a new Starsky account and join the manager\'s team. Authenticated user must have manager role.
-     * Send a new invite
-     */
-    async createInvite(requestParameters: CreateInviteOperationRequest): Promise<InviteResponse> {
-        const response = await this.createInviteRaw(requestParameters);
-        return await response.value();
-    }
 
     /**
      * Delete an invite. The invited employee will not be able to register after this operation.  Authenticated user must have manager role.
@@ -195,6 +152,49 @@ export class InviteApi extends runtime.BaseAPI {
      */
     async getInvites(): Promise<Array<InviteResponse>> {
         const response = await this.getInvitesRaw();
+        return await response.value();
+    }
+
+    /**
+     * Send an invite email to the specified employee so they can create a new Starsky account and join the manager\'s team. Authenticated user must have manager role.
+     * Send a new invite
+     */
+    async postInviteRaw(requestParameters: PostInviteRequest): Promise<runtime.ApiResponse<InviteResponse>> {
+        if (requestParameters.createInviteRequest === null || requestParameters.createInviteRequest === undefined) {
+            throw new runtime.RequiredError('createInviteRequest','Required parameter requestParameters.createInviteRequest was null or undefined when calling postInvite.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/invites`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateInviteRequestToJSON(requestParameters.createInviteRequest),
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => InviteResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Send an invite email to the specified employee so they can create a new Starsky account and join the manager\'s team. Authenticated user must have manager role.
+     * Send a new invite
+     */
+    async postInvite(requestParameters: PostInviteRequest): Promise<InviteResponse> {
+        const response = await this.postInviteRaw(requestParameters);
         return await response.value();
     }
 

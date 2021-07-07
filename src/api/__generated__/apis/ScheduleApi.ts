@@ -29,11 +29,6 @@ import {
     UpdateScheduleRequestToJSON,
 } from '../models';
 
-export interface CreateScheduleOperationRequest {
-    teamId: number;
-    createScheduleRequest: CreateScheduleRequest;
-}
-
 export interface DeleteScheduleRequest {
     scheduleId: number;
 }
@@ -46,66 +41,24 @@ export interface GetSchedulesRequest {
     teamId?: number;
 }
 
-export interface SolveScheduleByIdRequest {
-    scheduleId: number;
-}
-
-export interface UpdateScheduleOperationRequest {
+export interface PatchScheduleRequest {
     scheduleId: number;
     updateScheduleRequest: UpdateScheduleRequest;
+}
+
+export interface PostScheduleRequest {
+    teamId: number;
+    createScheduleRequest: CreateScheduleRequest;
+}
+
+export interface SolveScheduleByIdRequest {
+    scheduleId: number;
 }
 
 /**
  * 
  */
 export class ScheduleApi extends runtime.BaseAPI {
-
-    /**
-     * Creates a new schedule that is assigned to the specified team. Authenticated user must have manager role.
-     * Create a new schedule
-     */
-    async createScheduleRaw(requestParameters: CreateScheduleOperationRequest): Promise<runtime.ApiResponse<ScheduleResponse>> {
-        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
-            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling createSchedule.');
-        }
-
-        if (requestParameters.createScheduleRequest === null || requestParameters.createScheduleRequest === undefined) {
-            throw new runtime.RequiredError('createScheduleRequest','Required parameter requestParameters.createScheduleRequest was null or undefined when calling createSchedule.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/user/teams/{team_id}/schedules`.replace(`{${"team_id"}}`, encodeURIComponent(String(requestParameters.teamId))),
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: CreateScheduleRequestToJSON(requestParameters.createScheduleRequest),
-        });
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ScheduleResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Creates a new schedule that is assigned to the specified team. Authenticated user must have manager role.
-     * Create a new schedule
-     */
-    async createSchedule(requestParameters: CreateScheduleOperationRequest): Promise<ScheduleResponse> {
-        const response = await this.createScheduleRaw(requestParameters);
-        return await response.value();
-    }
 
     /**
      * Delete a specified schedule. This will also cascade delete schedule shifts and employee availabilities. Authenticated user must have manager role.
@@ -227,6 +180,100 @@ export class ScheduleApi extends runtime.BaseAPI {
     }
 
     /**
+     * Update any property of the specified schedule. Authenticated user must have manager role.
+     * Update schedule
+     */
+    async patchScheduleRaw(requestParameters: PatchScheduleRequest): Promise<runtime.ApiResponse<ScheduleResponse>> {
+        if (requestParameters.scheduleId === null || requestParameters.scheduleId === undefined) {
+            throw new runtime.RequiredError('scheduleId','Required parameter requestParameters.scheduleId was null or undefined when calling patchSchedule.');
+        }
+
+        if (requestParameters.updateScheduleRequest === null || requestParameters.updateScheduleRequest === undefined) {
+            throw new runtime.RequiredError('updateScheduleRequest','Required parameter requestParameters.updateScheduleRequest was null or undefined when calling patchSchedule.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/schedules/{schedule_id}`.replace(`{${"schedule_id"}}`, encodeURIComponent(String(requestParameters.scheduleId))),
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateScheduleRequestToJSON(requestParameters.updateScheduleRequest),
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ScheduleResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Update any property of the specified schedule. Authenticated user must have manager role.
+     * Update schedule
+     */
+    async patchSchedule(requestParameters: PatchScheduleRequest): Promise<ScheduleResponse> {
+        const response = await this.patchScheduleRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * Creates a new schedule that is assigned to the specified team. Authenticated user must have manager role.
+     * Create a new schedule
+     */
+    async postScheduleRaw(requestParameters: PostScheduleRequest): Promise<runtime.ApiResponse<ScheduleResponse>> {
+        if (requestParameters.teamId === null || requestParameters.teamId === undefined) {
+            throw new runtime.RequiredError('teamId','Required parameter requestParameters.teamId was null or undefined when calling postSchedule.');
+        }
+
+        if (requestParameters.createScheduleRequest === null || requestParameters.createScheduleRequest === undefined) {
+            throw new runtime.RequiredError('createScheduleRequest','Required parameter requestParameters.createScheduleRequest was null or undefined when calling postSchedule.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/teams/{team_id}/schedules`.replace(`{${"team_id"}}`, encodeURIComponent(String(requestParameters.teamId))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateScheduleRequestToJSON(requestParameters.createScheduleRequest),
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ScheduleResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Creates a new schedule that is assigned to the specified team. Authenticated user must have manager role.
+     * Create a new schedule
+     */
+    async postSchedule(requestParameters: PostScheduleRequest): Promise<ScheduleResponse> {
+        const response = await this.postScheduleRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
      * Returns the solved schedule with employee assignments. Manager only route.
      * Get solved schedule\'s employee assignments
      */
@@ -263,53 +310,6 @@ export class ScheduleApi extends runtime.BaseAPI {
      */
     async solveScheduleById(requestParameters: SolveScheduleByIdRequest): Promise<string> {
         const response = await this.solveScheduleByIdRaw(requestParameters);
-        return await response.value();
-    }
-
-    /**
-     * Update any property of the specified schedule. Authenticated user must have manager role.
-     * Update schedule
-     */
-    async updateScheduleRaw(requestParameters: UpdateScheduleOperationRequest): Promise<runtime.ApiResponse<ScheduleResponse>> {
-        if (requestParameters.scheduleId === null || requestParameters.scheduleId === undefined) {
-            throw new runtime.RequiredError('scheduleId','Required parameter requestParameters.scheduleId was null or undefined when calling updateSchedule.');
-        }
-
-        if (requestParameters.updateScheduleRequest === null || requestParameters.updateScheduleRequest === undefined) {
-            throw new runtime.RequiredError('updateScheduleRequest','Required parameter requestParameters.updateScheduleRequest was null or undefined when calling updateSchedule.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/user/schedules/{schedule_id}`.replace(`{${"schedule_id"}}`, encodeURIComponent(String(requestParameters.scheduleId))),
-            method: 'PATCH',
-            headers: headerParameters,
-            query: queryParameters,
-            body: UpdateScheduleRequestToJSON(requestParameters.updateScheduleRequest),
-        });
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => ScheduleResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Update any property of the specified schedule. Authenticated user must have manager role.
-     * Update schedule
-     */
-    async updateSchedule(requestParameters: UpdateScheduleOperationRequest): Promise<ScheduleResponse> {
-        const response = await this.updateScheduleRaw(requestParameters);
         return await response.value();
     }
 

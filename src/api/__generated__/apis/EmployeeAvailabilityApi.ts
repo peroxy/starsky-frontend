@@ -32,15 +32,6 @@ import {
     UpdateEmployeeAvailabilityRequestToJSON,
 } from '../models';
 
-export interface CreateEmployeeAvailabilitiesOperationRequest {
-    createEmployeeAvailabilitiesRequest: Array<CreateEmployeeAvailabilitiesRequest>;
-}
-
-export interface CreateEmployeeAvailabilityOperationRequest {
-    shiftId: number;
-    createEmployeeAvailabilityRequest: CreateEmployeeAvailabilityRequest;
-}
-
 export interface DeleteEmployeeAvailabilityRequest {
     availabilityId: number;
 }
@@ -53,104 +44,24 @@ export interface GetEmployeeAvailabilityRequest {
     availabilityId: number;
 }
 
-export interface UpdateEmployeeAvailabilityOperationRequest {
+export interface PatchEmployeeAvailabilityRequest {
     availabilityId: number;
     updateEmployeeAvailabilityRequest: UpdateEmployeeAvailabilityRequest;
+}
+
+export interface PostEmployeeAvailabilityRequest {
+    shiftId: number;
+    createEmployeeAvailabilityRequest: CreateEmployeeAvailabilityRequest;
+}
+
+export interface PutEmployeeAvailabilitiesRequest {
+    createEmployeeAvailabilitiesRequest: Array<CreateEmployeeAvailabilitiesRequest>;
 }
 
 /**
  * 
  */
 export class EmployeeAvailabilityApi extends runtime.BaseAPI {
-
-    /**
-     * Creates or updates employee availabilities. Please note that this operation can be destructive - it will always delete all of the previous/existing employee availabilities (if they exist) for the specified shift and create or update with the new ones. Authenticated user must have manager role.
-     * Create or update multiple employee availabilities
-     */
-    async createEmployeeAvailabilitiesRaw(requestParameters: CreateEmployeeAvailabilitiesOperationRequest): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.createEmployeeAvailabilitiesRequest === null || requestParameters.createEmployeeAvailabilitiesRequest === undefined) {
-            throw new runtime.RequiredError('createEmployeeAvailabilitiesRequest','Required parameter requestParameters.createEmployeeAvailabilitiesRequest was null or undefined when calling createEmployeeAvailabilities.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/user/availabilities`,
-            method: 'PUT',
-            headers: headerParameters,
-            query: queryParameters,
-            body: requestParameters.createEmployeeAvailabilitiesRequest.map(CreateEmployeeAvailabilitiesRequestToJSON),
-        });
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     * Creates or updates employee availabilities. Please note that this operation can be destructive - it will always delete all of the previous/existing employee availabilities (if they exist) for the specified shift and create or update with the new ones. Authenticated user must have manager role.
-     * Create or update multiple employee availabilities
-     */
-    async createEmployeeAvailabilities(requestParameters: CreateEmployeeAvailabilitiesOperationRequest): Promise<void> {
-        await this.createEmployeeAvailabilitiesRaw(requestParameters);
-    }
-
-    /**
-     * Creates a new employee availability that is assigned to the specified schedule shift. Authenticated user must have manager role.
-     * Create a new employee availability
-     */
-    async createEmployeeAvailabilityRaw(requestParameters: CreateEmployeeAvailabilityOperationRequest): Promise<runtime.ApiResponse<EmployeeAvailabilityResponse>> {
-        if (requestParameters.shiftId === null || requestParameters.shiftId === undefined) {
-            throw new runtime.RequiredError('shiftId','Required parameter requestParameters.shiftId was null or undefined when calling createEmployeeAvailability.');
-        }
-
-        if (requestParameters.createEmployeeAvailabilityRequest === null || requestParameters.createEmployeeAvailabilityRequest === undefined) {
-            throw new runtime.RequiredError('createEmployeeAvailabilityRequest','Required parameter requestParameters.createEmployeeAvailabilityRequest was null or undefined when calling createEmployeeAvailability.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/user/shifts/{shift_id}/availabilities`.replace(`{${"shift_id"}}`, encodeURIComponent(String(requestParameters.shiftId))),
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: CreateEmployeeAvailabilityRequestToJSON(requestParameters.createEmployeeAvailabilityRequest),
-        });
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => EmployeeAvailabilityResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Creates a new employee availability that is assigned to the specified schedule shift. Authenticated user must have manager role.
-     * Create a new employee availability
-     */
-    async createEmployeeAvailability(requestParameters: CreateEmployeeAvailabilityOperationRequest): Promise<EmployeeAvailabilityResponse> {
-        const response = await this.createEmployeeAvailabilityRaw(requestParameters);
-        return await response.value();
-    }
 
     /**
      * Delete an employee availability. Authenticated user must have manager role.
@@ -275,13 +186,13 @@ export class EmployeeAvailabilityApi extends runtime.BaseAPI {
      * Update any property (except actual employee) of the specified employee availability. Authenticated user must have manager role.
      * Update employee availability
      */
-    async updateEmployeeAvailabilityRaw(requestParameters: UpdateEmployeeAvailabilityOperationRequest): Promise<runtime.ApiResponse<EmployeeAvailabilityResponse>> {
+    async patchEmployeeAvailabilityRaw(requestParameters: PatchEmployeeAvailabilityRequest): Promise<runtime.ApiResponse<EmployeeAvailabilityResponse>> {
         if (requestParameters.availabilityId === null || requestParameters.availabilityId === undefined) {
-            throw new runtime.RequiredError('availabilityId','Required parameter requestParameters.availabilityId was null or undefined when calling updateEmployeeAvailability.');
+            throw new runtime.RequiredError('availabilityId','Required parameter requestParameters.availabilityId was null or undefined when calling patchEmployeeAvailability.');
         }
 
         if (requestParameters.updateEmployeeAvailabilityRequest === null || requestParameters.updateEmployeeAvailabilityRequest === undefined) {
-            throw new runtime.RequiredError('updateEmployeeAvailabilityRequest','Required parameter requestParameters.updateEmployeeAvailabilityRequest was null or undefined when calling updateEmployeeAvailability.');
+            throw new runtime.RequiredError('updateEmployeeAvailabilityRequest','Required parameter requestParameters.updateEmployeeAvailabilityRequest was null or undefined when calling patchEmployeeAvailability.');
         }
 
         const queryParameters: any = {};
@@ -313,9 +224,98 @@ export class EmployeeAvailabilityApi extends runtime.BaseAPI {
      * Update any property (except actual employee) of the specified employee availability. Authenticated user must have manager role.
      * Update employee availability
      */
-    async updateEmployeeAvailability(requestParameters: UpdateEmployeeAvailabilityOperationRequest): Promise<EmployeeAvailabilityResponse> {
-        const response = await this.updateEmployeeAvailabilityRaw(requestParameters);
+    async patchEmployeeAvailability(requestParameters: PatchEmployeeAvailabilityRequest): Promise<EmployeeAvailabilityResponse> {
+        const response = await this.patchEmployeeAvailabilityRaw(requestParameters);
         return await response.value();
+    }
+
+    /**
+     * Creates a new employee availability that is assigned to the specified schedule shift. Authenticated user must have manager role.
+     * Create a new employee availability
+     */
+    async postEmployeeAvailabilityRaw(requestParameters: PostEmployeeAvailabilityRequest): Promise<runtime.ApiResponse<EmployeeAvailabilityResponse>> {
+        if (requestParameters.shiftId === null || requestParameters.shiftId === undefined) {
+            throw new runtime.RequiredError('shiftId','Required parameter requestParameters.shiftId was null or undefined when calling postEmployeeAvailability.');
+        }
+
+        if (requestParameters.createEmployeeAvailabilityRequest === null || requestParameters.createEmployeeAvailabilityRequest === undefined) {
+            throw new runtime.RequiredError('createEmployeeAvailabilityRequest','Required parameter requestParameters.createEmployeeAvailabilityRequest was null or undefined when calling postEmployeeAvailability.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/shifts/{shift_id}/availabilities`.replace(`{${"shift_id"}}`, encodeURIComponent(String(requestParameters.shiftId))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateEmployeeAvailabilityRequestToJSON(requestParameters.createEmployeeAvailabilityRequest),
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => EmployeeAvailabilityResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Creates a new employee availability that is assigned to the specified schedule shift. Authenticated user must have manager role.
+     * Create a new employee availability
+     */
+    async postEmployeeAvailability(requestParameters: PostEmployeeAvailabilityRequest): Promise<EmployeeAvailabilityResponse> {
+        const response = await this.postEmployeeAvailabilityRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * Creates or updates employee availabilities. Please note that this operation can be destructive - it will always delete all of the previous/existing employee availabilities (if they exist) for the specified shift and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update multiple employee availabilities
+     */
+    async putEmployeeAvailabilitiesRaw(requestParameters: PutEmployeeAvailabilitiesRequest): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.createEmployeeAvailabilitiesRequest === null || requestParameters.createEmployeeAvailabilitiesRequest === undefined) {
+            throw new runtime.RequiredError('createEmployeeAvailabilitiesRequest','Required parameter requestParameters.createEmployeeAvailabilitiesRequest was null or undefined when calling putEmployeeAvailabilities.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/availabilities`,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: requestParameters.createEmployeeAvailabilitiesRequest.map(CreateEmployeeAvailabilitiesRequestToJSON),
+        });
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Creates or updates employee availabilities. Please note that this operation can be destructive - it will always delete all of the previous/existing employee availabilities (if they exist) for the specified shift and create or update with the new ones. Authenticated user must have manager role.
+     * Create or update multiple employee availabilities
+     */
+    async putEmployeeAvailabilities(requestParameters: PutEmployeeAvailabilitiesRequest): Promise<void> {
+        await this.putEmployeeAvailabilitiesRaw(requestParameters);
     }
 
 }
