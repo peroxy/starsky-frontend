@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { ActiveMenuItem, NavigationBarV2 } from '../NavigationBar';
 import { useLocation } from 'react-router-dom';
 import { TeamResponse, UserResponse } from '../../api/__generated__';
-import { Button, Dimmer, Divider, Dropdown, Form, Grid, GridColumn, Header, Icon, Input, Label, List, Loader, Message, Modal, Table } from 'semantic-ui-react';
+import { Button, Dimmer, Icon, List, Loader } from 'semantic-ui-react';
 import { useApi } from '../../api/starskyApiClient';
 import { useAuth } from '../AuthProvider';
 import { responseToString } from '../../api/httpHelpers';
@@ -13,7 +13,6 @@ export const TeamsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [authenticatedUser, setAuthenticatedUser] = useState<UserResponse | null>(null);
     const [teams, setTeams] = useState<TeamResponse[]>([]);
-    const [modalOpen, setModalOpen] = React.useState(false);
 
     const [employees, setEmployees] = useState<UserResponse[]>([]);
 
@@ -86,7 +85,7 @@ export const TeamsPage: React.FC = () => {
                                 trigger={<Button color={'orange'} icon={'edit'} content={'Edit team'} className={'left-margin right-margin'} size={'small'} />}
                                 onOkButtonClick={handleEditTeamButton}
                                 teamName={team.name}
-                                //TODO: teamMembers=()=>UserResponse[] <-- change teammembers to a function call so we dont have to load all of team members of all teams.. this should be probably just apis.teamApi call?
+                                getTeamMembers={apis.teamApi.getTeamMembers({ teamId: team.id as number })}
                             />
                         </List.Content>
                     </List.Item>
@@ -96,16 +95,16 @@ export const TeamsPage: React.FC = () => {
     );
 
     async function handleCreateTeamButton(teamName: string, teamMembers: UserResponse[]) {
-        const team = await apis.teamApi.createTeam({ createTeamRequest: { name: teamName } });
-        const assignTeamMemberPromises: Promise<void>[] = [];
-        for (const teamMember of teamMembers) {
-            //TODO: this will only assign, but also has to delete the previous team members.. should first implement the PUT method at backend...
-            assignTeamMemberPromises.push(apis.teamApi.createTeamMember({ teamId: team.id as number, userId: teamMember.id as number }));
-        }
-        await Promise.all(assignTeamMemberPromises);
+        const team = await apis.teamApi.postTeam({ createTeamRequest: { name: teamName } });
+        await apis.teamApi.putTeamMembers({
+            teamId: team.id as number,
+            createTeamMemberRequest: teamMembers.map((value) => ({ employeeId: value.id as number })),
+        });
+        setTeams((previousState) => [...previousState, team]);
     }
 
     async function handleEditTeamButton(teamName: string, teamMembers: UserResponse[]) {
+        //TODO: will have to pass team ID aswell here to update the state in the list
         throw Error('TODO: NOT IMPLEMENTED');
     }
 };
