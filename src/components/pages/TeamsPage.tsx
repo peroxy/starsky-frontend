@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet';
 import { ActiveMenuItem, NavigationBarV2 } from '../NavigationBar';
 import { useLocation } from 'react-router-dom';
 import { TeamResponse, UserResponse } from '../../api/__generated__';
-import { Button, Dimmer, Icon, List, Loader } from 'semantic-ui-react';
+import { Button, Dimmer, List, Loader } from 'semantic-ui-react';
 import { useApi } from '../../api/starskyApiClient';
 import { useAuth } from '../AuthProvider';
 import { responseToString } from '../../api/httpHelpers';
@@ -71,40 +71,61 @@ export const TeamsPage: React.FC = () => {
                 onOkButtonClick={handleCreateTeamButton}
             />
 
-            <List divided relaxed size={'massive'} selection className={'left-margin right-margin'}>
+            <List divided relaxed size={'massive'} className={'left-margin right-margin'} selection>
                 {teams.map((team) => (
                     <List.Item key={team.id}>
-                        <Icon name={'users'} />
-                        <List.Content>
-                            <List.Header as={'a'}>{team.name}</List.Header>
-                            <List.Description>Lead: {team.ownerName}</List.Description>
-                            <TeamModal
-                                modalHeader={'Edit team'}
-                                employees={employees}
-                                modalOkButtonText={'Save'}
-                                trigger={<Button color={'orange'} icon={'edit'} content={'Edit team'} className={'left-margin right-margin'} size={'small'} />}
-                                onOkButtonClick={handleEditTeamButton}
-                                teamName={team.name}
-                                getTeamMembers={apis.teamApi.getTeamMembers({ teamId: team.id as number })}
-                            />
-                        </List.Content>
+                        <TeamModal
+                            modalHeader={'Edit team'}
+                            employees={employees}
+                            modalOkButtonText={'Save'}
+                            trigger={
+                                <List.Content>
+                                    <List.Header as="a" className={'truncate'}>
+                                        {team.name}
+                                    </List.Header>
+                                    <List.Description>Lead: {team.ownerName}</List.Description>
+                                </List.Content>
+                            }
+                            onOkButtonClick={handleEditTeamButton}
+                            onDeleteButtonClick={handleDeleteTeamButton}
+                            team={team}
+                            getTeamMembers={() => apis.teamApi.getTeamMembers({ teamId: team.id as number })}
+                        />
                     </List.Item>
                 ))}
             </List>
         </>
     );
 
-    async function handleCreateTeamButton(teamName: string, teamMembers: UserResponse[]) {
-        const team = await apis.teamApi.postTeam({ createTeamRequest: { name: teamName } });
-        await apis.teamApi.putTeamMembers({
-            teamId: team.id as number,
-            createTeamMemberRequest: teamMembers.map((value) => ({ employeeId: value.id as number })),
-        });
+    async function handleCreateTeamButton(team: TeamResponse, teamMembers: UserResponse[]) {
+        team = await apis.teamApi.postTeam({ createTeamRequest: { name: team.name as string } });
+        if (teamMembers.length > 0) {
+            await apis.teamApi.putTeamMembers({
+                teamId: team.id as number,
+                createTeamMemberRequest: teamMembers.map((value) => ({ employeeId: value.id as number })),
+            });
+        }
         setTeams((previousState) => [...previousState, team]);
     }
 
-    async function handleEditTeamButton(teamName: string, teamMembers: UserResponse[]) {
-        //TODO: will have to pass team ID aswell here to update the state in the list
-        throw Error('TODO: NOT IMPLEMENTED');
+    async function handleEditTeamButton(team: TeamResponse, teamMembers: UserResponse[], teamMembersUpdated?: boolean) {
+        const existingTeam = teams.find((value) => value.id == team.id);
+        if (existingTeam && existingTeam.name != team.name) {
+            team = await apis.teamApi.patchTeam({ teamId: team.id as number, updateTeamRequest: { name: team.name } });
+        }
+        if (teamMembersUpdated) {
+            await apis.teamApi.putTeamMembers({
+                teamId: team.id as number,
+                createTeamMemberRequest: teamMembers.map((value) => ({ employeeId: value.id as number })),
+            });
+        }
+        const updatedTeams = [...teams];
+        updatedTeams[updatedTeams.findIndex((value) => value.id == team.id)] = team;
+        setTeams(updatedTeams);
+    }
+
+    async function handleDeleteTeamButton(teamId: number) {
+        await apis.teamApi.deleteTeam({ teamId: teamId });
+        setTeams(teams.filter((team) => team.id != teamId));
     }
 };

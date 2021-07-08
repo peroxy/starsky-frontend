@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dimmer, Form, Loader, Modal } from 'semantic-ui-react';
-import { UserResponse } from '../../api/__generated__';
+import { Button, Dimmer, Form, Icon, Loader, Modal } from 'semantic-ui-react';
+import { TeamResponse, UserResponse } from '../../api/__generated__';
 import { HttpStatusCode } from '../../api/httpHelpers';
+import { ConfirmActionModal } from './ConfirmActionModal';
 
 export interface ITeamModalProps {
-    teamName?: string;
+    team?: TeamResponse;
     employees: UserResponse[];
-    getTeamMembers?: Promise<UserResponse[]>;
+    getTeamMembers?: () => Promise<UserResponse[]>;
     modalHeader: string;
     modalOkButtonText: string;
     trigger: React.ReactNode;
-    onOkButtonClick: (teamName: string, teamMembers: UserResponse[]) => Promise<void>;
+    onOkButtonClick: (team: TeamResponse, teamMembers: UserResponse[], teamMembersUpdated?: boolean) => Promise<void>;
+    onDeleteButtonClick?: (teamId: number) => Promise<void>;
 }
 
 export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => {
@@ -20,23 +22,31 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
     const [loading, setLoading] = useState(true);
 
     const [selectedTeamMemberIds, setSelectedTeamMemberIds] = React.useState<number[]>([]);
+    const [anyTeamMembersUpdated, setAnyTeamMembersUpdated] = useState(false);
 
     useEffect(() => {
-        onLoad();
-    }, []);
+        if (modalOpen && loading) {
+            onLoad();
+        }
+    }, [modalOpen]);
 
     async function onLoad() {
         if (props.getTeamMembers) {
-            await props.getTeamMembers.then((members) => {
+            await props.getTeamMembers?.().then((members) => {
                 setSelectedTeamMemberIds(members.map((value) => value.id as number));
             });
         }
-
         setLoading(false);
     }
 
     const formName = 'formTeam';
     const formTeamName = 'formTeamName';
+
+    const handleOnCloseModal = async () => {
+        setModalOpen(false);
+        setLoading(true);
+        setAnyTeamMembersUpdated(false);
+    };
 
     const handleOnSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         setErrorOccurred(false);
@@ -47,24 +57,42 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
 
         await props
             .onOkButtonClick(
-                teamName,
+                { name: teamName, id: props.team?.id, ownerName: props.team?.ownerName },
                 props.employees.filter((x) => selectedTeamMemberIds.includes(x.id as number)),
+                anyTeamMembersUpdated,
             )
             .then(() => {
                 setModalOpen(false);
             })
             .catch((reason) => {
-                setErrorOccurred(true);
                 console.error(reason);
                 if (reason instanceof Response && reason.status == HttpStatusCode.CONFLICT) {
                     setErrorMessage(`Team name ${teamName} already exists. Please choose another team name.`);
                 } else {
-                    setErrorMessage(`An unexpected error occurred. Please try again later. [Error description: ${reason}]`);
+                    setErrorMessage(`An unexpected error occurred. Please try again later.`);
                 }
+                setErrorOccurred(true);
             });
     };
 
-    if (loading) {
+    const handleOnConfirm = async (confirmed: boolean) => {
+        if (confirmed) {
+            setErrorOccurred(false);
+
+            await props
+                .onDeleteButtonClick?.(props.team?.id as number)
+                .then(() => {
+                    setModalOpen(false);
+                })
+                .catch((reason) => {
+                    setErrorMessage(`An unexpected error occurred. Please try again later. [Error description: ${reason}]`);
+                    setErrorOccurred(true);
+                    console.error(reason);
+                });
+        }
+    };
+
+    if (loading && modalOpen) {
         return (
             <Dimmer active inverted>
                 <Loader content="Please wait..." />
@@ -72,7 +100,7 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
         );
     } else {
         return (
-            <Modal onClose={() => setModalOpen(false)} onOpen={() => setModalOpen(true)} open={modalOpen} closeIcon trigger={props.trigger}>
+            <Modal onClose={handleOnCloseModal} onOpen={() => setModalOpen(true)} open={modalOpen} closeIcon trigger={props.trigger}>
                 <Modal.Header>{props.modalHeader}</Modal.Header>
                 <Modal.Content>
                     <Modal.Description>
@@ -84,7 +112,7 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
                                 placeholder={'My Awesome Team'}
                                 icon={'users'}
                                 iconPosition={'left'}
-                                defaultValue={props.teamName}
+                                defaultValue={props.team?.name}
                                 name={formTeamName}
                                 required
                             />
@@ -99,16 +127,25 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
                                 })}
                                 label={'Team members:'}
                                 defaultValue={selectedTeamMemberIds}
-                                required
                                 onChange={(event, data) => {
                                     setSelectedTeamMemberIds(data.value as number[]);
+                                    setAnyTeamMembersUpdated(true);
                                 }}
                             />
                         </Form>
                     </Modal.Description>
                 </Modal.Content>
                 <Modal.Actions>
-                    <Button content={props.modalOkButtonText} labelPosition="right" icon="checkmark" type="submit" positive form={formName} />
+                    {props.onDeleteButtonClick ? (
+                        <ConfirmActionModal
+                            title={'Delete This Team'}
+                            message={`Are you sure you would like to delete team: '${props.team?.name}'?\nThis action is permanent and cannot be undone!`}
+                            icon={<Icon name="trash" />}
+                            onConfirm={handleOnConfirm}
+                            trigger={<Button icon="trash" negative content="Delete" labelPosition="left" className="float-left" />}
+                        />
+                    ) : undefined}
+                    <Button content={props.modalOkButtonText} icon="checkmark" type="submit" positive form={formName} labelPosition="left" />
                 </Modal.Actions>
 
                 <Modal onClose={() => setErrorOccurred(false)} open={errorOccurred} size="tiny">
@@ -117,7 +154,7 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
                         <p>{errorMessage}</p>
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button icon={'warning sign'} content="OK" onClick={() => setErrorOccurred(false)} negative />
+                        <Button icon="warning sign" content="OK" onClick={() => setErrorOccurred(false)} negative />
                     </Modal.Actions>
                 </Modal>
             </Modal>

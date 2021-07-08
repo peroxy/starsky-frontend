@@ -17,3 +17,13 @@ body {
 .invisible {
     visibility: hidden;
 }
+
+.truncate {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.float-left {
+    float: left
+}
