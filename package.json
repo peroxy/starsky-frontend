@@ -16,6 +16,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-helmet": "^6.1.0",
+    "react-responsive": "^8.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
     "semantic-ui-css": "^2.4.1",
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@openapitools/openapi-generator-cli": "^2.3.5",
+    "@types/react-responsive": "^8.0.3",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
     "@typescript-eslint/parser": "^4.28.0",
     "eslint": "^7.29.0",

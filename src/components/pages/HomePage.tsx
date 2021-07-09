@@ -11,7 +11,7 @@ import { useApi } from '../../api/starskyApiClient';
 import { UserResponse } from '../../api/__generated__';
 import { IUserProps } from '../props/IUserProps';
 
-const { MediaContextProvider, Media } = createMedia({
+export const { MediaContextProvider, Media } = createMedia({
     breakpoints: {
         mobile: 0,
         tablet: 768,

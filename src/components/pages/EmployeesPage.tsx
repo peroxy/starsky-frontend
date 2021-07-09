@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Dimmer, Icon, List, Loader } from 'semantic-ui-react';
-import { ActiveMenuItem, NavigationBarV2 } from '../NavigationBar';
+import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { UserResponse } from '../../api/__generated__';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
@@ -54,20 +54,21 @@ export const EmployeesPage: React.FC = () => {
         </Dimmer>
     ) : (
         <>
-            <NavigationBarV2 activeMenuItem={ActiveMenuItem.Employees} authenticatedUser={authenticatedUser!} />
             <Helmet title={'Employees | Starsky'} />
-            <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>
-                {employees.map((employee) => (
-                    <List.Item key={employee.id}>
-                        <Icon name={'user'} />
-                        <List.Content>
-                            <List.Header as={'a'}>{employee.name}</List.Header>
-                            <List.Description>Job title: {employee.jobTitle}</List.Description>
-                            <List.Description>E-mail: {employee.email}</List.Description>
-                        </List.Content>
-                    </List.Item>
-                ))}
-            </List>
+            <NavigationBar activeMenuItem={ActiveMenuItem.Employees} authenticatedUser={authenticatedUser!}>
+                <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>
+                    {employees.map((employee) => (
+                        <List.Item key={employee.id}>
+                            <Icon name={'user'} />
+                            <List.Content>
+                                <List.Header as={'a'}>{employee.name}</List.Header>
+                                <List.Description>Job title: {employee.jobTitle}</List.Description>
+                                <List.Description>E-mail: {employee.email}</List.Description>
+                            </List.Content>
+                        </List.Item>
+                    ))}
+                </List>
+            </NavigationBar>
         </>
     );
 };

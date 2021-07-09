@@ -6,7 +6,7 @@ import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
 import { responseToString } from '../../api/httpHelpers';
 import { Dimmer, Icon, List, Loader } from 'semantic-ui-react';
-import { ActiveMenuItem, NavigationBarV2 } from '../NavigationBar';
+import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 
 export const SchedulesPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -54,20 +54,21 @@ export const SchedulesPage: React.FC = () => {
         </Dimmer>
     ) : (
         <>
-            <NavigationBarV2 activeMenuItem={ActiveMenuItem.Schedules} authenticatedUser={authenticatedUser!} />
             <Helmet title={'Schedules | Starsky'} />
-            <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>
-                {schedules.map((schedule) => (
-                    <List.Item key={schedule.id}>
-                        <Icon name={'clock'} />
-                        <List.Content>
-                            <List.Header as={'a'}>{schedule.scheduleName}</List.Header>
-                            <List.Description>Job title: {schedule.scheduleStart}</List.Description>
-                            <List.Description>E-mail: {schedule.scheduleEnd}</List.Description>
-                        </List.Content>
-                    </List.Item>
-                ))}
-            </List>
+            <NavigationBar activeMenuItem={ActiveMenuItem.Schedules} authenticatedUser={authenticatedUser!}>
+                <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>
+                    {schedules.map((schedule) => (
+                        <List.Item key={schedule.id}>
+                            <Icon name={'clock'} />
+                            <List.Content>
+                                <List.Header as={'a'}>{schedule.scheduleName}</List.Header>
+                                <List.Description>Job title: {schedule.scheduleStart}</List.Description>
+                                <List.Description>E-mail: {schedule.scheduleEnd}</List.Description>
+                            </List.Content>
+                        </List.Item>
+                    ))}
+                </List>
+            </NavigationBar>
         </>
     );
 };

@@ -1,16 +1,17 @@
-import { Dropdown, Icon, Image, Menu } from 'semantic-ui-react';
-import React from 'react';
+import { Icon, Menu, Sidebar } from 'semantic-ui-react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { EMPLOYEES_ROUTE, HOME_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROUTE } from '../routing/routeConstants';
 import { useAuth } from './AuthProvider';
-import logo from '../images/logo.png';
 import { UserResponse } from '../api/__generated__';
+import { useMediaQuery } from 'react-responsive';
 
 export enum ActiveMenuItem {
     Teams,
     Employees,
     Schedules,
-    Settings,
+    EditProfile,
+    LogOut,
 }
 
 export interface INavigationBarProps {
@@ -18,72 +19,73 @@ export interface INavigationBarProps {
     authenticatedUser: UserResponse;
 }
 
-export const NavigationBarV2: React.FC<INavigationBarProps> = ({ activeMenuItem, authenticatedUser }) => {
+export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeMenuItem, authenticatedUser }) => {
     const history = useHistory();
     const { clearToken } = useAuth();
+
+    const isMobile = useMediaQuery({ query: `(max-width: 768px)` }); //todo move to a util class or sth so its easier to use
+    const [sidebarOpened, setSidebarOpened] = useState(!isMobile);
+
     return (
         <>
-            <Menu stackable inverted>
-                <Menu.Item content="Home" style={{ justifyContent: 'center' }} onClick={() => history.push(HOME_ROUTE)}>
-                    <Image src={logo} height="25em" />
-                </Menu.Item>
-
-                <Menu.Item
-                    content="Teams"
-                    active={activeMenuItem === ActiveMenuItem.Teams}
-                    onClick={() => history.push(TEAMS_ROUTE, authenticatedUser)}
-                    color={'teal'}
-                    style={{ justifyContent: 'center' }}
-                />
-                <Menu.Item
-                    content="Employees"
-                    active={activeMenuItem === ActiveMenuItem.Employees}
-                    onClick={() => history.push(EMPLOYEES_ROUTE, authenticatedUser)}
-                    color={'teal'}
-                    style={{ justifyContent: 'center' }}
-                />
-                <Menu.Item
-                    content="Schedules"
-                    active={activeMenuItem === ActiveMenuItem.Schedules}
-                    onClick={() => history.push(SCHEDULES_ROUTE, authenticatedUser)}
-                    color={'teal'}
-                    style={{ justifyContent: 'center' }}
-                />
-
-                <Menu.Item
-                    position={'right'}
-                    style={{ justifyContent: 'center', width: '20em' }}
-                    active={activeMenuItem === ActiveMenuItem.Settings}
-                    color={'teal'}
+            <Sidebar.Pushable className={'full-size'} closable={'false'}>
+                <Menu size={'massive'} inverted>
+                    <Menu.Item onClick={() => setSidebarOpened(!sidebarOpened)}>
+                        <Icon name="sidebar" />
+                    </Menu.Item>
+                </Menu>
+                <Sidebar
+                    as={Menu}
+                    icon={'labeled'}
+                    animation="push"
+                    inverted
+                    onHide={() => setSidebarOpened(false)}
+                    vertical
+                    visible={sidebarOpened}
+                    width={isMobile ? 'thin' : 'wide'}
+                    size={'massive'}
                 >
-                    <Dropdown item text={'Settings'} style={{ justifyContent: 'center', width: '20em' }}>
-                        <Dropdown.Menu>
-                            <Dropdown.Item style={{ pointerEvents: 'none' }}>
-                                <Icon name={'user'} />
-                                <label>{`${authenticatedUser?.name} (${authenticatedUser?.email})`}</label>
-                            </Dropdown.Item>
-                            <Dropdown.Divider />
-                            <Dropdown.Item icon="edit" text="Edit Profile" onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)} />
-                            {/*TODO:*/}
-                            <Dropdown.Item icon="globe" text="Choose Language" onClick={() => console.warn('TODO')} />
-                            <Dropdown.Divider />
-                            <Dropdown.Item
-                                icon="log out"
-                                error
-                                onClick={() => {
-                                    clearToken();
-                                    history.push(HOME_ROUTE);
-                                }}
-                            >
-                                <div style={{ fontWeight: 'bold' }}>
-                                    <Icon name={'log out'} />
-                                    Logout
-                                </div>
-                            </Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </Menu.Item>
-            </Menu>
+                    <Menu.Item onClick={() => setSidebarOpened(false)} position={'left'} icon={'sidebar'} size="mini" />
+                    <Menu.Item content="Home" onClick={() => history.push(HOME_ROUTE)} />
+
+                    <Menu.Item
+                        content="Teams"
+                        active={activeMenuItem === ActiveMenuItem.Teams}
+                        onClick={() => history.push(TEAMS_ROUTE, authenticatedUser)}
+                        color={'teal'}
+                    />
+                    <Menu.Item
+                        content="Employees"
+                        active={activeMenuItem === ActiveMenuItem.Employees}
+                        onClick={() => history.push(EMPLOYEES_ROUTE, authenticatedUser)}
+                        color={'teal'}
+                    />
+                    <Menu.Item
+                        content="Schedules"
+                        active={activeMenuItem === ActiveMenuItem.Schedules}
+                        onClick={() => history.push(SCHEDULES_ROUTE, authenticatedUser)}
+                        color={'teal'}
+                    />
+
+                    <Menu.Item
+                        content="Edit profile"
+                        active={activeMenuItem === ActiveMenuItem.EditProfile}
+                        onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)}
+                        color={'teal'}
+                    />
+
+                    <Menu.Item
+                        content="Log out"
+                        active={activeMenuItem === ActiveMenuItem.LogOut}
+                        color={'teal'}
+                        onClick={() => {
+                            clearToken();
+                            history.push(HOME_ROUTE);
+                        }}
+                    />
+                </Sidebar>
+                <Sidebar.Pusher>{children}</Sidebar.Pusher>
+            </Sidebar.Pushable>
         </>
     );
 };

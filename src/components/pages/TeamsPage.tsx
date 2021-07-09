@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { ActiveMenuItem, NavigationBarV2 } from '../NavigationBar';
+import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { useLocation } from 'react-router-dom';
 import { TeamResponse, UserResponse } from '../../api/__generated__';
 import { Button, Dimmer, List, Loader } from 'semantic-ui-react';
@@ -60,40 +60,40 @@ export const TeamsPage: React.FC = () => {
         </Dimmer>
     ) : (
         <>
-            <NavigationBarV2 activeMenuItem={ActiveMenuItem.Teams} authenticatedUser={authenticatedUser!} />
             <Helmet title={'Teams | Starsky'} />
+            <NavigationBar activeMenuItem={ActiveMenuItem.Teams} authenticatedUser={authenticatedUser!}>
+                <TeamModal
+                    modalHeader={'Create a new team'}
+                    employees={employees}
+                    modalOkButtonText={'Create'}
+                    trigger={<Button color={'green'} icon={'users'} content={'Create a new team'} className={'left-margin right-margin'} size={'big'} />}
+                    onOkButtonClick={handleCreateTeamButton}
+                />
 
-            <TeamModal
-                modalHeader={'Create a new team'}
-                employees={employees}
-                modalOkButtonText={'Create'}
-                trigger={<Button color={'green'} icon={'users'} content={'Create a new team'} className={'left-margin right-margin'} size={'big'} />}
-                onOkButtonClick={handleCreateTeamButton}
-            />
-
-            <List divided relaxed size={'massive'} className={'left-margin right-margin'} selection>
-                {teams.map((team) => (
-                    <List.Item key={team.id}>
-                        <TeamModal
-                            modalHeader={'Edit team'}
-                            employees={employees}
-                            modalOkButtonText={'Save'}
-                            trigger={
-                                <List.Content>
-                                    <List.Header as="a" className={'truncate'}>
-                                        {team.name}
-                                    </List.Header>
-                                    <List.Description>Lead: {team.ownerName}</List.Description>
-                                </List.Content>
-                            }
-                            onOkButtonClick={handleEditTeamButton}
-                            onDeleteButtonClick={handleDeleteTeamButton}
-                            team={team}
-                            getTeamMembers={() => apis.teamApi.getTeamMembers({ teamId: team.id as number })}
-                        />
-                    </List.Item>
-                ))}
-            </List>
+                <List divided relaxed size={'massive'} className={'left-margin right-margin'} selection>
+                    {teams.map((team) => (
+                        <List.Item key={team.id}>
+                            <TeamModal
+                                modalHeader={'Edit team'}
+                                employees={employees}
+                                modalOkButtonText={'Save'}
+                                trigger={
+                                    <List.Content>
+                                        <List.Header as="a" className={'truncate'}>
+                                            {team.name}
+                                        </List.Header>
+                                        <List.Description>Lead: {team.ownerName}</List.Description>
+                                    </List.Content>
+                                }
+                                onOkButtonClick={handleEditTeamButton}
+                                onDeleteButtonClick={handleDeleteTeamButton}
+                                team={team}
+                                getTeamMembers={() => apis.teamApi.getTeamMembers({ teamId: team.id as number })}
+                            />
+                        </List.Item>
+                    ))}
+                </List>
+            </NavigationBar>
         </>
     );
 
