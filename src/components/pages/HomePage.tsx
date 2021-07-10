@@ -10,12 +10,13 @@ import { responseToString } from '../../api/httpHelpers';
 import { useApi } from '../../api/starskyApiClient';
 import { UserResponse } from '../../api/__generated__';
 import { IUserProps } from '../props/IUserProps';
+import { MAX_MOBILE_WIDTH, MAX_TABLET_WIDTH } from '../../util/mediaConstants';
 
 export const { MediaContextProvider, Media } = createMedia({
     breakpoints: {
         mobile: 0,
-        tablet: 768,
-        computer: 1024,
+        tablet: MAX_MOBILE_WIDTH,
+        computer: MAX_TABLET_WIDTH,
     },
 });
 

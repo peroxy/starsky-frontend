@@ -5,6 +5,7 @@ import { EMPLOYEES_ROUTE, HOME_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROU
 import { useAuth } from './AuthProvider';
 import { UserResponse } from '../api/__generated__';
 import { useMediaQuery } from 'react-responsive';
+import { MAX_MOBILE_WIDTH } from '../util/mediaConstants';
 
 export enum ActiveMenuItem {
     Teams,
@@ -23,7 +24,7 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
     const history = useHistory();
     const { clearToken } = useAuth();
 
-    const isMobile = useMediaQuery({ query: `(max-width: 768px)` }); //todo move to a util class or sth so its easier to use
+    const isMobile = useMediaQuery({ query: `(max-width: ${MAX_MOBILE_WIDTH}px)` });
     const [sidebarOpened, setSidebarOpened] = useState(!isMobile);
     const sidebarReference = React.useRef<HTMLInputElement | null>(null);
 
