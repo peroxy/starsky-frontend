@@ -24,13 +24,13 @@ export interface InviteInvalidResponse {
      * @type {string}
      * @memberof InviteInvalidResponse
      */
-    error?: string;
+    error: string;
     /**
      * 
      * @type {string}
      * @memberof InviteInvalidResponse
      */
-    inviteToken?: string;
+    inviteToken: string;
 }
 
 export function InviteInvalidResponseFromJSON(json: any): InviteInvalidResponse {
@@ -43,8 +43,8 @@ export function InviteInvalidResponseFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
         
-        'error': !exists(json, 'error') ? undefined : json['error'],
-        'inviteToken': !exists(json, 'invite_token') ? undefined : json['invite_token'],
+        'error': json['error'],
+        'inviteToken': json['invite_token'],
     };
 }
 

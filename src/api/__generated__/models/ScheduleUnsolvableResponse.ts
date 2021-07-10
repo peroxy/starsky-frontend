@@ -24,7 +24,7 @@ export interface ScheduleUnsolvableResponse {
      * @type {string}
      * @memberof ScheduleUnsolvableResponse
      */
-    error?: string;
+    error: string;
 }
 
 export function ScheduleUnsolvableResponseFromJSON(json: any): ScheduleUnsolvableResponse {
@@ -37,7 +37,7 @@ export function ScheduleUnsolvableResponseFromJSONTyped(json: any, ignoreDiscrim
     }
     return {
         
-        'error': !exists(json, 'error') ? undefined : json['error'],
+        'error': json['error'],
     };
 }
 

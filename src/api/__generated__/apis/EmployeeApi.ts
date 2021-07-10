@@ -15,15 +15,73 @@
 
 import * as runtime from '../runtime';
 import {
+    CreateEmployeeRequest,
+    CreateEmployeeRequestFromJSON,
+    CreateEmployeeRequestToJSON,
+    UpdateEmployeeRequest,
+    UpdateEmployeeRequestFromJSON,
+    UpdateEmployeeRequestToJSON,
     UserResponse,
     UserResponseFromJSON,
     UserResponseToJSON,
 } from '../models';
 
+export interface DeleteEmployeeRequest {
+    employeeId: number;
+}
+
+export interface PatchEmployeeRequest {
+    employeeId: number;
+    updateEmployeeRequest: UpdateEmployeeRequest;
+}
+
+export interface PostEmployeeRequest {
+    createEmployeeRequest: CreateEmployeeRequest;
+}
+
 /**
  * 
  */
 export class EmployeeApi extends runtime.BaseAPI {
+
+    /**
+     * Deletes an existing employee - manager only route. 
+     * Delete an existing employee
+     */
+    async deleteEmployeeRaw(requestParameters: DeleteEmployeeRequest): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.employeeId === null || requestParameters.employeeId === undefined) {
+            throw new runtime.RequiredError('employeeId','Required parameter requestParameters.employeeId was null or undefined when calling deleteEmployee.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/employees/{employee_id}`.replace(`{${"employee_id"}}`, encodeURIComponent(String(requestParameters.employeeId))),
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        });
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Deletes an existing employee - manager only route. 
+     * Delete an existing employee
+     */
+    async deleteEmployee(requestParameters: DeleteEmployeeRequest): Promise<void> {
+        await this.deleteEmployeeRaw(requestParameters);
+    }
 
     /**
      * Returns the currently authenticated user\'s employees - manager only route.
@@ -58,6 +116,96 @@ export class EmployeeApi extends runtime.BaseAPI {
      */
     async getEmployees(): Promise<Array<UserResponse>> {
         const response = await this.getEmployeesRaw();
+        return await response.value();
+    }
+
+    /**
+     * Update an existing employee\'s properties - manager only route. 
+     * Update an existing employee
+     */
+    async patchEmployeeRaw(requestParameters: PatchEmployeeRequest): Promise<runtime.ApiResponse<Array<UserResponse>>> {
+        if (requestParameters.employeeId === null || requestParameters.employeeId === undefined) {
+            throw new runtime.RequiredError('employeeId','Required parameter requestParameters.employeeId was null or undefined when calling patchEmployee.');
+        }
+
+        if (requestParameters.updateEmployeeRequest === null || requestParameters.updateEmployeeRequest === undefined) {
+            throw new runtime.RequiredError('updateEmployeeRequest','Required parameter requestParameters.updateEmployeeRequest was null or undefined when calling patchEmployee.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/employees/{employee_id}`.replace(`{${"employee_id"}}`, encodeURIComponent(String(requestParameters.employeeId))),
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: UpdateEmployeeRequestToJSON(requestParameters.updateEmployeeRequest),
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(UserResponseFromJSON));
+    }
+
+    /**
+     * Update an existing employee\'s properties - manager only route. 
+     * Update an existing employee
+     */
+    async patchEmployee(requestParameters: PatchEmployeeRequest): Promise<Array<UserResponse>> {
+        const response = await this.patchEmployeeRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * Manually create a new employee for the currently authenticated user - manager only route. This employee will not be able to login - employees should be invited if they want to access the platform and register themselves. This is used when a manager wants to add employees that don\'t necessarily need platform access, but he still needs to create schedules.
+     * Manually create a new employee
+     */
+    async postEmployeeRaw(requestParameters: PostEmployeeRequest): Promise<runtime.ApiResponse<Array<UserResponse>>> {
+        if (requestParameters.createEmployeeRequest === null || requestParameters.createEmployeeRequest === undefined) {
+            throw new runtime.RequiredError('createEmployeeRequest','Required parameter requestParameters.createEmployeeRequest was null or undefined when calling postEmployee.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/employees`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CreateEmployeeRequestToJSON(requestParameters.createEmployeeRequest),
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(UserResponseFromJSON));
+    }
+
+    /**
+     * Manually create a new employee for the currently authenticated user - manager only route. This employee will not be able to login - employees should be invited if they want to access the platform and register themselves. This is used when a manager wants to add employees that don\'t necessarily need platform access, but he still needs to create schedules.
+     * Manually create a new employee
+     */
+    async postEmployee(requestParameters: PostEmployeeRequest): Promise<Array<UserResponse>> {
+        const response = await this.postEmployeeRaw(requestParameters);
         return await response.value();
     }
 

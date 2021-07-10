@@ -16,46 +16,46 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface TeamResponse
+ * @interface CreateEmployeeRequest
  */
-export interface TeamResponse {
-    /**
-     * 
-     * @type {number}
-     * @memberof TeamResponse
-     */
-    id: number;
+export interface CreateEmployeeRequest {
     /**
      * 
      * @type {string}
-     * @memberof TeamResponse
+     * @memberof CreateEmployeeRequest
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof TeamResponse
+     * @memberof CreateEmployeeRequest
      */
-    ownerName: string;
+    email: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateEmployeeRequest
+     */
+    jobTitle: string;
 }
 
-export function TeamResponseFromJSON(json: any): TeamResponse {
-    return TeamResponseFromJSONTyped(json, false);
+export function CreateEmployeeRequestFromJSON(json: any): CreateEmployeeRequest {
+    return CreateEmployeeRequestFromJSONTyped(json, false);
 }
 
-export function TeamResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): TeamResponse {
+export function CreateEmployeeRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateEmployeeRequest {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'id': json['id'],
         'name': json['name'],
-        'ownerName': json['owner_name'],
+        'email': json['email'],
+        'jobTitle': json['job_title'],
     };
 }
 
-export function TeamResponseToJSON(value?: TeamResponse | null): any {
+export function CreateEmployeeRequestToJSON(value?: CreateEmployeeRequest | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -64,9 +64,9 @@ export function TeamResponseToJSON(value?: TeamResponse | null): any {
     }
     return {
         
-        'id': value.id,
         'name': value.name,
-        'owner_name': value.ownerName,
+        'email': value.email,
+        'job_title': value.jobTitle,
     };
 }
 

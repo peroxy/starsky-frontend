@@ -1,6 +1,7 @@
 export * from './CreateEmployeeAssignmentRequest';
 export * from './CreateEmployeeAvailabilitiesRequest';
 export * from './CreateEmployeeAvailabilityRequest';
+export * from './CreateEmployeeRequest';
 export * from './CreateInviteRequest';
 export * from './CreateScheduleRequest';
 export * from './CreateScheduleShiftRequest';
@@ -19,6 +20,7 @@ export * from './ScheduleUnsolvableResponse';
 export * from './TeamResponse';
 export * from './TokenResponse';
 export * from './UpdateEmployeeAvailabilityRequest';
+export * from './UpdateEmployeeRequest';
 export * from './UpdateScheduleRequest';
 export * from './UpdateScheduleShiftRequest';
 export * from './UpdateTeamRequest';

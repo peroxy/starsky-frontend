@@ -24,25 +24,25 @@ export interface EmployeeAvailabilityResponse {
      * @type {number}
      * @memberof EmployeeAvailabilityResponse
      */
-    id?: number;
+    id: number;
     /**
      * 
      * @type {number}
      * @memberof EmployeeAvailabilityResponse
      */
-    shiftStart?: number;
+    shiftStart: number;
     /**
      * 
      * @type {number}
      * @memberof EmployeeAvailabilityResponse
      */
-    shiftEnd?: number;
+    shiftEnd: number;
     /**
      * 
      * @type {number}
      * @memberof EmployeeAvailabilityResponse
      */
-    maxHoursPerShift?: number;
+    maxHoursPerShift: number;
     /**
      * 
      * @type {number}
@@ -61,10 +61,10 @@ export function EmployeeAvailabilityResponseFromJSONTyped(json: any, ignoreDiscr
     }
     return {
         
-        'id': !exists(json, 'id') ? undefined : json['id'],
-        'shiftStart': !exists(json, 'shift_start') ? undefined : json['shift_start'],
-        'shiftEnd': !exists(json, 'shift_end') ? undefined : json['shift_end'],
-        'maxHoursPerShift': !exists(json, 'max_hours_per_shift') ? undefined : json['max_hours_per_shift'],
+        'id': json['id'],
+        'shiftStart': json['shift_start'],
+        'shiftEnd': json['shift_end'],
+        'maxHoursPerShift': json['max_hours_per_shift'],
         'employeeId': json['employee_id'],
     };
 }

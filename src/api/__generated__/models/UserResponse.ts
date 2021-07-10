@@ -24,31 +24,31 @@ export interface UserResponse {
      * @type {number}
      * @memberof UserResponse
      */
-    id?: number;
+    id: number;
     /**
      * 
      * @type {string}
      * @memberof UserResponse
      */
-    name?: string;
+    name: string;
     /**
      * 
      * @type {string}
      * @memberof UserResponse
      */
-    email?: string;
+    email: string;
     /**
      * 
      * @type {string}
      * @memberof UserResponse
      */
-    role?: string;
+    role: string;
     /**
      * 
      * @type {string}
      * @memberof UserResponse
      */
-    jobTitle?: string;
+    jobTitle: string;
     /**
      * 
      * @type {string}
@@ -60,7 +60,13 @@ export interface UserResponse {
      * @type {string}
      * @memberof UserResponse
      */
-    notificationType?: string;
+    notificationType: string;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof UserResponse
+     */
+    manuallyAdded: boolean;
 }
 
 export function UserResponseFromJSON(json: any): UserResponse {
@@ -73,13 +79,14 @@ export function UserResponseFromJSONTyped(json: any, ignoreDiscriminator: boolea
     }
     return {
         
-        'id': !exists(json, 'id') ? undefined : json['id'],
-        'name': !exists(json, 'name') ? undefined : json['name'],
-        'email': !exists(json, 'email') ? undefined : json['email'],
-        'role': !exists(json, 'role') ? undefined : json['role'],
-        'jobTitle': !exists(json, 'job_title') ? undefined : json['job_title'],
+        'id': json['id'],
+        'name': json['name'],
+        'email': json['email'],
+        'role': json['role'],
+        'jobTitle': json['job_title'],
         'phoneNumber': !exists(json, 'phone_number') ? undefined : json['phone_number'],
-        'notificationType': !exists(json, 'notification_type') ? undefined : json['notification_type'],
+        'notificationType': json['notification_type'],
+        'manuallyAdded': json['manually_added'],
     };
 }
 
@@ -99,6 +106,7 @@ export function UserResponseToJSON(value?: UserResponse | null): any {
         'job_title': value.jobTitle,
         'phone_number': value.phoneNumber,
         'notification_type': value.notificationType,
+        'manually_added': value.manuallyAdded,
     };
 }
 

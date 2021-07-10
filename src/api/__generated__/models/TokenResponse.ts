@@ -24,25 +24,25 @@ export interface TokenResponse {
      * @type {string}
      * @memberof TokenResponse
      */
-    accessToken?: string;
+    accessToken: string;
     /**
      * 
      * @type {string}
      * @memberof TokenResponse
      */
-    tokenType?: string;
+    tokenType: string;
     /**
      * 
      * @type {number}
      * @memberof TokenResponse
      */
-    expiresOn?: number;
+    expiresOn: number;
     /**
      * 
      * @type {number}
      * @memberof TokenResponse
      */
-    expiresIn?: number;
+    expiresIn: number;
 }
 
 export function TokenResponseFromJSON(json: any): TokenResponse {
@@ -55,10 +55,10 @@ export function TokenResponseFromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-        'accessToken': !exists(json, 'access_token') ? undefined : json['access_token'],
-        'tokenType': !exists(json, 'token_type') ? undefined : json['token_type'],
-        'expiresOn': !exists(json, 'expires_on') ? undefined : json['expires_on'],
-        'expiresIn': !exists(json, 'expires_in') ? undefined : json['expires_in'],
+        'accessToken': json['access_token'],
+        'tokenType': json['token_type'],
+        'expiresOn': json['expires_on'],
+        'expiresIn': json['expires_in'],
     };
 }
 

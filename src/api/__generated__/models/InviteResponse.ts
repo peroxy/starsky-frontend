@@ -24,37 +24,37 @@ export interface InviteResponse {
      * @type {number}
      * @memberof InviteResponse
      */
-    id?: number;
+    id: number;
     /**
      * 
      * @type {string}
      * @memberof InviteResponse
      */
-    employeeName?: string;
+    employeeName: string;
     /**
      * 
      * @type {string}
      * @memberof InviteResponse
      */
-    employeeEmail?: string;
+    employeeEmail: string;
     /**
      * 
      * @type {boolean}
      * @memberof InviteResponse
      */
-    hasRegistered?: boolean;
+    hasRegistered: boolean;
     /**
      * 
      * @type {number}
      * @memberof InviteResponse
      */
-    expiresOn?: number;
+    expiresOn: number;
     /**
      * 
      * @type {number}
      * @memberof InviteResponse
      */
-    expiresIn?: number;
+    expiresIn: number;
 }
 
 export function InviteResponseFromJSON(json: any): InviteResponse {
@@ -67,12 +67,12 @@ export function InviteResponseFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-        'id': !exists(json, 'id') ? undefined : json['id'],
-        'employeeName': !exists(json, 'employee_name') ? undefined : json['employee_name'],
-        'employeeEmail': !exists(json, 'employee_email') ? undefined : json['employee_email'],
-        'hasRegistered': !exists(json, 'has_registered') ? undefined : json['has_registered'],
-        'expiresOn': !exists(json, 'expires_on') ? undefined : json['expires_on'],
-        'expiresIn': !exists(json, 'expires_in') ? undefined : json['expires_in'],
+        'id': json['id'],
+        'employeeName': json['employee_name'],
+        'employeeEmail': json['employee_email'],
+        'hasRegistered': json['has_registered'],
+        'expiresOn': json['expires_on'],
+        'expiresIn': json['expires_in'],
     };
 }
 

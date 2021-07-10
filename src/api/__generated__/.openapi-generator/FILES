@@ -13,6 +13,7 @@ index.ts
 models/CreateEmployeeAssignmentRequest.ts
 models/CreateEmployeeAvailabilitiesRequest.ts
 models/CreateEmployeeAvailabilityRequest.ts
+models/CreateEmployeeRequest.ts
 models/CreateInviteRequest.ts
 models/CreateScheduleRequest.ts
 models/CreateScheduleShiftRequest.ts
@@ -31,6 +32,7 @@ models/ScheduleUnsolvableResponse.ts
 models/TeamResponse.ts
 models/TokenResponse.ts
 models/UpdateEmployeeAvailabilityRequest.ts
+models/UpdateEmployeeRequest.ts
 models/UpdateScheduleRequest.ts
 models/UpdateScheduleShiftRequest.ts
 models/UpdateTeamRequest.ts

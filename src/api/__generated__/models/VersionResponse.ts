@@ -24,7 +24,7 @@ export interface VersionResponse {
      * @type {string}
      * @memberof VersionResponse
      */
-    version?: string;
+    version: string;
 }
 
 export function VersionResponseFromJSON(json: any): VersionResponse {
@@ -37,7 +37,7 @@ export function VersionResponseFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'version': !exists(json, 'version') ? undefined : json['version'],
+        'version': json['version'],
     };
 }
 

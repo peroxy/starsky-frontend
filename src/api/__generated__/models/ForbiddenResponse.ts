@@ -24,7 +24,7 @@ export interface ForbiddenResponse {
      * @type {string}
      * @memberof ForbiddenResponse
      */
-    error?: string;
+    error: string;
 }
 
 export function ForbiddenResponseFromJSON(json: any): ForbiddenResponse {
@@ -37,7 +37,7 @@ export function ForbiddenResponseFromJSONTyped(json: any, ignoreDiscriminator: b
     }
     return {
         
-        'error': !exists(json, 'error') ? undefined : json['error'],
+        'error': json['error'],
     };
 }
 

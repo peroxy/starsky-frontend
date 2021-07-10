@@ -24,25 +24,25 @@ export interface ScheduleShiftResponse {
      * @type {number}
      * @memberof ScheduleShiftResponse
      */
-    id?: number;
+    id: number;
     /**
      * 
      * @type {number}
      * @memberof ScheduleShiftResponse
      */
-    shiftStart?: number;
+    shiftStart: number;
     /**
      * 
      * @type {number}
      * @memberof ScheduleShiftResponse
      */
-    shiftEnd?: number;
+    shiftEnd: number;
     /**
      * 
      * @type {number}
      * @memberof ScheduleShiftResponse
      */
-    numberOfRequiredEmployees?: number;
+    numberOfRequiredEmployees: number;
 }
 
 export function ScheduleShiftResponseFromJSON(json: any): ScheduleShiftResponse {
@@ -55,10 +55,10 @@ export function ScheduleShiftResponseFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
         
-        'id': !exists(json, 'id') ? undefined : json['id'],
-        'shiftStart': !exists(json, 'shift_start') ? undefined : json['shift_start'],
-        'shiftEnd': !exists(json, 'shift_end') ? undefined : json['shift_end'],
-        'numberOfRequiredEmployees': !exists(json, 'number_of_required_employees') ? undefined : json['number_of_required_employees'],
+        'id': json['id'],
+        'shiftStart': json['shift_start'],
+        'shiftEnd': json['shift_end'],
+        'numberOfRequiredEmployees': json['number_of_required_employees'],
     };
 }
 
