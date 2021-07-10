@@ -22,6 +22,7 @@ export const { MediaContextProvider, Media } = createMedia({
 
 interface IProps {
     mobile: boolean;
+    authenticatedUser: UserResponse | null;
 }
 
 /* Heads up!
@@ -54,7 +55,7 @@ function HomepageHeading(props: IProps) {
             />
             <Link to={TEAMS_ROUTE}>
                 <Button primary size="huge">
-                    Try it now!
+                    {props.authenticatedUser ? 'Enter now!' : 'Try it now!'}
                     <Icon name="arrow right" />
                 </Button>
             </Link>
@@ -97,7 +98,7 @@ const DesktopContainer: React.FC<IUserProps> = ({ children, authenticatedUser })
                             </Menu.Item>
                         </Container>
                     </Menu>
-                    <HomepageHeading mobile={false} />
+                    <HomepageHeading mobile={false} authenticatedUser={authenticatedUser} />
                 </Segment>
             </Visibility>
 
@@ -160,7 +161,7 @@ const MobileContainer: React.FC<IUserProps> = ({ children, authenticatedUser }) 
                                 </Menu.Item>
                             </Menu>
                         </Container>
-                        <HomepageHeading mobile={true} />
+                        <HomepageHeading mobile={true} authenticatedUser={authenticatedUser} />
                     </Segment>
 
                     {children}
