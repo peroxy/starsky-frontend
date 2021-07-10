@@ -130,7 +130,7 @@ export function RegisterPage(): JSX.Element {
                     alertMessage = `Email (${request.email}) already exists!`;
                 } else if (error.status === HttpStatusCode.UNPROCESSABLE_ENTITY) {
                     const errorResponse = (await error.json()) as InviteInvalidResponse;
-                    alertMessage = errorResponse.error as string;
+                    alertMessage = errorResponse.error;
                 }
             }
             setAlertDescription(alertMessage);
@@ -149,7 +149,7 @@ export function RegisterPage(): JSX.Element {
             .then((response) => {
                 setAlertDescription('');
                 setAlert(false);
-                setToken(response.accessToken as string);
+                setToken(response.accessToken);
                 history.push(TEAMS_ROUTE, user);
             })
             .catch((reason) => {

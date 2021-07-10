@@ -11,7 +11,7 @@ export interface ITeamModalProps {
     modalHeader: string;
     modalOkButtonText: string;
     trigger: React.ReactNode;
-    onOkButtonClick: (team: TeamResponse, teamMembers: UserResponse[], teamMembersUpdated?: boolean) => Promise<void>;
+    onOkButtonClick: (teamName: string | undefined, teamId: number, teamMembers: UserResponse[], teamMembersUpdated?: boolean) => Promise<void>;
     onDeleteButtonClick?: (teamId: number) => Promise<void>;
 }
 
@@ -33,7 +33,7 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
     async function onLoad() {
         if (props.getTeamMembers) {
             await props.getTeamMembers?.().then((members) => {
-                setSelectedTeamMemberIds(members.map((value) => value.id as number));
+                setSelectedTeamMemberIds(members.map((value) => value.id));
             });
         }
         setLoading(false);
@@ -57,8 +57,9 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
 
         await props
             .onOkButtonClick(
-                { name: teamName, id: props.team?.id, ownerName: props.team?.ownerName },
-                props.employees.filter((x) => selectedTeamMemberIds.includes(x.id as number)),
+                teamName,
+                props.team?.id as number,
+                props.employees.filter((x) => selectedTeamMemberIds.includes(x.id)),
                 anyTeamMembersUpdated,
             )
             .then(() => {

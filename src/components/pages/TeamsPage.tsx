@@ -88,7 +88,7 @@ export const TeamsPage: React.FC = () => {
                                 onOkButtonClick={handleEditTeamButton}
                                 onDeleteButtonClick={handleDeleteTeamButton}
                                 team={team}
-                                getTeamMembers={() => apis.teamApi.getTeamMembers({ teamId: team.id as number })}
+                                getTeamMembers={() => apis.teamApi.getTeamMembers({ teamId: team.id })}
                             />
                         </List.Item>
                     ))}
@@ -97,30 +97,33 @@ export const TeamsPage: React.FC = () => {
         </>
     );
 
-    async function handleCreateTeamButton(team: TeamResponse, teamMembers: UserResponse[]) {
-        team = await apis.teamApi.postTeam({ createTeamRequest: { name: team.name as string } });
+    async function handleCreateTeamButton(teamName: string | undefined, teamId: number, teamMembers: UserResponse[]) {
+        const team = await apis.teamApi.postTeam({ createTeamRequest: { name: teamName as string } });
         if (teamMembers.length > 0) {
             await apis.teamApi.putTeamMembers({
-                teamId: team.id as number,
-                createTeamMemberRequest: teamMembers.map((value) => ({ employeeId: value.id as number })),
+                teamId: team.id,
+                createTeamMemberRequest: teamMembers.map((value) => ({ employeeId: value.id })),
             });
         }
         setTeams((previousState) => [...previousState, team]);
     }
 
-    async function handleEditTeamButton(team: TeamResponse, teamMembers: UserResponse[], teamMembersUpdated?: boolean) {
-        const existingTeam = teams.find((value) => value.id == team.id);
-        if (existingTeam && existingTeam.name != team.name) {
-            team = await apis.teamApi.patchTeam({ teamId: team.id as number, updateTeamRequest: { name: team.name } });
+    async function handleEditTeamButton(teamName: string | undefined, teamId: number, teamMembers: UserResponse[], teamMembersUpdated?: boolean) {
+        let existingTeam = teams.find((value) => value.id == teamId);
+        if (!existingTeam) {
+            return;
+        }
+        if (existingTeam.name != teamName) {
+            existingTeam = await apis.teamApi.patchTeam({ teamId: teamId, updateTeamRequest: { name: teamName } });
         }
         if (teamMembersUpdated) {
             await apis.teamApi.putTeamMembers({
-                teamId: team.id as number,
-                createTeamMemberRequest: teamMembers.map((value) => ({ employeeId: value.id as number })),
+                teamId: teamId,
+                createTeamMemberRequest: teamMembers.map((value) => ({ employeeId: value.id })),
             });
         }
         const updatedTeams = [...teams];
-        updatedTeams[updatedTeams.findIndex((value) => value.id == team.id)] = team;
+        updatedTeams[updatedTeams.findIndex((value) => value.id == teamId)] = existingTeam;
         setTeams(updatedTeams);
     }
 

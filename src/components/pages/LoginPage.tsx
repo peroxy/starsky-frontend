@@ -59,7 +59,7 @@ export function LoginPage(): JSX.Element {
             .then((response: TokenResponse) => {
                 console.log(response);
                 setLoginStatus('');
-                setToken(response.accessToken as string);
+                setToken(response.accessToken);
                 history.push(TEAMS_ROUTE);
             })
             .catch((response: Response) => {
