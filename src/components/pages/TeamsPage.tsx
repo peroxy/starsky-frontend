@@ -66,7 +66,7 @@ export const TeamsPage: React.FC = () => {
                     modalHeader={'Create a new team'}
                     employees={employees}
                     modalOkButtonText={'Create'}
-                    trigger={<Button color={'green'} icon={'users'} content={'Create a new team'} className={'left-margin right-margin'} size={'big'} />}
+                    trigger={<Button primary icon={'users'} content={'Create a new team'} className={'left-margin right-margin'} size={'big'} />}
                     onOkButtonClick={handleCreateTeamButton}
                 />
 

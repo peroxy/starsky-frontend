@@ -80,7 +80,7 @@ export function LoginPage(): JSX.Element {
             <Helmet title={'Login | Starsky'} />
             <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
                 <Grid.Column style={{ maxWidth: 450 }}>
-                    <Header as="h2" color="teal" textAlign="center">
+                    <Header as="h2" color="blue" textAlign="center">
                         <Image src={logo} /> Login to your account
                     </Header>
                     <Form size="large" onSubmit={handleOnSubmit}>
@@ -97,7 +97,7 @@ export function LoginPage(): JSX.Element {
                                 maxLength={72}
                                 required
                             />
-                            <Button color="teal" fluid size="large" type="submit">
+                            <Button primary fluid size="large" type="submit">
                                 Login
                             </Button>
                         </Segment>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Dimmer, Icon, List, Loader } from 'semantic-ui-react';
+import { Button, ButtonGroup, ButtonOr, Dimmer, Icon, Label, List, Loader, Popup } from 'semantic-ui-react';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { UserResponse } from '../../api/__generated__';
 import { useLocation } from 'react-router-dom';
@@ -56,6 +56,17 @@ export const EmployeesPage: React.FC = () => {
         <>
             <Helmet title={'Employees | Starsky'} />
             <NavigationBar activeMenuItem={ActiveMenuItem.Employees} authenticatedUser={authenticatedUser!}>
+                <ButtonGroup size="large" className={'left-margin'}>
+                    <Popup
+                        content={'Manually create an employee. Employee will not be able to login and use the application.'}
+                        trigger={<Button primary content={'Create employee'} />}
+                    />
+                    <ButtonOr />
+                    <Popup
+                        content={'Send an email registration invite to an employee. Employee will be able to login and use the application.'}
+                        trigger={<Button primary content={'Invite employee'} />}
+                    />
+                </ButtonGroup>
                 <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>
                     {employees.map((employee) => (
                         <List.Item key={employee.id}>

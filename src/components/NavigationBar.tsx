@@ -66,32 +66,32 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                         content="Teams"
                         active={activeMenuItem === ActiveMenuItem.Teams}
                         onClick={() => history.push(TEAMS_ROUTE, authenticatedUser)}
-                        color={'teal'}
+                        color={'blue'}
                     />
                     <Menu.Item
                         content="Employees"
                         active={activeMenuItem === ActiveMenuItem.Employees}
                         onClick={() => history.push(EMPLOYEES_ROUTE, authenticatedUser)}
-                        color={'teal'}
+                        color={'blue'}
                     />
                     <Menu.Item
                         content="Schedules"
                         active={activeMenuItem === ActiveMenuItem.Schedules}
                         onClick={() => history.push(SCHEDULES_ROUTE, authenticatedUser)}
-                        color={'teal'}
+                        color={'blue'}
                     />
 
                     <Menu.Item
                         content="Edit profile"
                         active={activeMenuItem === ActiveMenuItem.EditProfile}
                         onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)}
-                        color={'teal'}
+                        color={'blue'}
                     />
 
                     <Menu.Item
                         content="Log out"
                         active={activeMenuItem === ActiveMenuItem.LogOut}
-                        color={'teal'}
+                        color={'blue'}
                         onClick={() => {
                             clearToken();
                             history.push(HOME_ROUTE);

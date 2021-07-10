@@ -116,7 +116,7 @@ export const SettingsPage: React.FC = () => {
                 <Divider hidden />
                 <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="top">
                     <Grid.Column style={{ maxWidth: 450 }}>
-                        <Header as="h2" color="teal" textAlign="center">
+                        <Header as="h2" textAlign="center">
                             Edit your profile
                         </Header>
                         <Form size="large" onSubmit={(e) => handleOnSubmit(e)}>
@@ -197,7 +197,7 @@ export const SettingsPage: React.FC = () => {
 
                                 <Divider />
 
-                                <Button color="teal" fluid size="large" type="submit" tooltip>
+                                <Button primary fluid size="large" type="submit" tooltip>
                                     Save
                                 </Button>
                             </Segment>

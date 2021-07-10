@@ -171,7 +171,7 @@ export function RegisterPage(): JSX.Element {
                 <Helmet title={'Register | Starsky'} />
                 <Grid textAlign="center" style={{ height: '100vh' }} verticalAlign="middle">
                     <Grid.Column style={{ maxWidth: 450 }}>
-                        <Header as="h2" color="teal" textAlign="center">
+                        <Header as="h2" color="blue" textAlign="center">
                             <Image src={logo} /> Register a new account
                         </Header>
                         <Message
@@ -246,7 +246,7 @@ export function RegisterPage(): JSX.Element {
                                 </Grid>
                                 <Divider />
 
-                                <Button color="teal" fluid size="large" type="submit">
+                                <Button primary fluid size="large" type="submit">
                                     Register
                                 </Button>
                             </Segment>
