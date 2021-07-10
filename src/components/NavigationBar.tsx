@@ -1,4 +1,4 @@
-import { Icon, Menu, Sidebar } from 'semantic-ui-react';
+import { Divider, Header, Icon, Menu, Ref, Segment, Sidebar } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { EMPLOYEES_ROUTE, HOME_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROUTE } from '../routing/routeConstants';
@@ -25,12 +25,17 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
 
     const isMobile = useMediaQuery({ query: `(max-width: 768px)` }); //todo move to a util class or sth so its easier to use
     const [sidebarOpened, setSidebarOpened] = useState(!isMobile);
+    const sidebarReference = React.useRef<HTMLInputElement | null>(null);
 
     return (
         <>
-            <Sidebar.Pushable className={'full-size'} closable={'false'}>
+            <Sidebar.Pushable className={'full-size'}>
                 <Menu size={'massive'} inverted>
-                    <Menu.Item onClick={() => setSidebarOpened(!sidebarOpened)}>
+                    <Menu.Item
+                        onClick={() => {
+                            setSidebarOpened(true);
+                        }}
+                    >
                         <Icon name="sidebar" />
                     </Menu.Item>
                 </Menu>
@@ -44,8 +49,16 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                     visible={sidebarOpened}
                     width={isMobile ? 'thin' : 'wide'}
                     size={'massive'}
+                    target={isMobile ? undefined : sidebarReference}
                 >
-                    <Menu.Item onClick={() => setSidebarOpened(false)} position={'left'} icon={'sidebar'} size="mini" />
+                    <Menu.Item
+                        onClick={() => {
+                            setSidebarOpened(false);
+                        }}
+                        position={'left'}
+                        icon={'sidebar'}
+                        size="mini"
+                    />
                     <Menu.Item content="Home" onClick={() => history.push(HOME_ROUTE)} />
 
                     <Menu.Item
@@ -84,7 +97,17 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                         }}
                     />
                 </Sidebar>
-                <Sidebar.Pusher>{children}</Sidebar.Pusher>
+                <Sidebar.Pusher>
+                    {children}
+                    {/*Semantic UI by default will close the sidebar if you click outside of it, unless you supply a target reference*/}
+                    {/*we do not want that behavior on desktop browsers, so we can disable it by using an invisible div*/}
+                    {/*this is desired behavior on mobile, we enable it there*/}
+                    {isMobile ? undefined : (
+                        <Ref innerRef={sidebarReference}>
+                            <div className={'invisible'} />
+                        </Ref>
+                    )}
+                </Sidebar.Pusher>
             </Sidebar.Pushable>
         </>
     );
