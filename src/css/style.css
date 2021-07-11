@@ -28,7 +28,14 @@ body {
     float: left
 }
 
-.pushable.full-size {
+.pushable.full-size, .pusher.full-size {
     min-height: 100vh;
 }
 
+.menu.no-bottom-margin {
+    margin-bottom: 0;
+}
+
+.button.full-width {
+    width: 100%;
+}

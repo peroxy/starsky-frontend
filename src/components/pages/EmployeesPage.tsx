@@ -77,12 +77,12 @@ export const EmployeesPage: React.FC = () => {
         <>
             <Helmet title={'Employees | Starsky'} />
             <NavigationBar activeMenuItem={ActiveMenuItem.Employees} authenticatedUser={authenticatedUser!}>
-                <ButtonGroup size="large" className={'left-margin'}>
+                <ButtonGroup size="big" className={'left-margin'}>
                     <EmployeeModal
                         modalHeader={'Create Employee'}
                         modalOkButtonText={'Create'}
                         trigger={
-                            <Button primary content={'Create employee'} />
+                            <Button primary content={'Create '} icon={'user plus'} />
                             // <Popup
                             //     content={'Manually create an employee. Employee will not be able to login and use the application.'}
                             //     trigger={}
@@ -93,7 +93,7 @@ export const EmployeesPage: React.FC = () => {
                     <ButtonOr />
                     <Popup
                         content={'Send an email registration invite to an employee. Employee will be able to login and use the application.'}
-                        trigger={<Button primary content={'Invite employee'} />}
+                        trigger={<Button primary content={'Invite '} icon={'mail'} />}
                     />
                 </ButtonGroup>
                 <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>

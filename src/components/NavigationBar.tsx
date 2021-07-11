@@ -1,4 +1,4 @@
-import { Divider, Header, Icon, Menu, Ref, Segment, Sidebar } from 'semantic-ui-react';
+import { Button, Card, Container, Dimmer, Divider, Header, Icon, Menu, Popup, Ref, Segment, Sidebar } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { EMPLOYEES_ROUTE, HOME_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROUTE } from '../routing/routeConstants';
@@ -27,11 +27,12 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
     const isMobile = useMediaQuery({ query: `(max-width: ${MAX_MOBILE_WIDTH}px)` });
     const [sidebarOpened, setSidebarOpened] = useState(!isMobile);
     const sidebarReference = React.useRef<HTMLInputElement | null>(null);
+    const [dimmerActive, setDimmerActive] = useState(false);
 
     return (
         <>
             <Sidebar.Pushable className={'full-size'}>
-                <Menu size={'massive'} inverted>
+                <Menu size={'massive'} inverted className={'no-bottom-margin'}>
                     <Menu.Item
                         onClick={() => {
                             setSidebarOpened(true);
@@ -39,6 +40,31 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                     >
                         <Icon name="sidebar" />
                     </Menu.Item>
+                    <Popup
+                        flowing
+                        trigger={
+                            <Menu.Item position={'right'}>
+                                <Icon name={'user'} />
+                                <Icon name={'dropdown'} />
+                            </Menu.Item>
+                        }
+                        on={'click'}
+                        position={'bottom right'}
+                        onOpen={() => setDimmerActive(true)}
+                        onClose={() => setDimmerActive(false)}
+                    >
+                        <Card>
+                            <Card.Content header={`${authenticatedUser.name}`} description={`${authenticatedUser.email}`} textAlign={'center'} />
+                            <Card.Content extra textAlign={'center'}>
+                                <Icon name="briefcase" /> {authenticatedUser.jobTitle}
+                            </Card.Content>
+                            <Card.Content>
+                                <Button content={'Edit profile'} className={'full-width'} onClick={() => history.push(SETTINGS_ROUTE)} />
+                                <Divider />
+                                <Button content={'Sign out'} className={'full-width'} secondary onClick={handleLogout} />
+                            </Card.Content>
+                        </Card>
+                    </Popup>
                 </Menu>
                 <Sidebar
                     as={Menu}
@@ -88,17 +114,11 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                         color={'blue'}
                     />
 
-                    <Menu.Item
-                        content="Log out"
-                        active={activeMenuItem === ActiveMenuItem.LogOut}
-                        color={'blue'}
-                        onClick={() => {
-                            clearToken();
-                            history.push(HOME_ROUTE);
-                        }}
-                    />
+                    <Menu.Item content="Log out" active={activeMenuItem === ActiveMenuItem.LogOut} color={'blue'} onClick={handleLogout} />
                 </Sidebar>
-                <Sidebar.Pusher>
+                <Sidebar.Pusher dimmed={isMobile ? sidebarOpened : undefined} className={'full-size'}>
+                    <Divider className={'invisible'} />
+                    <Dimmer active={dimmerActive} />
                     {children}
                     {/*Semantic UI by default will close the sidebar if you click outside of it, unless you supply a target reference*/}
                     {/*we do not want that behavior on desktop browsers, so we can disable it by using an invisible div*/}
@@ -112,4 +132,9 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
             </Sidebar.Pushable>
         </>
     );
+
+    function handleLogout() {
+        clearToken();
+        history.push(HOME_ROUTE);
+    }
 };
