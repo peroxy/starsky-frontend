@@ -123,7 +123,7 @@ export class EmployeeApi extends runtime.BaseAPI {
      * Update an existing employee\'s properties - manager only route. 
      * Update an existing employee
      */
-    async patchEmployeeRaw(requestParameters: PatchEmployeeRequest): Promise<runtime.ApiResponse<Array<UserResponse>>> {
+    async patchEmployeeRaw(requestParameters: PatchEmployeeRequest): Promise<runtime.ApiResponse<UserResponse>> {
         if (requestParameters.employeeId === null || requestParameters.employeeId === undefined) {
             throw new runtime.RequiredError('employeeId','Required parameter requestParameters.employeeId was null or undefined when calling patchEmployee.');
         }
@@ -154,14 +154,14 @@ export class EmployeeApi extends runtime.BaseAPI {
             body: UpdateEmployeeRequestToJSON(requestParameters.updateEmployeeRequest),
         });
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(UserResponseFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserResponseFromJSON(jsonValue));
     }
 
     /**
      * Update an existing employee\'s properties - manager only route. 
      * Update an existing employee
      */
-    async patchEmployee(requestParameters: PatchEmployeeRequest): Promise<Array<UserResponse>> {
+    async patchEmployee(requestParameters: PatchEmployeeRequest): Promise<UserResponse> {
         const response = await this.patchEmployeeRaw(requestParameters);
         return await response.value();
     }
@@ -170,7 +170,7 @@ export class EmployeeApi extends runtime.BaseAPI {
      * Manually create a new employee for the currently authenticated user - manager only route. This employee will not be able to login - employees should be invited if they want to access the platform and register themselves. This is used when a manager wants to add employees that don\'t necessarily need platform access, but he still needs to create schedules.
      * Manually create a new employee
      */
-    async postEmployeeRaw(requestParameters: PostEmployeeRequest): Promise<runtime.ApiResponse<Array<UserResponse>>> {
+    async postEmployeeRaw(requestParameters: PostEmployeeRequest): Promise<runtime.ApiResponse<UserResponse>> {
         if (requestParameters.createEmployeeRequest === null || requestParameters.createEmployeeRequest === undefined) {
             throw new runtime.RequiredError('createEmployeeRequest','Required parameter requestParameters.createEmployeeRequest was null or undefined when calling postEmployee.');
         }
@@ -197,14 +197,14 @@ export class EmployeeApi extends runtime.BaseAPI {
             body: CreateEmployeeRequestToJSON(requestParameters.createEmployeeRequest),
         });
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(UserResponseFromJSON));
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserResponseFromJSON(jsonValue));
     }
 
     /**
      * Manually create a new employee for the currently authenticated user - manager only route. This employee will not be able to login - employees should be invited if they want to access the platform and register themselves. This is used when a manager wants to add employees that don\'t necessarily need platform access, but he still needs to create schedules.
      * Manually create a new employee
      */
-    async postEmployee(requestParameters: PostEmployeeRequest): Promise<Array<UserResponse>> {
+    async postEmployee(requestParameters: PostEmployeeRequest): Promise<UserResponse> {
         const response = await this.postEmployeeRaw(requestParameters);
         return await response.value();
     }
