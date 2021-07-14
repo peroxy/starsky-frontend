@@ -12,7 +12,6 @@ export enum ActiveMenuItem {
     Employees,
     Schedules,
     EditProfile,
-    LogOut,
 }
 
 export interface INavigationBarProps {
@@ -77,6 +76,7 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                     width={isMobile ? 'thin' : 'wide'}
                     size={'massive'}
                     target={isMobile ? undefined : sidebarReference}
+                    borderless
                 >
                     <Menu.Item
                         onClick={() => {
@@ -86,8 +86,9 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                         icon={'sidebar'}
                         size="mini"
                     />
+                    <Divider />
                     <Menu.Item content="Home" onClick={() => history.push(HOME_ROUTE)} />
-
+                    <Divider />
                     <Menu.Item
                         content="Teams"
                         active={activeMenuItem === ActiveMenuItem.Teams}
@@ -106,15 +107,14 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                         onClick={() => history.push(SCHEDULES_ROUTE, authenticatedUser)}
                         color={'blue'}
                     />
-
+                    <Divider />
                     <Menu.Item
                         content="Edit profile"
                         active={activeMenuItem === ActiveMenuItem.EditProfile}
                         onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)}
                         color={'blue'}
                     />
-
-                    <Menu.Item content="Log out" active={activeMenuItem === ActiveMenuItem.LogOut} color={'blue'} onClick={handleLogout} />
+                    <Divider />
                 </Sidebar>
                 <Sidebar.Pusher dimmed={isMobile ? sidebarOpened : undefined} className={'full-size'}>
                     <Divider className={'invisible'} />
