@@ -8,6 +8,7 @@ import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
 import { responseToString } from '../../api/httpHelpers';
 import { EmployeeModal } from '../modals/EmployeeModal';
+import { InviteModal } from '../modals/InviteModal';
 
 export const EmployeesPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -85,7 +86,7 @@ export const EmployeesPage: React.FC = () => {
                         onOkButtonClick={handleOnCreateNewEmployee}
                     />
                     <ButtonOr />
-                    <Button primary content={'Invite '} icon={'mail'} />
+                    <InviteModal authenticatedUser={authenticatedUser!} trigger={<Button primary content={'Invite '} icon={'mail'} />} />
                     <Popup
                         content={
                             'You can either manually create an employee (user will not be able to login into the platform, only be used in schedules) or invite an employee to register themselves (will be able to login and view schedules).'
