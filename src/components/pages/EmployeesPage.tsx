@@ -81,19 +81,17 @@ export const EmployeesPage: React.FC = () => {
                     <EmployeeModal
                         modalHeader={'Create Employee'}
                         modalOkButtonText={'Create'}
-                        trigger={
-                            <Button primary content={'Create '} icon={'user plus'} />
-                            // <Popup
-                            //     content={'Manually create an employee. Employee will not be able to login and use the application.'}
-                            //     trigger={}
-                            // />
-                        }
+                        trigger={<Button primary content={'Create '} icon={'user plus'} />}
                         onOkButtonClick={handleOnCreateNewEmployee}
                     />
                     <ButtonOr />
+                    <Button primary content={'Invite '} icon={'mail'} />
                     <Popup
-                        content={'Send an email registration invite to an employee. Employee will be able to login and use the application.'}
-                        trigger={<Button primary content={'Invite '} icon={'mail'} />}
+                        content={
+                            'You can either manually create an employee (user will not be able to login into the platform, only be used in schedules) or invite an employee to register themselves (will be able to login and view schedules).'
+                        }
+                        trigger={<Button icon={'help'} as="a" />}
+                        wide={'very'}
                     />
                 </ButtonGroup>
                 <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>
