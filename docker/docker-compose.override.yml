@@ -39,3 +39,27 @@ services:
     networks:
       - starskynet
     restart: "no"
+  rabbitmq:
+    image: rabbitmq:3.8.9-alpine
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "this is a secret cookie value"
+      RABBITMQ_DEFAULT_USER: starsky
+      RABBITMQ_DEFAULT_PASS: starsky
+    ports:
+      - 5672:5672
+    networks:
+      - starskynet
+    restart: "no"
+  mail-api:
+    image: peroxy12/starsky-mail-api:latest
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      "RabbitMQSettings:Username": starsky
+      "RabbitMQSettings:Password": starsky
+    ports:
+      - 56789:56789
+    depends_on:
+      - rabbitmq
+    networks:
+      - starskynet
+    restart: "no"

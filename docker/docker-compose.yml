@@ -10,5 +10,4 @@ services:
       - starskynet
 networks:
   starskynet:
-    external:
-      name: starsky_network
+    name: starsky_network
