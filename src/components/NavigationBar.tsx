@@ -1,7 +1,7 @@
-import { Button, Card, Container, Dimmer, Divider, Header, Icon, Menu, Popup, Ref, Segment, Sidebar } from 'semantic-ui-react';
+import { Button, Card, Container, Dimmer, Divider, Header, Icon, Menu, MenuItem, Popup, Ref, Segment, Sidebar } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { EMPLOYEES_ROUTE, HOME_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROUTE } from '../routing/routeConstants';
+import { EMPLOYEES_ROUTE, HOME_ROUTE, INVITATIONS_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROUTE } from '../routing/routeConstants';
 import { useAuth } from './AuthProvider';
 import { UserResponse } from '../api/__generated__';
 import { useMediaQuery } from 'react-responsive';
@@ -12,6 +12,7 @@ export enum ActiveMenuItem {
     Employees,
     Schedules,
     EditProfile,
+    Invitations,
 }
 
 export interface INavigationBarProps {
@@ -86,35 +87,36 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                         icon={'sidebar'}
                         size="mini"
                     />
-                    <Divider />
+                    <Divider className="no-top-bottom-margin" />
                     <Menu.Item content="Home" onClick={() => history.push(HOME_ROUTE)} />
-                    <Divider />
-                    <Menu.Item
-                        content="Teams"
-                        active={activeMenuItem === ActiveMenuItem.Teams}
-                        onClick={() => history.push(TEAMS_ROUTE, authenticatedUser)}
-                        color={'blue'}
-                    />
+                    <Divider className="no-top-bottom-margin" />
+                    <Menu.Item content="Teams" active={activeMenuItem === ActiveMenuItem.Teams} onClick={() => history.push(TEAMS_ROUTE, authenticatedUser)} />
+                    <Divider className="no-top-bottom-margin" />
                     <Menu.Item
                         content="Employees"
                         active={activeMenuItem === ActiveMenuItem.Employees}
                         onClick={() => history.push(EMPLOYEES_ROUTE, authenticatedUser)}
-                        color={'blue'}
                     />
+                    <Menu.Menu>
+                        <MenuItem
+                            content="Invitations"
+                            active={activeMenuItem === ActiveMenuItem.Invitations}
+                            onClick={() => history.push(INVITATIONS_ROUTE, authenticatedUser)}
+                        />
+                    </Menu.Menu>
+                    <Divider className="no-top-bottom-margin" />
                     <Menu.Item
                         content="Schedules"
                         active={activeMenuItem === ActiveMenuItem.Schedules}
                         onClick={() => history.push(SCHEDULES_ROUTE, authenticatedUser)}
-                        color={'blue'}
                     />
-                    <Divider />
+                    <Divider className="no-top-bottom-margin" />
                     <Menu.Item
                         content="Edit profile"
                         active={activeMenuItem === ActiveMenuItem.EditProfile}
                         onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)}
-                        color={'blue'}
                     />
-                    <Divider />
+                    <Divider className="no-top-bottom-margin" />
                 </Sidebar>
                 <Sidebar.Pusher dimmed={isMobile ? sidebarOpened : undefined} className={'full-size'}>
                     <Divider className={'invisible'} />

@@ -39,3 +39,13 @@ body {
 .button.full-width {
     width: 100%;
 }
+
+.divider.no-top-bottom-margin {
+    margin-bottom: 0;
+    margin-top: 0;
+}
+
+.description.padded {
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+}
