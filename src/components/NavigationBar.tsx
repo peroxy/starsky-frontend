@@ -25,12 +25,66 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
     const { clearToken } = useAuth();
 
     const isMobile = useMediaQuery({ query: `(max-width: ${MAX_MOBILE_WIDTH}px)` });
-    const [sidebarOpened, setSidebarOpened] = useState(!isMobile);
-    const sidebarReference = React.useRef<HTMLInputElement | null>(null);
+    const [sidebarOpened, setSidebarOpened] = useState(false);
     const [dimmerActive, setDimmerActive] = useState(false);
 
-    return (
-        <>
+    function handleLogout() {
+        clearToken();
+        history.push(HOME_ROUTE);
+    }
+
+    const invitationsMenuItem = (
+        <Menu.Item
+            content="Invitations"
+            active={activeMenuItem === ActiveMenuItem.Invitations}
+            onClick={() => history.push(INVITATIONS_ROUTE, authenticatedUser)}
+        />
+    );
+
+    const homeMenuItem = <Menu.Item content="Home" onClick={() => history.push(HOME_ROUTE)} />;
+
+    const teamsMenuItem = (
+        <Menu.Item content="Teams" active={activeMenuItem === ActiveMenuItem.Teams} onClick={() => history.push(TEAMS_ROUTE, authenticatedUser)} />
+    );
+
+    const employeesMenuItem = (
+        <Menu.Item content="Employees" active={activeMenuItem === ActiveMenuItem.Employees} onClick={() => history.push(EMPLOYEES_ROUTE, authenticatedUser)} />
+    );
+
+    const schedulesMenuItem = (
+        <Menu.Item content="Schedules" active={activeMenuItem === ActiveMenuItem.Schedules} onClick={() => history.push(SCHEDULES_ROUTE, authenticatedUser)} />
+    );
+
+    const userProfileMenuItem = (
+        <Popup
+            flowing
+            trigger={
+                <Menu.Item position={'right'}>
+                    <Icon name={'user'} />
+                    <Icon name={'dropdown'} />
+                </Menu.Item>
+            }
+            on={'click'}
+            position={'bottom right'}
+            onOpen={() => setDimmerActive(true)}
+            onClose={() => setDimmerActive(false)}
+        >
+            <Card>
+                <Card.Content header={`${authenticatedUser.name}`} description={`${authenticatedUser.email}`} textAlign={'center'} />
+                <Card.Content extra textAlign={'center'}>
+                    <Icon name="briefcase" /> {authenticatedUser.jobTitle}
+                </Card.Content>
+                <Card.Content>
+                    <Button content={'Edit profile'} className={'full-width'} onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)} />
+                    <Divider />
+                    <Button content={'Sign out'} className={'full-width'} secondary onClick={handleLogout} />
+                </Card.Content>
+            </Card>
+        </Popup>
+    );
+
+    const getMobileLayout = () => {
+        return (
             <Sidebar.Pushable className={'full-size'}>
                 <Menu size={'massive'} inverted className={'no-bottom-margin'}>
                     <Menu.Item
@@ -40,31 +94,7 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                     >
                         <Icon name="sidebar" />
                     </Menu.Item>
-                    <Popup
-                        flowing
-                        trigger={
-                            <Menu.Item position={'right'}>
-                                <Icon name={'user'} />
-                                <Icon name={'dropdown'} />
-                            </Menu.Item>
-                        }
-                        on={'click'}
-                        position={'bottom right'}
-                        onOpen={() => setDimmerActive(true)}
-                        onClose={() => setDimmerActive(false)}
-                    >
-                        <Card>
-                            <Card.Content header={`${authenticatedUser.name}`} description={`${authenticatedUser.email}`} textAlign={'center'} />
-                            <Card.Content extra textAlign={'center'}>
-                                <Icon name="briefcase" /> {authenticatedUser.jobTitle}
-                            </Card.Content>
-                            <Card.Content>
-                                <Button content={'Edit profile'} className={'full-width'} onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)} />
-                                <Divider />
-                                <Button content={'Sign out'} className={'full-width'} secondary onClick={handleLogout} />
-                            </Card.Content>
-                        </Card>
-                    </Popup>
+                    {userProfileMenuItem}
                 </Menu>
                 <Sidebar
                     as={Menu}
@@ -74,9 +104,8 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                     onHide={() => setSidebarOpened(false)}
                     vertical
                     visible={sidebarOpened}
-                    width={isMobile ? 'thin' : 'wide'}
+                    width={'thin'}
                     size={'massive'}
-                    target={isMobile ? undefined : sidebarReference}
                     borderless
                 >
                     <Menu.Item
@@ -88,55 +117,41 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                         size="mini"
                     />
                     <Divider className="no-top-bottom-margin" />
-                    <Menu.Item content="Home" onClick={() => history.push(HOME_ROUTE)} />
+                    {homeMenuItem}
                     <Divider className="no-top-bottom-margin" />
-                    <Menu.Item content="Teams" active={activeMenuItem === ActiveMenuItem.Teams} onClick={() => history.push(TEAMS_ROUTE, authenticatedUser)} />
+                    {teamsMenuItem}
                     <Divider className="no-top-bottom-margin" />
-                    <Menu.Item
-                        content="Employees"
-                        active={activeMenuItem === ActiveMenuItem.Employees}
-                        onClick={() => history.push(EMPLOYEES_ROUTE, authenticatedUser)}
-                    />
-                    <Menu.Menu>
-                        <MenuItem
-                            content="Invitations"
-                            active={activeMenuItem === ActiveMenuItem.Invitations}
-                            onClick={() => history.push(INVITATIONS_ROUTE, authenticatedUser)}
-                        />
-                    </Menu.Menu>
+                    {employeesMenuItem}
+                    <Menu.Menu>{invitationsMenuItem}</Menu.Menu>
                     <Divider className="no-top-bottom-margin" />
-                    <Menu.Item
-                        content="Schedules"
-                        active={activeMenuItem === ActiveMenuItem.Schedules}
-                        onClick={() => history.push(SCHEDULES_ROUTE, authenticatedUser)}
-                    />
-                    <Divider className="no-top-bottom-margin" />
-                    <Menu.Item
-                        content="Edit profile"
-                        active={activeMenuItem === ActiveMenuItem.EditProfile}
-                        onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)}
-                    />
+                    {schedulesMenuItem}
                     <Divider className="no-top-bottom-margin" />
                 </Sidebar>
-                <Sidebar.Pusher dimmed={isMobile ? sidebarOpened : undefined} className={'full-size'}>
+                <Sidebar.Pusher dimmed={sidebarOpened} className={'full-size'}>
                     <Divider className={'invisible'} />
                     <Dimmer active={dimmerActive} />
                     {children}
-                    {/*Semantic UI by default will close the sidebar if you click outside of it, unless you supply a target reference*/}
-                    {/*we do not want that behavior on desktop browsers, so we can disable it by using an invisible div*/}
-                    {/*this is desired behavior on mobile, we enable it there*/}
-                    {isMobile ? undefined : (
-                        <Ref innerRef={sidebarReference}>
-                            <div className={'invisible'} />
-                        </Ref>
-                    )}
                 </Sidebar.Pusher>
             </Sidebar.Pushable>
-        </>
-    );
+        );
+    };
 
-    function handleLogout() {
-        clearToken();
-        history.push(HOME_ROUTE);
-    }
+    const getDesktopLayout = () => {
+        return (
+            <>
+                <Menu size={'massive'} inverted>
+                    {homeMenuItem}
+                    {teamsMenuItem}
+                    {employeesMenuItem}
+                    {invitationsMenuItem}
+                    {schedulesMenuItem}
+                    {userProfileMenuItem}
+                </Menu>
+                <Dimmer active={dimmerActive} />
+                {children}
+            </>
+        );
+    };
+
+    return isMobile ? getMobileLayout() : getDesktopLayout();
 };
