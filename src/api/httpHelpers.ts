@@ -2,6 +2,10 @@ export async function responseToString(response: Response): Promise<string> {
     return `${response.statusText} (${response.status}): ${await response.json()}`;
 }
 
+export function statusToString(response: Response): string {
+    return `[${response.status} ${HttpStatusCode[response.status]}]`;
+}
+
 export enum HttpStatusCode {
     CONTINUE = 100,
     SWITCHING_PROTOCOLS = 101,

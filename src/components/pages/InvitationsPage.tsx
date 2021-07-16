@@ -6,14 +6,16 @@ import { InviteResponse, UserResponse } from '../../api/__generated__';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
-import { responseToString } from '../../api/httpHelpers';
+import { statusToString } from '../../api/httpHelpers';
 import { ConfirmActionModal } from '../modals/ConfirmActionModal';
+import { ErrorModal } from '../modals/ErrorModal';
 
 export const InvitationsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [deleting, setDeleting] = useState<{ loading: boolean; inviteId: number }>({ loading: false, inviteId: -1 });
     const [authenticatedUser, setAuthenticatedUser] = useState<UserResponse | null>(null);
     const [invites, setInvites] = useState<InviteResponse[]>([]);
+    const [error, setError] = useState({ occurred: false, message: '' });
 
     const location = useLocation();
 
@@ -45,7 +47,7 @@ export const InvitationsPage: React.FC = () => {
 
         await Promise.all(loadData)
             .catch((reason: Response) => {
-                console.error(responseToString(reason));
+                console.error(reason);
             })
             .finally(() => setLoading(false));
     }
@@ -67,13 +69,24 @@ export const InvitationsPage: React.FC = () => {
     }
 
     async function handleOnConfirm(inviteId: number) {
+        setError({ occurred: false, message: '' });
         setDeleting({ loading: true, inviteId: inviteId });
         await apis.inviteApi
             .deleteInvite({ inviteId: inviteId })
             .then(() => {
                 setInvites(invites.filter((invite) => invite.id != inviteId));
             })
-            .catch((reason) => console.error(reason));
+            .catch((reason) => {
+                console.error(reason);
+                if (reason instanceof Response) {
+                    setError({
+                        occurred: true,
+                        message: `An unexpected error occurred. Please try again later. ${statusToString(reason)}`,
+                    });
+                } else {
+                    setError({ occurred: true, message: `An unexpected error occurred. Please try again later. [${reason}]` });
+                }
+            });
         setDeleting({ loading: false, inviteId: -1 });
     }
 
@@ -85,6 +98,7 @@ export const InvitationsPage: React.FC = () => {
         <>
             <Helmet title={'Invitations | Starsky'} />
             <NavigationBar activeMenuItem={ActiveMenuItem.Invitations} authenticatedUser={authenticatedUser!}>
+                {error.occurred ? <ErrorModal errorMessage={error.message} /> : null}
                 <List divided relaxed size={'big'} className={'left-margin right-margin'}>
                     {invites.map((invite) => {
                         const expiryDate = new Date(invite.expiresOn * 1000);
