@@ -30,6 +30,9 @@ body {
 
 .segment.menu-children {
     min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
 }
 
 .pushable.full-size, .pusher.full-size {

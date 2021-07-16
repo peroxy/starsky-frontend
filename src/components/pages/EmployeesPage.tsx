@@ -78,7 +78,7 @@ export const EmployeesPage: React.FC = () => {
         <>
             <Helmet title={'Employees | Starsky'} />
             <NavigationBar activeMenuItem={ActiveMenuItem.Employees} authenticatedUser={authenticatedUser!}>
-                <ButtonGroup size="big" className={'left-margin'}>
+                <ButtonGroup size="big">
                     <EmployeeModal
                         modalHeader={'Create Employee'}
                         modalOkButtonText={'Create'}
