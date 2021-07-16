@@ -28,6 +28,10 @@ body {
     float: left
 }
 
+.segment.menu-children {
+    min-height: 90vh;
+}
+
 .pushable.full-size, .pusher.full-size {
     min-height: 100vh;
 }

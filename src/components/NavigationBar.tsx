@@ -1,4 +1,21 @@
-import { Button, Card, Container, Dimmer, Divider, Header, Icon, Menu, MenuItem, Popup, Ref, Segment, Sidebar } from 'semantic-ui-react';
+import {
+    Button,
+    Card,
+    Container,
+    Dimmer,
+    Divider,
+    Grid,
+    GridColumn,
+    GridRow,
+    Header,
+    Icon,
+    Menu,
+    MenuItem,
+    Popup,
+    Ref,
+    Segment,
+    Sidebar,
+} from 'semantic-ui-react';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { EMPLOYEES_ROUTE, HOME_ROUTE, INVITATIONS_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROUTE } from '../routing/routeConstants';
@@ -148,7 +165,13 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                     {userProfileMenuItem}
                 </Menu>
                 <Dimmer active={dimmerActive} />
-                {children}
+                <Grid centered>
+                    <GridColumn width={1} />
+                    <GridColumn width={10}>
+                        <Segment className="menu-children">{children}</Segment>
+                    </GridColumn>
+                    <GridColumn width={1} />
+                </Grid>
             </>
         );
     };
