@@ -11,6 +11,6 @@ export const PublicLayout = () => (
         <Route exact path={HOME_ROUTE} component={HomePage} />
         <Route exact path={LOGIN_ROUTE} component={LoginPage} />
         <Route exact path={REGISTER_ROUTE} component={RegisterPage} />
-        <Route render={() => <NotFound goBackWhere={GoBackTo.Home} />} />
+        <Route render={() => <NotFound header="Page Not Found" goBackWhere={GoBackTo.Home} />} />
     </Switch>
 );

@@ -7,7 +7,7 @@ import { LOGIN_ROUTE } from './routeConstants';
 import { useApi } from '../api/starskyApiClient';
 
 export function PrivateRoute({ component: Component, ...rest }: any): JSX.Element {
-    const { token } = useAuth();
+    const { token, clearToken } = useAuth();
     const [authenticated, setAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -24,8 +24,13 @@ export function PrivateRoute({ component: Component, ...rest }: any): JSX.Elemen
             setLoading(false);
             return;
         }
-        const response = await apis.userApi.validateAuthenticationRaw();
-        setAuthenticated(response.raw.ok);
+        await apis.userApi
+            .validateAuthentication()
+            .then(() => setAuthenticated(true))
+            .catch(() => {
+                setAuthenticated(false);
+                clearToken();
+            });
         setLoading(false);
     }
 

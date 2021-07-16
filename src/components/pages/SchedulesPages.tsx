@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { ScheduleResponse, UserResponse } from '../../api/__generated__';
+import { ScheduleResponse, TeamResponse, UserResponse } from '../../api/__generated__';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
-import { responseToString } from '../../api/httpHelpers';
 import { Dimmer, Icon, List, Loader } from 'semantic-ui-react';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
+import { epochToDate } from '../../util/dateHelper';
 
 export const SchedulesPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [authenticatedUser, setAuthenticatedUser] = useState<UserResponse | null>(null);
     const [schedules, setSchedules] = useState<ScheduleResponse[]>([]);
+    const [teams, setTeams] = useState<TeamResponse[]>([]);
 
     const location = useLocation();
 
@@ -36,14 +37,13 @@ export const SchedulesPage: React.FC = () => {
         }
 
         loadData.push(
-            apis.scheduleApi.getSchedules({}).then((response) => {
-                setSchedules(response);
-            }),
+            apis.scheduleApi.getSchedules({}).then((response) => setSchedules(response)),
+            apis.teamApi.getTeams().then((response) => setTeams(response)),
         );
 
         await Promise.all(loadData)
             .catch((reason: Response) => {
-                console.error(responseToString(reason));
+                console.log(reason);
             })
             .finally(() => setLoading(false));
     }
@@ -59,11 +59,13 @@ export const SchedulesPage: React.FC = () => {
                 <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>
                     {schedules.map((schedule) => (
                         <List.Item key={schedule.id}>
-                            <Icon name={'clock'} />
+                            <Icon name={'calendar alternate outline'} />
                             <List.Content>
                                 <List.Header as={'a'}>{schedule.scheduleName}</List.Header>
-                                <List.Description>Job title: {schedule.scheduleStart}</List.Description>
-                                <List.Description>E-mail: {schedule.scheduleEnd}</List.Description>
+                                <List.Description>Team: {teams.find((value) => value.id == schedule.teamId)?.name}</List.Description>
+                                <List.Description>
+                                    {epochToDate(schedule.scheduleStart).toLocaleDateString()} - {epochToDate(schedule.scheduleEnd).toLocaleDateString()}
+                                </List.Description>
                             </List.Content>
                         </List.Item>
                     ))}

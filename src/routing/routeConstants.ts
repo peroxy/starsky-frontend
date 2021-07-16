@@ -14,5 +14,6 @@ export const APP_ROUTE = '/app';
 export const SETTINGS_ROUTE = '/app/settings';
 export const TEAMS_ROUTE = '/app/teams';
 export const SCHEDULES_ROUTE = '/app/schedules';
+export const SCHEDULE_ROUTE = '/app/schedules/:id';
 export const EMPLOYEES_ROUTE = '/app/employees';
 export const INVITATIONS_ROUTE = '/app/invitations';

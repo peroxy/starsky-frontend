@@ -3,10 +3,10 @@ body {
     background: #f3f3f3 !important;
 }
 
-.button.left-margin, .list.left-margin, .buttons.left-margin {
+.button.left-margin, .list.left-margin, .buttons.left-margin, .segment.left-margin {
     margin-left: 2rem;
 }
-.button.right-margin, .list.right-margin, .buttons.right-margin {
+.button.right-margin, .list.right-margin, .buttons.right-margin, .segment.right-margin {
     margin-right: 2rem;
 }
 
@@ -48,4 +48,8 @@ body {
 .description.padded {
     margin-bottom: 0.5rem;
     margin-top: 0.5rem;
+}
+
+.datePicker {
+    width: 100%;
 }

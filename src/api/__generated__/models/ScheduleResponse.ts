@@ -24,49 +24,49 @@ export interface ScheduleResponse {
      * @type {number}
      * @memberof ScheduleResponse
      */
-    id?: number;
+    id: number;
     /**
      * 
      * @type {string}
      * @memberof ScheduleResponse
      */
-    scheduleName?: string;
+    scheduleName: string;
     /**
      * 
      * @type {number}
      * @memberof ScheduleResponse
      */
-    scheduleStart?: number;
+    scheduleStart: number;
     /**
      * 
      * @type {number}
      * @memberof ScheduleResponse
      */
-    scheduleEnd?: number;
+    scheduleEnd: number;
     /**
      * 
      * @type {number}
      * @memberof ScheduleResponse
      */
-    teamId?: number;
+    teamId: number;
     /**
      * 
      * @type {number}
      * @memberof ScheduleResponse
      */
-    maxHoursPerEmployee?: number;
+    maxHoursPerEmployee: number;
     /**
      * 
      * @type {number}
      * @memberof ScheduleResponse
      */
-    maxShiftsPerEmployee?: number;
+    maxShiftsPerEmployee: number;
     /**
      * 
      * @type {number}
      * @memberof ScheduleResponse
      */
-    maxHoursPerShift?: number;
+    maxHoursPerShift: number;
 }
 
 export function ScheduleResponseFromJSON(json: any): ScheduleResponse {
@@ -79,14 +79,14 @@ export function ScheduleResponseFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
-        'id': !exists(json, 'id') ? undefined : json['id'],
-        'scheduleName': !exists(json, 'schedule_name') ? undefined : json['schedule_name'],
-        'scheduleStart': !exists(json, 'schedule_start') ? undefined : json['schedule_start'],
-        'scheduleEnd': !exists(json, 'schedule_end') ? undefined : json['schedule_end'],
-        'teamId': !exists(json, 'team_id') ? undefined : json['team_id'],
-        'maxHoursPerEmployee': !exists(json, 'max_hours_per_employee') ? undefined : json['max_hours_per_employee'],
-        'maxShiftsPerEmployee': !exists(json, 'max_shifts_per_employee') ? undefined : json['max_shifts_per_employee'],
-        'maxHoursPerShift': !exists(json, 'max_hours_per_shift') ? undefined : json['max_hours_per_shift'],
+        'id': json['id'],
+        'scheduleName': json['schedule_name'],
+        'scheduleStart': json['schedule_start'],
+        'scheduleEnd': json['schedule_end'],
+        'teamId': json['team_id'],
+        'maxHoursPerEmployee': json['max_hours_per_employee'],
+        'maxShiftsPerEmployee': json['max_shifts_per_employee'],
+        'maxHoursPerShift': json['max_hours_per_shift'],
     };
 }
 
