@@ -59,7 +59,7 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                                 <Icon name="briefcase" /> {authenticatedUser.jobTitle}
                             </Card.Content>
                             <Card.Content>
-                                <Button content={'Edit profile'} className={'full-width'} onClick={() => history.push(SETTINGS_ROUTE)} />
+                                <Button content={'Edit profile'} className={'full-width'} onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)} />
                                 <Divider />
                                 <Button content={'Sign out'} className={'full-width'} secondary onClick={handleLogout} />
                             </Card.Content>

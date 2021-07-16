@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { ScheduleResponse, TeamResponse, UserResponse } from '../../api/__generated__';
-import { useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
 import { Dimmer, Icon, List, Loader } from 'semantic-ui-react';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { epochToDate } from '../../util/dateHelper';
+import { SCHEDULE_ROUTE, TEAMS_ROUTE } from '../../routing/routeConstants';
 
 export const SchedulesPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -15,7 +16,7 @@ export const SchedulesPage: React.FC = () => {
     const [teams, setTeams] = useState<TeamResponse[]>([]);
 
     const location = useLocation();
-
+    const history = useHistory();
     const { token } = useAuth();
     const apis = useApi(token);
 
@@ -56,9 +57,9 @@ export const SchedulesPage: React.FC = () => {
         <>
             <Helmet title={'Schedules | Starsky'} />
             <NavigationBar activeMenuItem={ActiveMenuItem.Schedules} authenticatedUser={authenticatedUser!}>
-                <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>
+                <List divided relaxed size={'big'} selection className={'left-margin'}>
                     {schedules.map((schedule) => (
-                        <List.Item key={schedule.id}>
+                        <List.Item key={schedule.id} onClick={() => history.push(SCHEDULE_ROUTE.replace(':id', schedule.id.toString()), authenticatedUser)}>
                             <Icon name={'calendar alternate outline'} />
                             <List.Content>
                                 <List.Header as={'a'}>{schedule.scheduleName}</List.Header>
