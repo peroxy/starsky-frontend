@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { Button, Dimmer, Divider, Form, Grid, GridColumn, Icon, Loader, Segment } from 'semantic-ui-react';
 import { Helmet } from 'react-helmet';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
@@ -14,6 +14,8 @@ import { useMediaQuery } from 'react-responsive';
 import { MAX_MOBILE_WIDTH } from '../../util/mediaConstants';
 import { dateToEpoch, epochToDate } from '../../util/dateHelper';
 import { ErrorModal } from '../modals/ErrorModal';
+import { SCHEDULES_ROUTE } from '../../routing/routeConstants';
+import { logAndFormatError } from '../../util/errorHelper';
 
 export const SchedulePage: React.FC = () => {
     const [loading, setLoading] = useState({ initialLoad: true, processing: false });
@@ -28,6 +30,7 @@ export const SchedulePage: React.FC = () => {
 
     const { id } = useParams<{ id?: string }>();
     const location = useLocation();
+    const history = useHistory();
     const { token } = useAuth();
     const apis = useApi(token);
     const isMobile = useMediaQuery({ query: `(max-width: ${MAX_MOBILE_WIDTH}px)` });
@@ -210,19 +213,27 @@ export const SchedulePage: React.FC = () => {
                 setSchedule(response);
                 window.history.replaceState(null, '', response.id.toString());
             })
-            .catch((reason) => {
-                console.error(reason);
-                if (reason instanceof Response) {
-                    setError({ occurred: true, message: `An unexpected error occurred. Please try again later. ${statusToString(reason)}` });
-                } else {
-                    setError({ occurred: true, message: `An unexpected error occurred. Please try again later. ${reason}` });
-                }
-            })
+            .catch((reason) => setError({ occurred: true, message: logAndFormatError(reason) }))
             .finally(() => {
                 setLoading({ initialLoad: false, processing: false });
                 setShowTeamFieldError(false);
             });
     };
+
+    async function onDelete() {
+        if (!schedule) {
+            return;
+        }
+
+        setLoading({ initialLoad: false, processing: true });
+        setError({ occurred: false, message: '' });
+
+        await apis.scheduleApi
+            .deleteSchedule({ scheduleId: schedule.id })
+            .then(() => history.push(SCHEDULES_ROUTE, authenticatedUser))
+            .catch((reason) => setError({ occurred: true, message: logAndFormatError(reason) }))
+            .finally(() => setLoading({ initialLoad: false, processing: false }));
+    }
 
     function getScheduleButton() {
         let content = 'Create';
@@ -231,7 +242,7 @@ export const SchedulePage: React.FC = () => {
         }
         return (
             <Grid columns={2}>
-                <GridColumn>{schedule ? <Button content="Delete" icon="trash" negative floated={'left'} /> : null}</GridColumn>
+                <GridColumn>{schedule ? <Button content="Delete" icon="trash" negative floated={'left'} onClick={onDelete} /> : null}</GridColumn>
                 <GridColumn>
                     <Button content={content} icon="checkmark" positive floated={'right'} type="submit" />
                 </GridColumn>
