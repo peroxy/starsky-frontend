@@ -72,7 +72,8 @@ export const SchedulesPage: React.FC = () => {
                                 <List.Header as={'a'}>{schedule.scheduleName}</List.Header>
                                 <List.Description>Team: {teams.find((value) => value.id == schedule.teamId)?.name}</List.Description>
                                 <List.Description>
-                                    {epochToDate(schedule.scheduleStart).toLocaleDateString()} - {epochToDate(schedule.scheduleEnd).toLocaleDateString()}
+                                    {epochToDate(schedule.scheduleStart).toDate().toLocaleDateString()} -{' '}
+                                    {epochToDate(schedule.scheduleEnd).toDate().toLocaleDateString()}
                                 </List.Description>
                             </List.Content>
                         </List.Item>

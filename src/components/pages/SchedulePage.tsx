@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
-import { ScheduleResponse, TeamResponse, UserResponse } from '../../api/__generated__';
+import { ScheduleResponse, ScheduleShiftResponse, TeamResponse, UserResponse } from '../../api/__generated__';
 import { responseToString } from '../../api/httpHelpers';
 import NotFound, { GoBackTo } from '../NotFound';
 import DatePicker from 'react-datepicker';
@@ -16,11 +16,13 @@ import { dateToEpoch, epochToDate } from '../../util/dateHelper';
 import { ErrorModal } from '../modals/ErrorModal';
 import { SCHEDULES_ROUTE } from '../../routing/routeConstants';
 import { logAndFormatError } from '../../util/errorHelper';
+import { ScheduleShiftsTable } from '../ScheduleShiftsTable';
 
 export const SchedulePage: React.FC = () => {
     const [loading, setLoading] = useState({ initialLoad: true, processing: false });
     const [authenticatedUser, setAuthenticatedUser] = useState<UserResponse | null>(null);
     const [schedule, setSchedule] = useState<ScheduleResponse | null>(null);
+    const [shifts, setShifts] = useState<ScheduleShiftResponse[]>([]);
     const [teams, setTeams] = useState<TeamResponse[]>([]);
     const [selectedTeamId, setSelectedTeamId] = useState<number>();
     const [notFound, setNotFound] = useState(false);
@@ -61,10 +63,12 @@ export const SchedulePage: React.FC = () => {
         if (id && id != 'new') {
             const scheduleId = parseInt(id);
             loadData.push(
-                apis.scheduleApi.getScheduleById({ scheduleId: scheduleId }).then((response) => {
+                apis.scheduleApi.getScheduleById({ scheduleId: scheduleId }).then(async (response) => {
                     setSchedule(response);
-                    setDateRange({ start: epochToDate(response.scheduleStart), end: epochToDate(response.scheduleEnd) });
+                    setDateRange({ start: epochToDate(response.scheduleStart).toDate(), end: epochToDate(response.scheduleEnd).toDate() });
                     setSelectedTeamId(response.teamId);
+
+                    await apis.scheduleShiftApi.getScheduleShifts({ scheduleId: response.id }).then((scheduleShifts) => setShifts(scheduleShifts));
                 }),
             );
         }
@@ -278,6 +282,7 @@ export const SchedulePage: React.FC = () => {
             <Segment as={Form} name={formName} className={segmentClass} loading={loading.processing} onSubmit={onSubmit}>
                 {segmentChildren}
                 {error.occurred ? <ErrorModal errorMessage={error.message} /> : null}
+                <ScheduleShiftsTable shifts={shifts} />
             </Segment>
         );
     };
