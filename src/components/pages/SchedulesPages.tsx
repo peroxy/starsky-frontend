@@ -4,7 +4,7 @@ import { ScheduleResponse, TeamResponse, UserResponse } from '../../api/__genera
 import { useHistory, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
-import { Dimmer, Icon, List, Loader } from 'semantic-ui-react';
+import { Button, Dimmer, Icon, List, Loader } from 'semantic-ui-react';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { epochToDate } from '../../util/dateHelper';
 import { SCHEDULE_ROUTE, TEAMS_ROUTE } from '../../routing/routeConstants';
@@ -57,6 +57,13 @@ export const SchedulesPage: React.FC = () => {
         <>
             <Helmet title={'Schedules | Starsky'} />
             <NavigationBar activeMenuItem={ActiveMenuItem.Schedules} authenticatedUser={authenticatedUser!}>
+                <Button
+                    content={'Create new schedule'}
+                    icon="calendar alternate outline"
+                    primary
+                    size="big"
+                    onClick={() => history.push(SCHEDULE_ROUTE.replace(':id', 'new'), authenticatedUser)}
+                />
                 <List divided relaxed size={'big'} selection className={'left-margin'}>
                     {schedules.map((schedule) => (
                         <List.Item key={schedule.id} onClick={() => history.push(SCHEDULE_ROUTE.replace(':id', schedule.id.toString()), authenticatedUser)}>

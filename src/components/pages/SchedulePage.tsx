@@ -1,25 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { Button, Dimmer, Divider, Form, Grid, GridColumn, Loader, Segment } from 'semantic-ui-react';
+import { Button, Dimmer, Divider, Form, Grid, GridColumn, Icon, Loader, Segment } from 'semantic-ui-react';
 import { Helmet } from 'react-helmet';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
 import { ScheduleResponse, TeamResponse, UserResponse } from '../../api/__generated__';
-import { responseToString } from '../../api/httpHelpers';
+import { responseToString, statusToString } from '../../api/httpHelpers';
 import NotFound, { GoBackTo } from '../NotFound';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useMediaQuery } from 'react-responsive';
 import { MAX_MOBILE_WIDTH } from '../../util/mediaConstants';
+import { dateToEpoch, epochToDate } from '../../util/dateHelper';
+import { ErrorModal } from '../modals/ErrorModal';
 
 export const SchedulePage: React.FC = () => {
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState({ initialLoad: true, processing: false });
     const [authenticatedUser, setAuthenticatedUser] = useState<UserResponse | null>(null);
     const [schedule, setSchedule] = useState<ScheduleResponse | null>(null);
     const [teams, setTeams] = useState<TeamResponse[]>([]);
     const [selectedTeamId, setSelectedTeamId] = useState<number>();
     const [notFound, setNotFound] = useState(false);
+    const [error, setError] = useState({ occurred: false, message: '' });
+    const [showTeamFieldError, setShowTeamFieldError] = useState(false);
     const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
 
     const { id } = useParams<{ id?: string }>();
@@ -51,11 +55,13 @@ export const SchedulePage: React.FC = () => {
             setAuthenticatedUser(location.state as UserResponse);
         }
 
-        if (id) {
+        if (id && id != 'new') {
             const scheduleId = parseInt(id);
             loadData.push(
                 apis.scheduleApi.getScheduleById({ scheduleId: scheduleId }).then((response) => {
                     setSchedule(response);
+                    setDateRange({ start: epochToDate(response.scheduleStart), end: epochToDate(response.scheduleEnd) });
+                    setSelectedTeamId(response.teamId);
                 }),
             );
         }
@@ -67,7 +73,7 @@ export const SchedulePage: React.FC = () => {
                 console.error(responseToString(reason));
                 setNotFound(true);
             })
-            .finally(() => setLoading(false));
+            .finally(() => setLoading({ initialLoad: false, processing: false }));
     }
 
     function getFirstFormColumn() {
@@ -81,7 +87,7 @@ export const SchedulePage: React.FC = () => {
                     required
                     minLength={1}
                     placeholder="My Schedule"
-                    icon="tag"
+                    icon="calendar"
                     iconPosition="left"
                 />
                 <Form.Field label="Date range:" required style={{ marginBottom: 0 }} />
@@ -95,10 +101,13 @@ export const SchedulePage: React.FC = () => {
                     wrapperClassName="datePicker"
                 />
                 <Form.Dropdown
+                    floating
+                    labeled
                     placeholder="Select Team"
                     search
                     label="Team:"
                     required
+                    error={showTeamFieldError}
                     selection
                     options={teams.map((team) => {
                         return { text: team.name, key: team.id, value: team.id, icon: 'users' };
@@ -153,6 +162,68 @@ export const SchedulePage: React.FC = () => {
         );
     }
 
+    const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        if (!selectedTeamId) {
+            setShowTeamFieldError(true);
+            return;
+        }
+
+        setError({ occurred: false, message: '' });
+        setLoading({ initialLoad: false, processing: true });
+        const formData = new FormData(event.currentTarget);
+        const scheduleName = formData.get(formScheduleName) as string;
+        const maxEmployeeHours = parseInt(formData.get(formMaxHoursPerEmployee) as string);
+        const maxShifts = parseInt(formData.get(formMaxShiftsPerEmployee) as string);
+        const maxShiftHours = parseInt(formData.get(formMaxHoursPerShift) as string);
+
+        let saveSchedule: Promise<ScheduleResponse>;
+        if (schedule) {
+            saveSchedule = apis.scheduleApi.patchSchedule({
+                scheduleId: schedule.id,
+                updateScheduleRequest: {
+                    scheduleName: scheduleName,
+                    maxHoursPerEmployee: maxEmployeeHours,
+                    maxShiftsPerEmployee: maxShifts,
+                    maxHoursPerShift: maxShiftHours,
+                    teamId: selectedTeamId,
+                    scheduleStart: dateToEpoch(dateRange.start!),
+                    scheduleEnd: dateToEpoch(dateRange.end!),
+                },
+            });
+        } else {
+            saveSchedule = apis.scheduleApi.postSchedule({
+                teamId: selectedTeamId as number,
+                createScheduleRequest: {
+                    scheduleName: scheduleName,
+                    maxHoursPerEmployee: maxEmployeeHours,
+                    maxShiftsPerEmployee: maxShifts,
+                    maxHoursPerShift: maxShiftHours,
+                    scheduleStart: dateToEpoch(dateRange.start!),
+                    scheduleEnd: dateToEpoch(dateRange.end!),
+                },
+            });
+        }
+        await saveSchedule
+            .then((response) => {
+                setSchedule(response);
+                window.history.replaceState(null, '', response.id.toString());
+            })
+            .catch((reason) => {
+                console.error(reason);
+                if (reason instanceof Response) {
+                    setError({ occurred: true, message: `An unexpected error occurred. Please try again later. ${statusToString(reason)}` });
+                } else {
+                    setError({ occurred: true, message: `An unexpected error occurred. Please try again later. ${reason}` });
+                }
+            })
+            .finally(() => {
+                setLoading({ initialLoad: false, processing: false });
+                setShowTeamFieldError(false);
+            });
+    };
+
     function getScheduleButton() {
         let content = 'Create';
         if (schedule) {
@@ -160,11 +231,9 @@ export const SchedulePage: React.FC = () => {
         }
         return (
             <Grid columns={2}>
+                <GridColumn>{schedule ? <Button content="Delete" icon="trash" negative floated={'left'} /> : null}</GridColumn>
                 <GridColumn>
-                    <Button content="Delete" icon="trash" negative floated={'left'} />
-                </GridColumn>
-                <GridColumn>
-                    <Button content={content} icon="checkmark" positive floated={'right'} />
+                    <Button content={content} icon="checkmark" positive floated={'right'} type="submit" />
                 </GridColumn>
             </Grid>
         );
@@ -195,13 +264,14 @@ export const SchedulePage: React.FC = () => {
             );
         }
         return (
-            <Segment as={Form} name={formName} className={segmentClass}>
+            <Segment as={Form} name={formName} className={segmentClass} loading={loading.processing} onSubmit={onSubmit}>
                 {segmentChildren}
+                {error.occurred ? <ErrorModal errorMessage={error.message} /> : null}
             </Segment>
         );
     };
 
-    return loading ? (
+    return loading.initialLoad ? (
         <Dimmer active inverted>
             <Loader content="Please wait..." />
         </Dimmer>

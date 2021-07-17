@@ -55,6 +55,12 @@ export interface UpdateScheduleRequest {
      * @memberof UpdateScheduleRequest
      */
     maxHoursPerShift?: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof UpdateScheduleRequest
+     */
+    teamId?: number;
 }
 
 export function UpdateScheduleRequestFromJSON(json: any): UpdateScheduleRequest {
@@ -73,6 +79,7 @@ export function UpdateScheduleRequestFromJSONTyped(json: any, ignoreDiscriminato
         'maxHoursPerEmployee': !exists(json, 'max_hours_per_employee') ? undefined : json['max_hours_per_employee'],
         'maxShiftsPerEmployee': !exists(json, 'max_shifts_per_employee') ? undefined : json['max_shifts_per_employee'],
         'maxHoursPerShift': !exists(json, 'max_hours_per_shift') ? undefined : json['max_hours_per_shift'],
+        'teamId': !exists(json, 'team_id') ? undefined : json['team_id'],
     };
 }
 
@@ -91,6 +98,7 @@ export function UpdateScheduleRequestToJSON(value?: UpdateScheduleRequest | null
         'max_hours_per_employee': value.maxHoursPerEmployee,
         'max_shifts_per_employee': value.maxShiftsPerEmployee,
         'max_hours_per_shift': value.maxHoursPerShift,
+        'team_id': value.teamId,
     };
 }
 
