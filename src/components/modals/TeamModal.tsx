@@ -46,6 +46,9 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
         setModalOpen(false);
         setLoading(true);
         setAnyTeamMembersUpdated(false);
+        if (!props.getTeamMembers) {
+            setSelectedTeamMemberIds([]);
+        }
     };
 
     const handleOnSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -64,6 +67,9 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
             )
             .then(() => {
                 setModalOpen(false);
+                if (!props.getTeamMembers) {
+                    setSelectedTeamMemberIds([]);
+                }
             })
             .catch((reason) => {
                 console.error(reason);
