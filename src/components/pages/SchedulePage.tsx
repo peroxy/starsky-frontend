@@ -22,7 +22,6 @@ export const SchedulePage: React.FC = () => {
     const [loading, setLoading] = useState({ initialLoad: true, processing: false });
     const [authenticatedUser, setAuthenticatedUser] = useState<UserResponse | null>(null);
     const [schedule, setSchedule] = useState<ScheduleResponse | null>(null);
-    const [shifts, setShifts] = useState<ScheduleShiftResponse[]>([]);
     const [teams, setTeams] = useState<TeamResponse[]>([]);
     const [teamMembers, setTeamMembers] = useState<UserResponse[]>([]);
     const [selectedTeamId, setSelectedTeamId] = useState<number>();
@@ -68,7 +67,7 @@ export const SchedulePage: React.FC = () => {
                     setSchedule(response);
                     setDateRange({ start: epochToDate(response.scheduleStart).toDate(), end: epochToDate(response.scheduleEnd).toDate() });
                     setSelectedTeamId(response.teamId);
-                    await apis.scheduleShiftApi.getScheduleShifts({ scheduleId: response.id }).then((scheduleShifts) => setShifts(scheduleShifts));
+                    // await apis.scheduleShiftApi.getScheduleShifts({ scheduleId: response.id }).then((scheduleShifts) => setShifts(scheduleShifts));
                     await apis.teamApi.getTeamMembers({ teamId: response.teamId }).then((members) => setTeamMembers(members));
                 }),
             );
@@ -107,6 +106,7 @@ export const SchedulePage: React.FC = () => {
                     placeholderText="Click to select date range"
                     required
                     wrapperClassName="datePicker"
+                    calendarStartDay={1}
                 />
                 <Form.Dropdown
                     floating
@@ -214,9 +214,10 @@ export const SchedulePage: React.FC = () => {
             });
         }
         await saveSchedule
-            .then((response) => {
+            .then(async (response) => {
                 setSchedule(response);
                 window.history.replaceState(null, '', response.id.toString());
+                await apis.teamApi.getTeamMembers({ teamId: response.teamId }).then((members) => setTeamMembers(members));
             })
             .catch((reason) => setError({ occurred: true, message: logAndFormatError(reason) }))
             .finally(() => {
