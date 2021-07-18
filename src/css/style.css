@@ -61,3 +61,12 @@ body {
     width: 100%;
     margin-bottom: 0.7rem;
 }
+
+.icon.show-on-hover {
+    display: none;
+}
+
+.hoverable:hover .icon.show-on-hover {
+    display: inline-block;
+}
+

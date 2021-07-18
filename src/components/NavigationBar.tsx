@@ -1,21 +1,4 @@
-import {
-    Button,
-    Card,
-    Container,
-    Dimmer,
-    Divider,
-    Grid,
-    GridColumn,
-    GridRow,
-    Header,
-    Icon,
-    Menu,
-    MenuItem,
-    Popup,
-    Ref,
-    Segment,
-    Sidebar,
-} from 'semantic-ui-react';
+import { Button, Card, Dimmer, Divider, Grid, GridColumn, Icon, Menu, Popup, Segment, Sidebar } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { EMPLOYEES_ROUTE, HOME_ROUTE, INVITATIONS_ROUTE, SCHEDULES_ROUTE, SETTINGS_ROUTE, TEAMS_ROUTE } from '../routing/routeConstants';
@@ -35,9 +18,11 @@ export enum ActiveMenuItem {
 export interface INavigationBarProps {
     activeMenuItem: ActiveMenuItem;
     authenticatedUser: UserResponse;
+    fullWidth?: boolean;
+    children?: React.ReactNode;
 }
 
-export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeMenuItem, authenticatedUser }) => {
+export const NavigationBar: React.FC<INavigationBarProps> = (props: INavigationBarProps) => {
     const history = useHistory();
     const { clearToken } = useAuth();
 
@@ -53,23 +38,31 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
     const invitationsMenuItem = (
         <Menu.Item
             content="Invitations"
-            active={activeMenuItem === ActiveMenuItem.Invitations}
-            onClick={() => history.push(INVITATIONS_ROUTE, authenticatedUser)}
+            active={props.activeMenuItem === ActiveMenuItem.Invitations}
+            onClick={() => history.push(INVITATIONS_ROUTE, props.authenticatedUser)}
         />
     );
 
     const homeMenuItem = <Menu.Item content="Home" onClick={() => history.push(HOME_ROUTE)} />;
 
     const teamsMenuItem = (
-        <Menu.Item content="Teams" active={activeMenuItem === ActiveMenuItem.Teams} onClick={() => history.push(TEAMS_ROUTE, authenticatedUser)} />
+        <Menu.Item content="Teams" active={props.activeMenuItem === ActiveMenuItem.Teams} onClick={() => history.push(TEAMS_ROUTE, props.authenticatedUser)} />
     );
 
     const employeesMenuItem = (
-        <Menu.Item content="Employees" active={activeMenuItem === ActiveMenuItem.Employees} onClick={() => history.push(EMPLOYEES_ROUTE, authenticatedUser)} />
+        <Menu.Item
+            content="Employees"
+            active={props.activeMenuItem === ActiveMenuItem.Employees}
+            onClick={() => history.push(EMPLOYEES_ROUTE, props.authenticatedUser)}
+        />
     );
 
     const schedulesMenuItem = (
-        <Menu.Item content="Schedules" active={activeMenuItem === ActiveMenuItem.Schedules} onClick={() => history.push(SCHEDULES_ROUTE, authenticatedUser)} />
+        <Menu.Item
+            content="Schedules"
+            active={props.activeMenuItem === ActiveMenuItem.Schedules}
+            onClick={() => history.push(SCHEDULES_ROUTE, props.authenticatedUser)}
+        />
     );
 
     const userProfileMenuItem = (
@@ -87,12 +80,12 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
             onClose={() => setDimmerActive(false)}
         >
             <Card>
-                <Card.Content header={`${authenticatedUser.name}`} description={`${authenticatedUser.email}`} textAlign={'center'} />
+                <Card.Content header={`${props.authenticatedUser.name}`} description={`${props.authenticatedUser.email}`} textAlign={'center'} />
                 <Card.Content extra textAlign={'center'}>
-                    <Icon name="briefcase" /> {authenticatedUser.jobTitle}
+                    <Icon name="briefcase" /> {props.authenticatedUser.jobTitle}
                 </Card.Content>
                 <Card.Content>
-                    <Button content={'Edit profile'} className={'full-width'} onClick={() => history.push(SETTINGS_ROUTE, authenticatedUser)} />
+                    <Button content={'Edit profile'} className={'full-width'} onClick={() => history.push(SETTINGS_ROUTE, props.authenticatedUser)} />
                     <Divider />
                     <Button content={'Sign out'} className={'full-width'} secondary onClick={handleLogout} />
                 </Card.Content>
@@ -147,7 +140,7 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                 <Sidebar.Pusher dimmed={sidebarOpened} className={'full-size'}>
                     <Divider className={'invisible'} />
                     <Dimmer active={dimmerActive} />
-                    {children}
+                    {props.children}
                 </Sidebar.Pusher>
             </Sidebar.Pushable>
         );
@@ -165,13 +158,17 @@ export const NavigationBar: React.FC<INavigationBarProps> = ({ children, activeM
                     {userProfileMenuItem}
                 </Menu>
                 <Dimmer active={dimmerActive} />
-                <Grid centered>
-                    <GridColumn width={1} />
-                    <GridColumn width={10}>
-                        <Segment className="menu-children">{children}</Segment>
-                    </GridColumn>
-                    <GridColumn width={1} />
-                </Grid>
+                {props.fullWidth ? (
+                    <Segment className="menu-children left-margin right-margin">{props.children}</Segment>
+                ) : (
+                    <Grid centered>
+                        <GridColumn width={1} />
+                        <GridColumn width={10}>
+                            <Segment className="menu-children">{props.children}</Segment>
+                        </GridColumn>
+                        <GridColumn width={1} />
+                    </Grid>
+                )}
             </>
         );
     };

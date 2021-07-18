@@ -16,7 +16,7 @@ import { dateToEpoch, epochToDate } from '../../util/dateHelper';
 import { ErrorModal } from '../modals/ErrorModal';
 import { SCHEDULES_ROUTE } from '../../routing/routeConstants';
 import { logAndFormatError } from '../../util/errorHelper';
-import { ScheduleShiftsTable } from '../ScheduleShiftsTable';
+import { Scheduler } from '../Scheduler';
 
 export const SchedulePage: React.FC = () => {
     const [loading, setLoading] = useState({ initialLoad: true, processing: false });
@@ -24,6 +24,7 @@ export const SchedulePage: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleResponse | null>(null);
     const [shifts, setShifts] = useState<ScheduleShiftResponse[]>([]);
     const [teams, setTeams] = useState<TeamResponse[]>([]);
+    const [teamMembers, setTeamMembers] = useState<UserResponse[]>([]);
     const [selectedTeamId, setSelectedTeamId] = useState<number>();
     const [notFound, setNotFound] = useState(false);
     const [error, setError] = useState({ occurred: false, message: '' });
@@ -67,8 +68,8 @@ export const SchedulePage: React.FC = () => {
                     setSchedule(response);
                     setDateRange({ start: epochToDate(response.scheduleStart).toDate(), end: epochToDate(response.scheduleEnd).toDate() });
                     setSelectedTeamId(response.teamId);
-
                     await apis.scheduleShiftApi.getScheduleShifts({ scheduleId: response.id }).then((scheduleShifts) => setShifts(scheduleShifts));
+                    await apis.teamApi.getTeamMembers({ teamId: response.teamId }).then((members) => setTeamMembers(members));
                 }),
             );
         }
@@ -279,11 +280,13 @@ export const SchedulePage: React.FC = () => {
             );
         }
         return (
-            <Segment as={Form} name={formName} className={segmentClass} loading={loading.processing} onSubmit={onSubmit}>
-                {segmentChildren}
-                {error.occurred ? <ErrorModal errorMessage={error.message} /> : null}
-                <ScheduleShiftsTable shifts={shifts} />
-            </Segment>
+            <>
+                <Segment as={Form} name={formName} className={segmentClass} loading={loading.processing} onSubmit={onSubmit}>
+                    {segmentChildren}
+                    {error.occurred ? <ErrorModal errorMessage={error.message} /> : null}
+                </Segment>
+                {schedule ? <Scheduler schedule={schedule} employees={teamMembers} /> : null}
+            </>
         );
     };
 
@@ -296,7 +299,7 @@ export const SchedulePage: React.FC = () => {
     ) : (
         <>
             <Helmet title={'Schedule | Starsky'} />
-            <NavigationBar activeMenuItem={ActiveMenuItem.Schedules} authenticatedUser={authenticatedUser!}>
+            <NavigationBar activeMenuItem={ActiveMenuItem.Schedules} authenticatedUser={authenticatedUser!} fullWidth>
                 {getLayout()}
             </NavigationBar>
         </>
