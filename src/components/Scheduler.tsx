@@ -75,6 +75,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                             trigger={<Button primary content="Create shift(s)" size="small" compact />}
                             employees={props.employees}
                             scheduleDates={getScheduleDates()}
+                            schedule={props.schedule}
                         />
                     </Table.HeaderCell>
                     {getTableHeaders()}

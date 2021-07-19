@@ -1,21 +1,21 @@
-import { Button, Divider, Form, FormInput, Grid, GridColumn, List, ListItem, Modal } from 'semantic-ui-react';
+import { Button, Divider, Form, Grid, List, Modal } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { CreateEmployeeAssignmentRequest, CreateScheduleShiftRequest, PutEmployeeAssignmentRequest, UserResponse } from '../../api/__generated__';
+import { CreateEmployeeAvailabilitiesRequest, CreateScheduleShiftRequest, ScheduleResponse, UserResponse } from '../../api/__generated__';
 import dayjs, { Dayjs } from 'dayjs';
 
 interface IShiftsModalProps {
     trigger: React.ReactNode;
     employees: UserResponse[];
     scheduleDates: Dayjs[];
+    schedule: ScheduleResponse;
 }
 export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProps) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<number[]>([]);
     const [requiredEmployees, setRequiredEmployees] = useState<string>('1');
-    const [shifts, setShifts] = useState<{ shiftRequest: CreateScheduleShiftRequest; assignmentRequest: PutEmployeeAssignmentRequest }[]>([]);
-    const [assignments, setAssignments] = useState<CreateEmployeeAssignmentRequest[]>([]);
+    const [shifts, setShifts] = useState<{ shiftRequest: CreateScheduleShiftRequest; availabilityRequests: CreateEmployeeAvailabilitiesRequest[] }[]>([]);
     const [errors, setErrors] = useState<{ requiredEmployees: boolean; shiftStart: boolean; shiftEnd: boolean; availableEmployees: boolean }>({
         availableEmployees: false,
         requiredEmployees: false,
@@ -32,7 +32,6 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
         setSelectedEmployeeIds([]);
         setRequiredEmployees('1');
         setShifts([]);
-        setAssignments([]);
         setStartHour(dayjs().hour(8).minute(0));
         setEndHour(dayjs().hour(16).minute(0));
         setErrors({
@@ -53,24 +52,78 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
             shiftStart: !startHour,
         };
         setErrors(currentErrors);
-        if (currentErrors.availableEmployees || currentErrors.requiredEmployees || currentErrors.shiftEnd || currentErrors.shiftStart) {
+        if (
+            currentErrors.availableEmployees ||
+            currentErrors.requiredEmployees ||
+            currentErrors.shiftEnd ||
+            currentErrors.shiftStart ||
+            !dateRange.startDate ||
+            !startHour ||
+            !endHour
+        ) {
             return;
         }
         if (
             (dateRange.startDate && dateRange.endDate == null) ||
             (dateRange.startDate && dateRange.endDate && dateRange.startDate.getTime() == dateRange.endDate.getTime())
         ) {
+            const start = setTimeToDate(dateRange.startDate, startHour).unix();
+            const end = setTimeToDate(dateRange.startDate, endHour).unix();
             setShifts((previousState) => [
                 ...previousState,
                 {
                     shiftRequest: {
-                        shiftStart: startHour!.date(dateRange.startDate!.getDate()).unix(),
-                        shiftEnd: endHour!.date(dateRange.startDate!.getDate()).unix(),
-                        numberOfRequiredEmployees: parseInt(requiredEmployees),
+                        shiftStart: start,
+                        shiftEnd: end,
+                        numberOfRequiredEmployees: employeesNumber,
                     },
-                    assignmentRequest: { scheduleId: 1, createEmployeeAssignmentRequest: [] },
+                    availabilityRequests: selectedEmployeeIds.map((id) => {
+                        return {
+                            employeeId: id,
+                            availabilityStart: start,
+                            availabilityEnd: end,
+                            shiftId: -1, //this will get replaced after we create shift
+                            maxHoursPerShift: props.schedule.maxHoursPerShift,
+                        };
+                    }),
                 },
             ]);
+        } else {
+            const startDate = setTimeToDate(dateRange.startDate, startHour);
+            const endDate = setTimeToDate(dateRange.endDate!, endHour);
+
+            for (let i = 0; i <= endDate.diff(startDate, 'day'); i++) {
+                const currentDate = startDate.add(i, 'day');
+                const start = setTimeToDate(currentDate, startHour).unix();
+                const end = setTimeToDate(currentDate, endHour).unix();
+                setShifts((previousState) => [
+                    ...previousState,
+                    {
+                        shiftRequest: {
+                            shiftStart: start,
+                            shiftEnd: end,
+                            numberOfRequiredEmployees: employeesNumber,
+                        },
+                        availabilityRequests: selectedEmployeeIds.map((id) => {
+                            return {
+                                employeeId: id,
+                                availabilityStart: start,
+                                availabilityEnd: end,
+                                shiftId: -1, //this will get replaced after we create shift
+                                maxHoursPerShift: props.schedule.maxHoursPerShift,
+                            };
+                        }),
+                    },
+                ]);
+            }
+        }
+    };
+
+    const setTimeToDate = (date: Dayjs | Date, time: Dayjs) => {
+        if (date instanceof Dayjs) {
+            return date.hour(time.hour()).minute(time.minute()).second(time.second()).millisecond(time.millisecond());
+        } else {
+            return dayjs(date).hour(time.hour()).minute(time.minute()).second(time.second()).millisecond(time.millisecond());
         }
     };
 
@@ -203,11 +256,8 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
         <Modal open={modalOpen} onOpen={onModalOpen} onClose={() => setModalOpen(false)} trigger={props.trigger}>
             <Modal.Header>Create new shift(s)</Modal.Header>
             <Modal.Content>{mainModalForm()}</Modal.Content>
-            <Divider />
-            <Modal.Content>
-                Shifts to create:
-                {getShiftsList()}
-            </Modal.Content>
+            <Divider className="no-top-bottom-margin" />
+            <Modal.Content>{getShiftsList()}</Modal.Content>
             <Modal.Actions>
                 <Button icon="plus" content="Add shift(s)" type="submit" onClick={onAddShiftClick} primary />
                 <Button icon="checkmark" content="OK" onClick={() => setModalOpen(false)} positive disabled={shifts.length == 0} />
