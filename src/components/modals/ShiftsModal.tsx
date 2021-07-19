@@ -43,6 +43,28 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
         setDateRange({ startDate: props.scheduleDates[0].toDate(), endDate: null });
     };
 
+    const addToShifts = (shiftStartUnix: number, shiftEndUnix: number, requiredEmployees: number) => {
+        setShifts((previousState) => [
+            ...previousState,
+            {
+                shiftRequest: {
+                    shiftStart: shiftStartUnix,
+                    shiftEnd: shiftEndUnix,
+                    numberOfRequiredEmployees: requiredEmployees,
+                },
+                availabilityRequests: selectedEmployeeIds.map((id) => {
+                    return {
+                        employeeId: id,
+                        availabilityStart: shiftStartUnix,
+                        availabilityEnd: shiftEndUnix,
+                        shiftId: -1, //this will get replaced after we create shift
+                        maxHoursPerShift: props.schedule.maxHoursPerShift,
+                    };
+                }),
+            },
+        ]);
+    };
+
     const onAddShiftClick = () => {
         const employeesNumber = parseInt(requiredEmployees);
         const currentErrors = {
@@ -69,25 +91,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
         ) {
             const start = setTimeToDate(dateRange.startDate, startHour).unix();
             const end = setTimeToDate(dateRange.startDate, endHour).unix();
-            setShifts((previousState) => [
-                ...previousState,
-                {
-                    shiftRequest: {
-                        shiftStart: start,
-                        shiftEnd: end,
-                        numberOfRequiredEmployees: employeesNumber,
-                    },
-                    availabilityRequests: selectedEmployeeIds.map((id) => {
-                        return {
-                            employeeId: id,
-                            availabilityStart: start,
-                            availabilityEnd: end,
-                            shiftId: -1, //this will get replaced after we create shift
-                            maxHoursPerShift: props.schedule.maxHoursPerShift,
-                        };
-                    }),
-                },
-            ]);
+            addToShifts(start, end, employeesNumber);
         } else {
             const startDate = setTimeToDate(dateRange.startDate, startHour);
             const endDate = setTimeToDate(dateRange.endDate!, endHour);
@@ -96,25 +100,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
                 const currentDate = startDate.add(i, 'day');
                 const start = setTimeToDate(currentDate, startHour).unix();
                 const end = setTimeToDate(currentDate, endHour).unix();
-                setShifts((previousState) => [
-                    ...previousState,
-                    {
-                        shiftRequest: {
-                            shiftStart: start,
-                            shiftEnd: end,
-                            numberOfRequiredEmployees: employeesNumber,
-                        },
-                        availabilityRequests: selectedEmployeeIds.map((id) => {
-                            return {
-                                employeeId: id,
-                                availabilityStart: start,
-                                availabilityEnd: end,
-                                shiftId: -1, //this will get replaced after we create shift
-                                maxHoursPerShift: props.schedule.maxHoursPerShift,
-                            };
-                        }),
-                    },
-                ]);
+                addToShifts(start, end, employeesNumber);
             }
         }
     };
