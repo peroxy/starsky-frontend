@@ -278,7 +278,7 @@ export class ScheduleShiftApi extends runtime.BaseAPI {
      * Creates or updates schedule shifts. Please note that this operation can be destructive - it will always delete all of the previous/existing schedule shifts (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
      * Create or update multiple schedule shifts
      */
-    async putScheduleShiftsRaw(requestParameters: PutScheduleShiftsRequest): Promise<runtime.ApiResponse<void>> {
+    async putScheduleShiftsRaw(requestParameters: PutScheduleShiftsRequest): Promise<runtime.ApiResponse<Array<ScheduleShiftResponse>>> {
         if (requestParameters.scheduleId === null || requestParameters.scheduleId === undefined) {
             throw new runtime.RequiredError('scheduleId','Required parameter requestParameters.scheduleId was null or undefined when calling putScheduleShifts.');
         }
@@ -309,15 +309,16 @@ export class ScheduleShiftApi extends runtime.BaseAPI {
             body: requestParameters.createScheduleShiftRequest.map(CreateScheduleShiftRequestToJSON),
         });
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ScheduleShiftResponseFromJSON));
     }
 
     /**
      * Creates or updates schedule shifts. Please note that this operation can be destructive - it will always delete all of the previous/existing schedule shifts (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
      * Create or update multiple schedule shifts
      */
-    async putScheduleShifts(requestParameters: PutScheduleShiftsRequest): Promise<void> {
-        await this.putScheduleShiftsRaw(requestParameters);
+    async putScheduleShifts(requestParameters: PutScheduleShiftsRequest): Promise<Array<ScheduleShiftResponse>> {
+        const response = await this.putScheduleShiftsRaw(requestParameters);
+        return await response.value();
     }
 
 }

@@ -4,6 +4,12 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CreateEmployeeAvailabilitiesRequest, CreateScheduleShiftRequest, ScheduleResponse, UserResponse } from '../../api/__generated__';
 import dayjs, { Dayjs } from 'dayjs';
+import { Simulate } from 'react-dom/test-utils';
+import load = Simulate.load;
+import { useApi } from '../../api/starskyApiClient';
+import { useAuth } from '../AuthProvider';
+import { ErrorModal } from './ErrorModal';
+import { logAndFormatError } from '../../util/errorHelper';
 
 interface IShiftsModalProps {
     trigger: React.ReactNode;
@@ -12,6 +18,7 @@ interface IShiftsModalProps {
     schedule: ScheduleResponse;
 }
 export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProps) => {
+    const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<number[]>([]);
     const [requiredEmployees, setRequiredEmployees] = useState<string>('1');
@@ -22,10 +29,15 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
         shiftEnd: false,
         shiftStart: false,
     });
+
+    const [apiError, setApiError] = useState<{ occurred: boolean; message: string }>({ occurred: false, message: '' });
     // date range can't be dayjs, react date picker library does not like it
     const [dateRange, setDateRange] = useState<{ startDate: Date | null; endDate: Date | null }>({ startDate: props.scheduleDates[0].toDate(), endDate: null });
     const [startHour, setStartHour] = useState<Dayjs | null>(dayjs().hour(8).minute(0));
     const [endHour, setEndHour] = useState<Dayjs | null>(dayjs().hour(16).minute(0));
+
+    const { token } = useAuth();
+    const apis = useApi(token);
 
     const onModalOpen = () => {
         setModalOpen(true);
@@ -41,6 +53,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
             shiftStart: false,
         });
         setDateRange({ startDate: props.scheduleDates[0].toDate(), endDate: null });
+        setApiError({ message: '', occurred: false });
     };
 
     const addToShifts = (shiftStartUnix: number, shiftEndUnix: number, requiredEmployees: number) => {
@@ -210,7 +223,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
     );
 
     const mainModalForm = () => (
-        <Form className="right-margin">
+        <Form className="right-margin" loading={loading}>
             <Grid>
                 <Grid.Column width={12}>
                     <Grid columns={'equal'}>
@@ -245,9 +258,41 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
             <Divider className="no-top-bottom-margin" />
             <Modal.Content>{getShiftsList()}</Modal.Content>
             <Modal.Actions>
-                <Button icon="plus" content="Add shift(s)" type="submit" onClick={onAddShiftClick} primary />
-                <Button icon="checkmark" content="OK" onClick={() => setModalOpen(false)} positive disabled={shifts.length == 0} />
+                <Button icon="plus" content="Add shift(s)" type="submit" onClick={onAddShiftClick} primary disabled={loading} />
+                <Button
+                    icon="checkmark"
+                    content="OK"
+                    onClick={async () => {
+                        setLoading(true);
+                        await new Promise((r) => setTimeout(r, 5000)); //todo: remove after testing loading behavior
+
+                        const scheduleShifts = await apis.scheduleShiftApi
+                            .putScheduleShifts({
+                                scheduleId: props.schedule.id,
+                                createScheduleShiftRequest: shifts.map((shift) => shift.shiftRequest),
+                            })
+                            .catch((reason) => {
+                                setApiError({ message: logAndFormatError(reason), occurred: true });
+                            });
+
+                        if (!scheduleShifts) {
+                            setLoading(false);
+                            return;
+                        }
+
+                        // map schedule shift responses to employee availabilities by using the start/end dates
+                        // shifts[0].shiftRequest.
+                        //
+                        // await apis.employeeAvailabilityApi.putEmployeeAvailabilities({createEmployeeAvailabilitiesRequest: })
+
+                        setModalOpen(false);
+                    }}
+                    loading={loading}
+                    positive
+                    disabled={shifts.length == 0}
+                />
             </Modal.Actions>
+            {apiError.occurred ? <ErrorModal errorMessage={apiError.message} /> : null}
         </Modal>
     );
 };
