@@ -67,36 +67,34 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
     }
 
     return (
-        <>
-            <Table celled unstackable={true} verticalAlign="middle" textAlign="center">
-                <Table.Header>
-                    <Table.Row>
-                        <Table.HeaderCell>
-                            <ShiftsModal
-                                trigger={<Button primary content="Create shift(s)" size="small" compact />}
-                                employees={props.employees}
-                                scheduleDates={getScheduleDates()}
-                            />
-                        </Table.HeaderCell>
-                        {getTableHeaders()}
-                    </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                    {props.employees.map((employee) => {
-                        return (
-                            <Table.Row key={employee.id}>
-                                <Table.Cell collapsing>
-                                    {employee.name}
-                                    <br />
-                                    <Icon name="clock outline" />
-                                    8h {/* TODO calculate total hours of employee*/}
-                                </Table.Cell>
-                                {getEmployeeCells(employee.id)}
-                            </Table.Row>
-                        );
-                    })}
-                </Table.Body>
-            </Table>
-        </>
+        <Table celled unstackable={true} verticalAlign="middle" textAlign="center">
+            <Table.Header>
+                <Table.Row>
+                    <Table.HeaderCell>
+                        <ShiftsModal
+                            trigger={<Button primary content="Create shift(s)" size="small" compact />}
+                            employees={props.employees}
+                            scheduleDates={getScheduleDates()}
+                        />
+                    </Table.HeaderCell>
+                    {getTableHeaders()}
+                </Table.Row>
+            </Table.Header>
+            <Table.Body>
+                {props.employees.map((employee) => {
+                    return (
+                        <Table.Row key={employee.id}>
+                            <Table.Cell collapsing>
+                                {employee.name}
+                                <br />
+                                <Icon name="clock outline" />
+                                8h {/* TODO calculate total hours of employee*/}
+                            </Table.Cell>
+                            {getEmployeeCells(employee.id)}
+                        </Table.Row>
+                    );
+                })}
+            </Table.Body>
+        </Table>
     );
 };
