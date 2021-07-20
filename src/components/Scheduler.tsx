@@ -37,7 +37,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
     function getTableHeaders(): JSX.Element[] {
         const headers: JSX.Element[] = [];
         for (const date of getScheduleDates()) {
-            headers.push(<Table.HeaderCell textAlign="center" content={date.format('ddd, MMM DD')} />);
+            headers.push(<Table.HeaderCell key={date.toISOString()} textAlign="center" content={date.format('ddd, MMM DD')} />);
         }
         return headers;
     }
@@ -63,7 +63,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         const cells: JSX.Element[] = [];
         for (let i = 0; i <= totalScheduleDays; i++) {
             cells.push(
-                <Table.Cell selectable className="hoverable">
+                <Table.Cell key={`tc-${employeeId}-${i}`} selectable className="hoverable">
                     <a href="#" onClick={() => addNewShift(employeeId)}>
                         <Icon name="plus" size="large" className="show-on-hover" disabled />
                     </a>
