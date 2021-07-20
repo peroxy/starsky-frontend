@@ -225,7 +225,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
     const mainModalForm = () => (
         <Form className={`right-margin`}>
             <Grid>
-                <Grid.Column width={12}>
+                <Grid.Column width={12} mobile={16}>
                     <Grid columns={'equal'}>
                         <Grid.Column>{getStartTimePicker()}</Grid.Column>
                         <Grid.Column>{getEndTimePicker()}</Grid.Column>
@@ -233,7 +233,9 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
                     {getRequiredEmployeesInput()}
                     {getAvailableEmployeesDropdown()}
                 </Grid.Column>
-                <Grid.Column width={4}>{getInlineDatePicker()}</Grid.Column>
+                <Grid.Column width={4} mobile={16}>
+                    {getInlineDatePicker()}
+                </Grid.Column>
             </Grid>
         </Form>
     );
