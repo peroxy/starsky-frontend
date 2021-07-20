@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useApi } from '../api/starskyApiClient';
-import { Button, Dimmer, Icon, Label, List, Loader, Table } from 'semantic-ui-react';
+import { Button, Dimmer, Divider, Icon, Label, List, Loader, Progress, Table } from 'semantic-ui-react';
 import { ScheduleResponse, ScheduleShiftResponse, UserResponse } from '../api/__generated__';
 import { epochToDate } from '../util/dateHelper';
 import { ShiftsModal } from './modals/ShiftsModal';
@@ -89,26 +89,23 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             const availableShifts = shifts.filter((shift) => epochToDate(shift.shiftStart).date() == date.date());
             headers.push(
                 <Table.HeaderCell key={`ash-${date.toISOString()}`}>
-                    <List>
-                        {availableShifts
-                            .sort((a, b) => a.shiftStart - b.shiftStart)
-                            .map((shift) => (
-                                <List.Item key={`li-${date.toISOString()}${shift.id}`}>
-                                    <Button.Group compact>
-                                        <Button circular compact size={'small'}>
-                                            {`${epochToDate(shift.shiftStart).format('HH:mm')} - ${epochToDate(shift.shiftEnd).format('HH:mm')}`}
-                                        </Button>
-                                        <ConfirmActionModal
-                                            title={'Delete Shift'}
-                                            message={'Are you sure you want to delete this schedule shift? This will also delete any employee assignments.'}
-                                            icon={<Icon name={'trash alternate'} />}
-                                            onConfirm={() => onDeleteShift(shift.id)}
-                                            trigger={<Button icon={'x'} compact size="small" />}
-                                        />
-                                    </Button.Group>
-                                </List.Item>
-                            ))}
-                    </List>
+                    {availableShifts
+                        .sort((a, b) => a.shiftStart - b.shiftStart)
+                        .map((shift, index) => (
+                            <>
+                                <a href={'#'}>{`${epochToDate(shift.shiftStart).format('HH:mm')} - ${epochToDate(shift.shiftEnd).format('HH:mm')}`}</a>
+                                <Progress
+                                    key={`li-${date.toISOString()}${shift.id}`}
+                                    autoSuccess
+                                    value={1}
+                                    progress="ratio"
+                                    total={shift.numberOfRequiredEmployees}
+                                    style={{ marginTop: 5, marginBottom: 5 }}
+                                />
+
+                                {index != availableShifts.length - 1 && <Divider />}
+                            </>
+                        ))}
                 </Table.HeaderCell>,
             );
         }
