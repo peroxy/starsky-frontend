@@ -52,21 +52,19 @@ export const EmployeeModal: React.FC<IEmployeeModalProps> = (props: IEmployeeMod
             });
     };
 
-    const handleOnDeleteConfirmation = async (confirmed: boolean) => {
-        if (confirmed) {
-            setErrorOccurred(false);
+    const handleOnDeleteConfirmation = async () => {
+        setErrorOccurred(false);
 
-            await props
-                .onDeleteButtonClick?.(props.employee as UserResponse)
-                .then(() => {
-                    setModalOpen(false);
-                })
-                .catch((reason) => {
-                    setErrorMessage(`An unexpected error occurred. Please try again later. [Error description: ${reason}]`);
-                    setErrorOccurred(true);
-                    console.error(reason);
-                });
-        }
+        await props
+            .onDeleteButtonClick?.(props.employee as UserResponse)
+            .then(() => {
+                setModalOpen(false);
+            })
+            .catch((reason) => {
+                setErrorMessage(`An unexpected error occurred. Please try again later. [Error description: ${reason}]`);
+                setErrorOccurred(true);
+                console.error(reason);
+            });
     };
 
     return (

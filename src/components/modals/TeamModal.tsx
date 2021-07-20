@@ -82,21 +82,19 @@ export const TeamModal: React.FC<ITeamModalProps> = (props: ITeamModalProps) => 
             });
     };
 
-    const handleOnConfirm = async (confirmed: boolean) => {
-        if (confirmed) {
-            setErrorOccurred(false);
+    const handleOnConfirm = async () => {
+        setErrorOccurred(false);
 
-            await props
-                .onDeleteButtonClick?.(props.team?.id as number)
-                .then(() => {
-                    setModalOpen(false);
-                })
-                .catch((reason) => {
-                    setErrorMessage(`An unexpected error occurred. Please try again later. [Error description: ${reason}]`);
-                    setErrorOccurred(true);
-                    console.error(reason);
-                });
-        }
+        await props
+            .onDeleteButtonClick?.(props.team?.id as number)
+            .then(() => {
+                setModalOpen(false);
+            })
+            .catch((reason) => {
+                setErrorMessage(`An unexpected error occurred. Please try again later. [Error description: ${reason}]`);
+                setErrorOccurred(true);
+                console.error(reason);
+            });
     };
 
     if (loading && modalOpen) {

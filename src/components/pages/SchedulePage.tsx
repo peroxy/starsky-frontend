@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
-import { Button, Dimmer, Divider, Form, Grid, GridColumn, Loader, Segment } from 'semantic-ui-react';
+import { Button, Dimmer, Divider, Form, Grid, GridColumn, Icon, Loader, Segment } from 'semantic-ui-react';
 import { Helmet } from 'react-helmet';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { useAuth } from '../AuthProvider';
@@ -17,6 +17,7 @@ import { ErrorModal } from '../modals/ErrorModal';
 import { SCHEDULES_ROUTE } from '../../routing/routeConstants';
 import { logAndFormatError } from '../../util/errorHelper';
 import { Scheduler } from '../Scheduler';
+import { ConfirmActionModal } from '../modals/ConfirmActionModal';
 
 export const SchedulePage: React.FC = () => {
     const [loading, setLoading] = useState({ initialLoad: true, processing: false });
@@ -247,7 +248,17 @@ export const SchedulePage: React.FC = () => {
         }
         return (
             <Grid columns={2}>
-                <GridColumn>{schedule ? <Button content="Delete" icon="trash" negative floated={'left'} onClick={onDelete} /> : null}</GridColumn>
+                <GridColumn>
+                    {schedule && (
+                        <ConfirmActionModal
+                            title={'Delete Schedule'}
+                            message={`Are you sure you want to delete this schedule '${schedule.scheduleName}'? This will also delete any shifts/assignments.`}
+                            icon={<Icon name={'trash'} />}
+                            onConfirm={() => onDelete()}
+                            trigger={<Button content="Delete" icon="trash" negative floated={'left'} />}
+                        />
+                    )}
+                </GridColumn>
                 <GridColumn>
                     <Button content={content} icon="checkmark" positive floated={'right'} type="submit" />
                 </GridColumn>

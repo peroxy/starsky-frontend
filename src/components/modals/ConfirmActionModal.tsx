@@ -5,7 +5,7 @@ export interface IConfirmActionModalProps {
     title: string;
     message: string;
     icon: React.ReactNode;
-    onConfirm: (confirmed: boolean) => void;
+    onConfirm: () => void;
     trigger: React.ReactNode;
 }
 
@@ -18,17 +18,16 @@ export const ConfirmActionModal: React.FC<IConfirmActionModalProps> = (props: IC
                 {props.icon}
                 {props.title}
             </Header>
-            <Modal.Content>
+            <Modal.Content style={{ textAlign: 'center' }}>
                 <p>{props.message}</p>
             </Modal.Content>
-            <Modal.Actions>
+            <Modal.Actions style={{ textAlign: 'center' }}>
                 <Button
                     basic
                     color="red"
                     inverted
                     onClick={() => {
                         setOpen(false);
-                        props.onConfirm(false);
                     }}
                 >
                     <Icon name="remove" /> No
@@ -38,7 +37,7 @@ export const ConfirmActionModal: React.FC<IConfirmActionModalProps> = (props: IC
                     inverted
                     onClick={() => {
                         setOpen(false);
-                        props.onConfirm(true);
+                        props.onConfirm();
                     }}
                 >
                     <Icon name="checkmark" /> Yes
