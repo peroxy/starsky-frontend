@@ -1,15 +1,14 @@
-import { Button, Divider, Form, Grid, List, Modal } from 'semantic-ui-react';
+import { Button, Divider, Form, Grid, List, Loader, Modal, Placeholder } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CreateEmployeeAvailabilitiesRequest, CreateScheduleShiftRequest, ScheduleResponse, UserResponse } from '../../api/__generated__';
-import dayjs, { Dayjs } from 'dayjs';
-import { Simulate } from 'react-dom/test-utils';
-import load = Simulate.load;
 import { useApi } from '../../api/starskyApiClient';
 import { useAuth } from '../AuthProvider';
 import { ErrorModal } from './ErrorModal';
 import { logAndFormatError } from '../../util/errorHelper';
+import dayjs, { Dayjs } from 'dayjs';
+import { Simulate } from 'react-dom/test-utils';
 
 interface IShiftsModalProps {
     trigger: React.ReactNode;
@@ -54,6 +53,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
         });
         setDateRange({ startDate: props.scheduleDates[0].toDate(), endDate: null });
         setApiError({ message: '', occurred: false });
+        setLoading(false);
     };
 
     const addToShifts = (shiftStartUnix: number, shiftEndUnix: number, requiredEmployees: number) => {
@@ -119,10 +119,10 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
     };
 
     const setTimeToDate = (date: Dayjs | Date, time: Dayjs) => {
-        if (date instanceof Dayjs) {
-            return date.hour(time.hour()).minute(time.minute()).second(time.second()).millisecond(time.millisecond());
-        } else {
+        if (date instanceof Date) {
             return dayjs(date).hour(time.hour()).minute(time.minute()).second(time.second()).millisecond(time.millisecond());
+        } else {
+            return date.hour(time.hour()).minute(time.minute()).second(time.second()).millisecond(time.millisecond());
         }
     };
 
@@ -223,7 +223,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
     );
 
     const mainModalForm = () => (
-        <Form className="right-margin" loading={loading}>
+        <Form className={`right-margin`}>
             <Grid>
                 <Grid.Column width={12}>
                     <Grid columns={'equal'}>
@@ -251,6 +251,44 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
         </List>
     );
 
+    const onOkClick = async () => {
+        setLoading(true);
+
+        const scheduleShifts = await apis.scheduleShiftApi
+            .putScheduleShifts({
+                scheduleId: props.schedule.id,
+                createScheduleShiftRequest: shifts.map((shift) => shift.shiftRequest),
+            })
+            .catch((reason) => {
+                setApiError({ message: logAndFormatError(reason), occurred: true });
+            });
+
+        if (!scheduleShifts) {
+            setLoading(false);
+            return;
+        }
+
+        const employeeAvailabilities = [];
+        for (const scheduleShift of scheduleShifts) {
+            const requests = shifts.find(
+                (value) => value.shiftRequest.shiftStart == scheduleShift.shiftStart && value.shiftRequest.shiftEnd == scheduleShift.shiftEnd,
+            )?.availabilityRequests;
+            if (requests) {
+                for (const request of requests) {
+                    request.shiftId = scheduleShift.id;
+                    employeeAvailabilities.push(request);
+                }
+            }
+        }
+
+        await apis.employeeAvailabilityApi
+            .putEmployeeAvailabilities({ createEmployeeAvailabilitiesRequest: employeeAvailabilities })
+            .catch((reason) => {
+                setApiError({ message: logAndFormatError(reason), occurred: true });
+            })
+            .finally(() => setModalOpen(false));
+    };
+
     return (
         <Modal open={modalOpen} onOpen={onModalOpen} onClose={() => setModalOpen(false)} trigger={props.trigger}>
             <Modal.Header>Create new shift(s)</Modal.Header>
@@ -259,38 +297,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
             <Modal.Content>{getShiftsList()}</Modal.Content>
             <Modal.Actions>
                 <Button icon="plus" content="Add shift(s)" type="submit" onClick={onAddShiftClick} primary disabled={loading} />
-                <Button
-                    icon="checkmark"
-                    content="OK"
-                    onClick={async () => {
-                        setLoading(true);
-                        await new Promise((r) => setTimeout(r, 5000)); //todo: remove after testing loading behavior
-
-                        const scheduleShifts = await apis.scheduleShiftApi
-                            .putScheduleShifts({
-                                scheduleId: props.schedule.id,
-                                createScheduleShiftRequest: shifts.map((shift) => shift.shiftRequest),
-                            })
-                            .catch((reason) => {
-                                setApiError({ message: logAndFormatError(reason), occurred: true });
-                            });
-
-                        if (!scheduleShifts) {
-                            setLoading(false);
-                            return;
-                        }
-
-                        // map schedule shift responses to employee availabilities by using the start/end dates
-                        // shifts[0].shiftRequest.
-                        //
-                        // await apis.employeeAvailabilityApi.putEmployeeAvailabilities({createEmployeeAvailabilitiesRequest: })
-
-                        setModalOpen(false);
-                    }}
-                    loading={loading}
-                    positive
-                    disabled={shifts.length == 0}
-                />
+                <Button icon="checkmark" content="OK" onClick={onOkClick} loading={loading} positive disabled={shifts.length == 0} />
             </Modal.Actions>
             {apiError.occurred ? <ErrorModal errorMessage={apiError.message} /> : null}
         </Modal>
