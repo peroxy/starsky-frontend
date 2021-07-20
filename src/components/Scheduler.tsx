@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useApi } from '../api/starskyApiClient';
-import { Button, Icon, Table } from 'semantic-ui-react';
-import { ScheduleResponse, UserResponse } from '../api/__generated__';
+import { Button, Dimmer, Icon, Loader, Table } from 'semantic-ui-react';
+import { ScheduleResponse, ScheduleShiftResponse, UserResponse } from '../api/__generated__';
 import { epochToDate } from '../util/dateHelper';
 import { ShiftsModal } from './modals/ShiftsModal';
+import { logAndFormatError } from '../util/errorHelper';
 
 interface IScheduleShiftProps {
     employees: UserResponse[];
@@ -12,6 +13,7 @@ interface IScheduleShiftProps {
 }
 export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftProps) => {
     const [loading, setLoading] = useState(true);
+    const [shifts, setShifts] = useState<ScheduleShiftResponse[]>([]);
     const { token } = useAuth();
     const apis = useApi(token);
 
@@ -24,7 +26,12 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
     }, []);
 
     async function onLoad() {
-        //todo
+        setLoading(true);
+        await apis.scheduleShiftApi
+            .getScheduleShifts({ scheduleId: props.schedule.id })
+            .then((scheduleShifts) => setShifts(scheduleShifts))
+            .catch((reason) => alert(logAndFormatError(reason)))
+            .finally(() => setLoading(false)); //todo
     }
 
     function getTableHeaders(): JSX.Element[] {
@@ -66,7 +73,11 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         return cells;
     }
 
-    return (
+    return loading ? (
+        <Dimmer active inverted>
+            <Loader content="Please wait..." />
+        </Dimmer>
+    ) : (
         <Table celled unstackable={true} verticalAlign="middle" textAlign="center">
             <Table.Header>
                 <Table.Row>
@@ -76,6 +87,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                             employees={props.employees}
                             scheduleDates={getScheduleDates()}
                             schedule={props.schedule}
+                            onShiftsCreated={() => onLoad()}
                         />
                     </Table.HeaderCell>
                     {getTableHeaders()}

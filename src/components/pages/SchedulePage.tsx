@@ -67,7 +67,6 @@ export const SchedulePage: React.FC = () => {
                     setSchedule(response);
                     setDateRange({ start: epochToDate(response.scheduleStart).toDate(), end: epochToDate(response.scheduleEnd).toDate() });
                     setSelectedTeamId(response.teamId);
-                    // await apis.scheduleShiftApi.getScheduleShifts({ scheduleId: response.id }).then((scheduleShifts) => setShifts(scheduleShifts));
                     await apis.teamApi.getTeamMembers({ teamId: response.teamId }).then((members) => setTeamMembers(members));
                 }),
             );

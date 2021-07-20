@@ -8,13 +8,13 @@ import { useAuth } from '../AuthProvider';
 import { ErrorModal } from './ErrorModal';
 import { logAndFormatError } from '../../util/errorHelper';
 import dayjs, { Dayjs } from 'dayjs';
-import { Simulate } from 'react-dom/test-utils';
 
 interface IShiftsModalProps {
     trigger: React.ReactNode;
     employees: UserResponse[];
     scheduleDates: Dayjs[];
     schedule: ScheduleResponse;
+    onShiftsCreated: () => void;
 }
 export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProps) => {
     const [loading, setLoading] = useState(false);
@@ -225,7 +225,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
     const mainModalForm = () => (
         <Form className={`right-margin`}>
             <Grid>
-                <Grid.Column width={12} mobile={16}>
+                <Grid.Column computer={12} mobile={16}>
                     <Grid columns={'equal'}>
                         <Grid.Column>{getStartTimePicker()}</Grid.Column>
                         <Grid.Column>{getEndTimePicker()}</Grid.Column>
@@ -233,7 +233,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
                     {getRequiredEmployeesInput()}
                     {getAvailableEmployeesDropdown()}
                 </Grid.Column>
-                <Grid.Column width={4} mobile={16}>
+                <Grid.Column computer={4} mobile={16}>
                     {getInlineDatePicker()}
                 </Grid.Column>
             </Grid>
@@ -288,11 +288,14 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
             .catch((reason) => {
                 setApiError({ message: logAndFormatError(reason), occurred: true });
             })
-            .finally(() => setModalOpen(false));
+            .finally(() => {
+                setModalOpen(false);
+                props.onShiftsCreated();
+            });
     };
 
     return (
-        <Modal open={modalOpen} onOpen={onModalOpen} onClose={() => setModalOpen(false)} trigger={props.trigger}>
+        <Modal open={modalOpen} onOpen={onModalOpen} onClose={() => setModalOpen(false)} trigger={props.trigger} closeIcon>
             <Modal.Header>Create new shift(s)</Modal.Header>
             <Modal.Content>{mainModalForm()}</Modal.Content>
             <Divider className="no-top-bottom-margin" />
