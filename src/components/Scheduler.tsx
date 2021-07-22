@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useApi } from '../api/starskyApiClient';
 import { Button, Dimmer, Divider, Icon, Label, List, Loader, Progress, Table } from 'semantic-ui-react';
-import { ScheduleResponse, ScheduleShiftResponse, UserResponse } from '../api/__generated__';
+import { EmployeeAvailabilityResponse, ScheduleResponse, ScheduleShiftResponse, UserResponse } from '../api/__generated__';
 import { epochToDate } from '../util/dateHelper';
 import { ShiftsModal } from './modals/ShiftsModal';
 import { logAndFormatError } from '../util/errorHelper';
-import { ConfirmActionModal } from './modals/ConfirmActionModal';
+import { EditShiftModal } from './modals/EditShiftModal';
+import { ErrorModal } from './modals/ErrorModal';
 
 interface IScheduleShiftProps {
     employees: UserResponse[];
@@ -15,11 +16,16 @@ interface IScheduleShiftProps {
 export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftProps) => {
     const [loading, setLoading] = useState(true);
     const [shifts, setShifts] = useState<ScheduleShiftResponse[]>([]);
+    const [availabilities, setAvailabilities] = useState<{ shiftId: number; availabilities: EmployeeAvailabilityResponse[] }[]>([]);
+    const [error, setError] = useState<{ occurred: boolean; message: string }>({ occurred: false, message: '' });
     const { token } = useAuth();
     const apis = useApi(token);
 
     const startDate = epochToDate(props.schedule.scheduleStart);
     const endDate = epochToDate(props.schedule.scheduleEnd);
+
+    const getTotalDays = (): number => endDate.diff(startDate, 'day');
+
     const totalScheduleDays = getTotalDays();
 
     useEffect(() => {
@@ -30,37 +36,47 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         setLoading(true);
         await apis.scheduleShiftApi
             .getScheduleShifts({ scheduleId: props.schedule.id })
-            .then((scheduleShifts) => setShifts(scheduleShifts))
-            .catch((reason) => alert(logAndFormatError(reason)))
-            .finally(() => setLoading(false)); //todo
+            .then(async (scheduleShifts) => {
+                setShifts(scheduleShifts);
+                const requests = [];
+                for (const scheduleShift of scheduleShifts) {
+                    requests.push(
+                        apis.employeeAvailabilityApi
+                            .getEmployeeAvailabilities({ shiftId: scheduleShift.id })
+                            .then((availability) => {
+                                setAvailabilities((previousState) => [...previousState, { shiftId: scheduleShift.id, availabilities: availability }]);
+                            })
+                            .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true })),
+                    );
+                }
+                await Promise.all(requests);
+            })
+            .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }))
+            .finally(() => setLoading(false));
     }
 
-    function getScheduleDatesHeaders(): JSX.Element[] {
+    const getScheduleDatesHeaders = (): JSX.Element[] => {
         const headers: JSX.Element[] = [];
         for (const date of getScheduleDates()) {
             headers.push(<Table.HeaderCell key={`sdh-${date.toISOString()}`} content={date.format('ddd, MMM DD')} />);
         }
         return headers;
-    }
+    };
 
-    function getScheduleDates() {
+    const getScheduleDates = () => {
         const dates = [];
         for (let i = 0; i <= totalScheduleDays; i++) {
             const currentDate = startDate.add(i, 'day');
             dates.push(currentDate);
         }
         return dates;
-    }
+    };
 
-    function getTotalDays(): number {
-        return endDate.diff(startDate, 'day');
-    }
-
-    function addNewShift(employeeId: number) {
+    const addNewShift = (employeeId: number) => {
         console.log(employeeId);
-    }
+    };
 
-    function getEmployeeCells(employeeId: number) {
+    const getEmployeeCells = (employeeId: number) => {
         const cells: JSX.Element[] = [];
         for (let i = 0; i <= totalScheduleDays; i++) {
             cells.push(
@@ -72,15 +88,28 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             );
         }
         return cells;
-    }
+    };
 
-    const onDeleteShift = async (shiftId: number) => {
+    const onShiftEdited = async (shift: ScheduleShiftResponse) => {
         setLoading(true);
-        apis.scheduleShiftApi
-            .deleteScheduleShift({ shiftId: shiftId })
-            .then(() => setShifts(shifts.filter((shift) => shift.id != shiftId)))
-            .catch((reason) => logAndFormatError(reason)) //todo: show error modal
+        const updateShifts = [...shifts];
+        updateShifts[updateShifts.findIndex((x) => x.id == shift.id)] = shift;
+        setShifts(updateShifts);
+
+        const updatedAvailabilities = [...availabilities];
+        apis.employeeAvailabilityApi
+            .getEmployeeAvailabilities({ shiftId: shift.id })
+            .then((value) => {
+                updatedAvailabilities[updatedAvailabilities.findIndex((x) => x.shiftId == shift.id)] = { shiftId: shift.id, availabilities: value };
+                setAvailabilities(updatedAvailabilities);
+            })
+            .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }))
             .finally(() => setLoading(false));
+    };
+
+    const onShiftDeleted = (shiftId: number) => {
+        setShifts(shifts.filter((shift) => shift.id != shiftId));
+        setAvailabilities(availabilities.filter((shift) => shift.shiftId != shiftId));
     };
 
     const getAvailableShiftHeaders = () => {
@@ -92,19 +121,32 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                     {availableShifts
                         .sort((a, b) => a.shiftStart - b.shiftStart)
                         .map((shift, index) => (
-                            <>
-                                <a href={'#'}>{`${epochToDate(shift.shiftStart).format('HH:mm')} - ${epochToDate(shift.shiftEnd).format('HH:mm')}`}</a>
+                            <div key={`li-${date.toISOString()}${shift.id}`}>
+                                <EditShiftModal
+                                    trigger={
+                                        <Button compact fluid>{`${epochToDate(shift.shiftStart).format('HH:mm')} - ${epochToDate(shift.shiftEnd).format(
+                                            'HH:mm',
+                                        )}`}</Button>
+                                    }
+                                    shift={shift}
+                                    availabilities={availabilities.find((x) => x.shiftId == shift.id)?.availabilities ?? []}
+                                    employees={props.employees}
+                                    schedule={props.schedule}
+                                    onShiftEdited={onShiftEdited}
+                                    onShiftDeleted={onShiftDeleted}
+                                />
+
                                 <Progress
-                                    key={`li-${date.toISOString()}${shift.id}`}
                                     autoSuccess
-                                    value={1}
+                                    value={1} //todo
+                                    size={'small'}
                                     progress="ratio"
                                     total={shift.numberOfRequiredEmployees}
                                     style={{ marginTop: 5, marginBottom: 5 }}
                                 />
 
                                 {index != availableShifts.length - 1 && <Divider />}
-                            </>
+                            </div>
                         ))}
                 </Table.HeaderCell>,
             );
@@ -137,6 +179,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                 </Table.Row>
             </Table.Header>
             <Table.Body>
+                {error.occurred && <ErrorModal errorMessage={error.message} />}
                 {props.employees.map((employee) => {
                     return (
                         <Table.Row key={employee.id}>
