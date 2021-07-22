@@ -1,4 +1,4 @@
-import { Button, Modal, StrictModalProps } from 'semantic-ui-react';
+import { Button, Modal } from 'semantic-ui-react';
 import React, { useState } from 'react';
 
 interface IErrorModalProps {

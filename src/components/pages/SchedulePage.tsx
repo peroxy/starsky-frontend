@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
-import { ScheduleResponse, ScheduleShiftResponse, TeamResponse, UserResponse } from '../../api/__generated__';
+import { ScheduleResponse, TeamResponse, UserResponse } from '../../api/__generated__';
 import { responseToString } from '../../api/httpHelpers';
 import NotFound, { GoBackTo } from '../NotFound';
 import DatePicker from 'react-datepicker';

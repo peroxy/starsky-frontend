@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { Button, ButtonGroup, ButtonOr, Dimmer, Icon, Label, List, Loader, Popup } from 'semantic-ui-react';
+import { Button, ButtonGroup, ButtonOr, Dimmer, Icon, List, Loader, Popup } from 'semantic-ui-react';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { UserResponse } from '../../api/__generated__';
 import { useLocation } from 'react-router-dom';

@@ -7,7 +7,7 @@ import { useApi } from '../../api/starskyApiClient';
 import { Button, Dimmer, Icon, List, Loader } from 'semantic-ui-react';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { epochToDate } from '../../util/dateHelper';
-import { SCHEDULE_ROUTE, TEAMS_ROUTE } from '../../routing/routeConstants';
+import { SCHEDULE_ROUTE } from '../../routing/routeConstants';
 
 export const SchedulesPage: React.FC = () => {
     const [loading, setLoading] = useState(true);

@@ -1,10 +1,9 @@
-import { Button, Divider, Form, Grid, Icon, List, Loader, Modal, Placeholder } from 'semantic-ui-react';
+import { Button, Form, Grid, Icon, Modal } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import {
     CreateEmployeeAvailabilitiesRequest,
-    CreateScheduleShiftRequest,
     EmployeeAvailabilityResponse,
     ScheduleResponse,
     ScheduleShiftResponse,
@@ -15,7 +14,6 @@ import { useAuth } from '../AuthProvider';
 import { ErrorModal } from './ErrorModal';
 import { logAndFormatError } from '../../util/errorHelper';
 import dayjs, { Dayjs } from 'dayjs';
-import { Simulate } from 'react-dom/test-utils';
 import { ConfirmActionModal } from './ConfirmActionModal';
 
 interface EditShiftModalProps {

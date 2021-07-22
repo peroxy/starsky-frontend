@@ -1,6 +1,5 @@
 import React, { ReactNode, useState } from 'react';
-import { Button, Dimmer, Divider, Form, FormField, FormTextArea, Icon, Modal } from 'semantic-ui-react';
-import { ConfirmActionModal } from './ConfirmActionModal';
+import { Button, Divider, Form, FormField, Modal } from 'semantic-ui-react';
 import { UserResponse } from '../../api/__generated__';
 import { HttpStatusCode } from '../../api/httpHelpers';
 import { useApi } from '../../api/starskyApiClient';

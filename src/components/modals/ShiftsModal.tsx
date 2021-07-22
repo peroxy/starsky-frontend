@@ -1,4 +1,4 @@
-import { Button, Divider, Form, Grid, List, Loader, Modal, Placeholder } from 'semantic-ui-react';
+import { Button, Divider, Form, Grid, List, Modal } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';

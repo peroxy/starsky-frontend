@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useApi } from '../api/starskyApiClient';
-import { Button, Dimmer, Divider, Icon, Label, List, Loader, Progress, Table } from 'semantic-ui-react';
+import { Button, Dimmer, Divider, Icon, Loader, Progress, Table } from 'semantic-ui-react';
 import { EmployeeAvailabilityResponse, ScheduleResponse, ScheduleShiftResponse, UserResponse } from '../api/__generated__';
 import { epochToDate } from '../util/dateHelper';
 import { ShiftsModal } from './modals/ShiftsModal';
