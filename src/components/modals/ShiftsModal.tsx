@@ -15,6 +15,7 @@ interface IShiftsModalProps {
     scheduleDates: Dayjs[];
     schedule: ScheduleResponse;
     onShiftsCreated: () => void;
+    selectedDate?: Dayjs;
 }
 export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProps) => {
     const [loading, setLoading] = useState(false);
@@ -30,8 +31,14 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
     });
 
     const [apiError, setApiError] = useState<{ occurred: boolean; message: string }>({ occurred: false, message: '' });
+
     // date range can't be dayjs, react date picker library does not like it
-    const [dateRange, setDateRange] = useState<{ startDate: Date | null; endDate: Date | null }>({ startDate: props.scheduleDates[0].toDate(), endDate: null });
+    const initialDate = {
+        startDate: props.selectedDate ? props.selectedDate.toDate() : props.scheduleDates[0].toDate(),
+        endDate: props.selectedDate?.toDate() ?? null,
+    };
+    const [dateRange, setDateRange] = useState<{ startDate: Date | null; endDate: Date | null }>(initialDate);
+
     const [startHour, setStartHour] = useState<Dayjs | null>(dayjs().hour(8).minute(0));
     const [endHour, setEndHour] = useState<Dayjs | null>(dayjs().hour(16).minute(0));
 
@@ -51,7 +58,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
             shiftEnd: false,
             shiftStart: false,
         });
-        setDateRange({ startDate: props.scheduleDates[0].toDate(), endDate: null });
+        setDateRange(initialDate);
         setApiError({ message: '', occurred: false });
         setLoading(false);
     };

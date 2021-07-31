@@ -20,7 +20,6 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
     const [availabilities, setAvailabilities] = useState<{ shiftId: number; availabilities: EmployeeAvailabilityResponse[] }[]>([]);
     const [assignments, setAssignments] = useState<EmployeeAssignmentResponse[]>([]);
     const [error, setError] = useState<{ occurred: boolean; message: string }>({ occurred: false, message: '' });
-    const createShiftButton = useRef<HTMLButtonElement>(null);
     const { token } = useAuth();
     const apis = useApi(token);
 
@@ -98,11 +97,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
 
     const addNewShiftAssignment = (employeeId: number, date: Dayjs) => {
         const availableShifts = shifts.filter((shift) => epochToDate(shift.shiftStart).date() == date.date());
-        if (availableShifts.length == 0) {
-            createShiftButton.current?.click();
-        } else {
-            //show a different kind of modal
-        }
+        //TODO: pass these available shifts into a AssignShiftModal
     };
 
     const getEmployeeCells = (employeeId: number) => {
@@ -118,9 +113,18 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             if (employeeAssignments.length == 0) {
                 cells.push(
                     <Table.Cell key={`tc-${employeeId}-${i}`} selectable className="hoverable">
-                        <a href="#" onClick={() => addNewShiftAssignment(employeeId, date)}>
-                            <Icon name="plus" size="large" className="show-on-hover" disabled />
-                        </a>
+                        <ShiftsModal
+                            trigger={
+                                <a href="#" onClick={() => addNewShiftAssignment(employeeId, date)}>
+                                    <Icon name="plus" size="large" className="show-on-hover" disabled />
+                                </a>
+                            }
+                            employees={props.employees}
+                            scheduleDates={getScheduleDates()}
+                            schedule={props.schedule}
+                            onShiftsCreated={() => onLoad()}
+                            selectedDate={date}
+                        />
                     </Table.Cell>,
                 );
             } else {
@@ -135,6 +139,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                                 />
                             </Grid.Row>
                         ))}
+                        {/*TODO: this should be changed to AssignShiftModal when its made*/}
                         <a href="#" onClick={() => addNewShiftAssignment(employeeId, date)} style={{ paddingTop: 0, paddingBottom: 5 }}>
                             <Icon name="plus" className="show-on-hover" disabled />
                         </a>
@@ -224,11 +229,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                 <Table.Row>
                     <Table.HeaderCell style={{ width: '10%' }}>
                         <ShiftsModal
-                            trigger={
-                                <Ref innerRef={createShiftButton}>
-                                    <Button primary content="Create shift(s)" size="small" compact />
-                                </Ref>
-                            }
+                            trigger={<Button primary content="Create shift(s)" size="small" compact />}
                             employees={props.employees}
                             scheduleDates={getScheduleDates()}
                             schedule={props.schedule}
