@@ -158,14 +158,12 @@ export const EditShiftModal: React.FC<EditShiftModalProps> = (props: EditShiftMo
         setLoading(true);
 
         const employeesNumber = parseInt(requiredEmployees);
-        console.log(selectedEmployeeIds.length);
         const currentErrors = {
             availableEmployees: selectedEmployeeIds.length == 0,
             requiredEmployees: !employeesNumber,
             shiftEnd: !endHour,
             shiftStart: !startHour,
         };
-        console.log(currentErrors);
         setErrors(currentErrors);
         if (currentErrors.availableEmployees || currentErrors.requiredEmployees || currentErrors.shiftEnd || currentErrors.shiftStart) {
             setLoading(false);
