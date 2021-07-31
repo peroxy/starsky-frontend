@@ -74,7 +74,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             assignments
                 .filter((assignment) => assignment.employeeId == employeeId)
                 .map((assignment) => Math.abs(assignment.assignmentEnd! - assignment.assignmentStart!))
-                .reduce((prev, next) => prev + next) / 3600
+                .reduce((prev, next) => prev + next, 0) / 3600
         );
     };
 
@@ -187,6 +187,16 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             const availableShifts = shifts.filter((shift) => epochToDate(shift.shiftStart).date() == date.date());
             headers.push(
                 <Table.HeaderCell key={`ash-${date.toISOString()}`}>
+                    {availableShifts.length == 0 && (
+                        <ShiftsModal
+                            trigger={<Button primary content="Add" size="small" compact icon="add" />}
+                            employees={props.employees}
+                            scheduleDates={getScheduleDates()}
+                            schedule={props.schedule}
+                            onShiftsCreated={() => onLoad()}
+                            selectedDate={date}
+                        />
+                    )}
                     {availableShifts
                         .sort((a, b) => a.shiftStart - b.shiftStart)
                         .map((shift, index) => (
@@ -229,7 +239,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                 <Table.Row>
                     <Table.HeaderCell style={{ width: '10%' }}>
                         <ShiftsModal
-                            trigger={<Button primary content="Create shift(s)" size="small" compact />}
+                            trigger={<Button primary content="Create shifts" size="small" compact />}
                             employees={props.employees}
                             scheduleDates={getScheduleDates()}
                             schedule={props.schedule}
