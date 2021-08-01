@@ -2,7 +2,13 @@ import { Button, Divider, Form, Grid, List, Modal } from 'semantic-ui-react';
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { CreateEmployeeAvailabilitiesRequest, CreateScheduleShiftRequest, ScheduleResponse, UserResponse } from '../../api/__generated__';
+import {
+    CreateEmployeeAvailabilitiesRequest,
+    CreateScheduleShiftRequest,
+    ScheduleResponse,
+    ScheduleShiftResponse,
+    UserResponse,
+} from '../../api/__generated__';
 import { useApi } from '../../api/starskyApiClient';
 import { useAuth } from '../AuthProvider';
 import { ErrorModal } from './ErrorModal';
@@ -14,13 +20,14 @@ interface IShiftsModalProps {
     employees: UserResponse[];
     scheduleDates: Dayjs[];
     schedule: ScheduleResponse;
-    onShiftsCreated: () => void;
+    onShiftsCreated: (shifts: ScheduleShiftResponse[]) => void;
     selectedDate?: Dayjs;
+    selectedEmployeeId?: number;
 }
 export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProps) => {
     const [loading, setLoading] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
-    const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<number[]>([]);
+    const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<number[]>(props.selectedEmployeeId ? [props.selectedEmployeeId] : []);
     const [requiredEmployees, setRequiredEmployees] = useState<string>('1');
     const [shifts, setShifts] = useState<{ shiftRequest: CreateScheduleShiftRequest; availabilityRequests: CreateEmployeeAvailabilitiesRequest[] }[]>([]);
     const [errors, setErrors] = useState<{ requiredEmployees: boolean; shiftStart: boolean; shiftEnd: boolean; availableEmployees: boolean }>({
@@ -47,7 +54,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
 
     const onModalOpen = () => {
         setModalOpen(true);
-        setSelectedEmployeeIds([]);
+        setSelectedEmployeeIds(props.selectedEmployeeId ? [props.selectedEmployeeId] : []);
         setRequiredEmployees('1');
         setShifts([]);
         setStartHour(dayjs().hour(8).minute(0));
@@ -178,6 +185,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
             options={props.employees.map((employee) => {
                 return { text: employee.name, key: employee.id, value: employee.id, icon: 'user' };
             })}
+            defaultValue={selectedEmployeeIds}
             multiple
             onChange={(event, data) => setSelectedEmployeeIds(data.value as number[])}
         />
@@ -297,7 +305,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
             })
             .finally(() => {
                 setModalOpen(false);
-                props.onShiftsCreated();
+                props.onShiftsCreated(scheduleShifts);
             });
     };
 

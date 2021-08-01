@@ -73,7 +73,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         return (
             assignments
                 .filter((assignment) => assignment.employeeId == employeeId)
-                .map((assignment) => Math.abs(assignment.assignmentEnd! - assignment.assignmentStart!))
+                .map((assignment) => Math.abs(assignment.assignmentEnd - assignment.assignmentStart))
                 .reduce((prev, next) => prev + next, 0) / 3600
         );
     };
@@ -100,6 +100,85 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         //TODO: pass these available shifts into a AssignShiftModal
     };
 
+    const onShiftsCreatedWithAssignment = async (shifts: ScheduleShiftResponse[], employeeId: number) => {
+        setLoading(true);
+        const promises = [];
+        for (const shift of shifts) {
+            promises.push(
+                apis.employeeAssignmentApi
+                    .postEmployeeAssignment({
+                        employeeId: employeeId,
+                        shiftId: shift.id,
+                        scheduleId: props.schedule.id,
+                        createEmployeeAssignmentRequest: { assignmentStart: shift.shiftStart, assignmentEnd: shift.shiftEnd },
+                    })
+                    .then((assignment) => {
+                        setAssignments((previousState) => [...previousState, assignment]);
+                    }),
+            );
+        }
+        await Promise.all(promises)
+            .then(async () => await onLoad())
+            .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }))
+            .finally(() => setLoading(false));
+    };
+
+    const getNoShiftModal = (employeeId: number, date: Dayjs) => (
+        <ShiftsModal
+            trigger={
+                <a href="#">
+                    <Icon name="plus" size="large" className="show-on-hover" disabled />
+                </a>
+            }
+            employees={props.employees}
+            scheduleDates={getScheduleDates()}
+            schedule={props.schedule}
+            onShiftsCreated={(shifts) => onShiftsCreatedWithAssignment(shifts, employeeId)}
+            selectedDate={date}
+            selectedEmployeeId={employeeId}
+        />
+    );
+
+    const getEmployeeCellBody = (
+        employeeAssignments: EmployeeAssignmentResponse[],
+        availableShifts: ScheduleShiftResponse[],
+        employeeId: number,
+        date: Dayjs,
+        i: number,
+    ) => {
+        const body: JSX.Element[] = [];
+        if (employeeAssignments.length == 0 && availableShifts.length == 0) {
+            body.push(getNoShiftModal(employeeId, date));
+        }
+        for (const assignment of employeeAssignments) {
+            body.push(
+                <Grid.Row key={`btn-${assignment.id}-${i}`}>
+                    <Button
+                        compact
+                        content={dateToDurationString(assignment.assignmentStart, assignment.assignmentEnd)}
+                        style={{ marginTop: 4, marginBottom: 4 }}
+                    />
+                </Grid.Row>,
+            );
+        }
+
+        if (employeeAssignments.length > 0) {
+            body.push(
+                <a href="#" onClick={() => addNewShiftAssignment(employeeId, date)} style={{ paddingTop: 0, paddingBottom: 5 }}>
+                    <Icon name="plus" className="show-on-hover" disabled />
+                </a>,
+            );
+        } else if (employeeAssignments.length == 0 && availableShifts.length > 0) {
+            body.push(
+                <a href="#" onClick={() => addNewShiftAssignment(employeeId, date)}>
+                    <Icon name="plus" size={'large'} className="show-on-hover" disabled />
+                </a>,
+            );
+        }
+
+        return body;
+    };
+
     const getEmployeeCells = (employeeId: number) => {
         const cells: JSX.Element[] = [];
 
@@ -110,42 +189,11 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             const employeeAssignments = assignments.filter(
                 (assignment) => assignment.employeeId == employeeId && availableShifts.some((shift) => shift.id == assignment.shiftId),
             );
-            if (employeeAssignments.length == 0) {
-                cells.push(
-                    <Table.Cell key={`tc-${employeeId}-${i}`} selectable className="hoverable">
-                        <ShiftsModal
-                            trigger={
-                                <a href="#" onClick={() => addNewShiftAssignment(employeeId, date)}>
-                                    <Icon name="plus" size="large" className="show-on-hover" disabled />
-                                </a>
-                            }
-                            employees={props.employees}
-                            scheduleDates={getScheduleDates()}
-                            schedule={props.schedule}
-                            onShiftsCreated={() => onLoad()}
-                            selectedDate={date}
-                        />
-                    </Table.Cell>,
-                );
-            } else {
-                cells.push(
-                    <Table.Cell key={`tc-${employeeId}-${i}`} selectable className="hoverable">
-                        {employeeAssignments.map((assignment) => (
-                            <Grid.Row key={`btn-${assignment.id}-${i}`}>
-                                <Button
-                                    compact
-                                    content={dateToDurationString(assignment.assignmentStart!, assignment.assignmentEnd!)}
-                                    style={{ marginTop: 4, marginBottom: 4 }}
-                                />
-                            </Grid.Row>
-                        ))}
-                        {/*TODO: this should be changed to AssignShiftModal when its made*/}
-                        <a href="#" onClick={() => addNewShiftAssignment(employeeId, date)} style={{ paddingTop: 0, paddingBottom: 5 }}>
-                            <Icon name="plus" className="show-on-hover" disabled />
-                        </a>
-                    </Table.Cell>,
-                );
-            }
+            cells.push(
+                <Table.Cell key={`tc-${employeeId}-${i}`} selectable className="hoverable">
+                    {getEmployeeCellBody(employeeAssignments, availableShifts, employeeId, date, i)}
+                </Table.Cell>,
+            );
         }
 
         return cells;
