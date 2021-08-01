@@ -3,12 +3,13 @@ import { useAuth } from './AuthProvider';
 import { useApi } from '../api/starskyApiClient';
 import { Button, Dimmer, Divider, Grid, Icon, Loader, Progress, Ref, Table } from 'semantic-ui-react';
 import { EmployeeAssignmentResponse, EmployeeAvailabilityResponse, ScheduleResponse, ScheduleShiftResponse, UserResponse } from '../api/__generated__';
-import { epochToDate } from '../util/dateHelper';
+import { dateToDurationString, epochToDate, shiftToString } from '../util/dateHelper';
 import { ShiftsModal } from './modals/ShiftsModal';
 import { logAndFormatError } from '../util/errorHelper';
 import { EditShiftModal } from './modals/EditShiftModal';
 import { ErrorModal } from './modals/ErrorModal';
 import { Dayjs } from 'dayjs';
+import { AssignmentModal } from './modals/AssignmentModal';
 
 interface IScheduleShiftProps {
     employees: UserResponse[];
@@ -40,7 +41,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         await apis.employeeAssignmentApi
             .getEmployeeAssignments({ scheduleId: props.schedule.id })
             .then((assignmentResponse) => {
-                setAssignments(assignmentResponse);
+                setAssignments(assignmentResponse.sort((a, b) => a.assignmentStart - b.assignmentStart));
             })
             .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }));
 
@@ -95,11 +96,6 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         return dates;
     };
 
-    const addNewShiftAssignment = (employeeId: number, date: Dayjs) => {
-        const availableShifts = shifts.filter((shift) => epochToDate(shift.shiftStart).date() == date.date());
-        //TODO: pass these available shifts into a AssignShiftModal
-    };
-
     const onShiftsCreatedWithAssignment = async (shifts: ScheduleShiftResponse[], employeeId: number) => {
         setLoading(true);
         const promises = [];
@@ -113,7 +109,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                         createEmployeeAssignmentRequest: { assignmentStart: shift.shiftStart, assignmentEnd: shift.shiftEnd },
                     })
                     .then((assignment) => {
-                        setAssignments((previousState) => [...previousState, assignment]);
+                        setAssignments((previousState) => [...previousState, assignment].sort((a, b) => a.assignmentStart - b.assignmentStart));
                     }),
             );
         }
@@ -123,13 +119,9 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             .finally(() => setLoading(false));
     };
 
-    const getNoShiftModal = (employeeId: number, date: Dayjs) => (
+    const getNoShiftModal = (employeeId: number, date: Dayjs, trigger: JSX.Element) => (
         <ShiftsModal
-            trigger={
-                <a href="#">
-                    <Icon name="plus" size="large" className="show-on-hover" disabled />
-                </a>
-            }
+            trigger={trigger}
             employees={props.employees}
             scheduleDates={getScheduleDates()}
             schedule={props.schedule}
@@ -139,6 +131,22 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         />
     );
 
+    const onAssignmentConfirmation = async (selectedShifts: ScheduleShiftResponse[], employeeId: number) => {
+        setLoading(true);
+        for (const shift of selectedShifts) {
+            await apis.employeeAssignmentApi
+                .postEmployeeAssignment({
+                    employeeId: employeeId,
+                    scheduleId: props.schedule.id,
+                    shiftId: shift.id,
+                    createEmployeeAssignmentRequest: { assignmentStart: shift.shiftStart, assignmentEnd: shift.shiftEnd },
+                })
+                .then((assignment) => setAssignments((prevState) => [...prevState, assignment]))
+                .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }));
+        }
+        setLoading(false);
+    };
+
     const getEmployeeCellBody = (
         employeeAssignments: EmployeeAssignmentResponse[],
         availableShifts: ScheduleShiftResponse[],
@@ -147,10 +155,8 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         i: number,
     ) => {
         const body: JSX.Element[] = [];
-        if (employeeAssignments.length == 0 && availableShifts.length == 0) {
-            body.push(getNoShiftModal(employeeId, date));
-        }
-        for (const assignment of employeeAssignments) {
+
+        for (const assignment of employeeAssignments.sort((a, b) => a.assignmentStart - b.assignmentStart)) {
             body.push(
                 <Grid.Row key={`btn-${assignment.id}-${i}`}>
                     <Button
@@ -162,18 +168,38 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             );
         }
 
+        const noShiftsAvailable = (employeeAssignments.length == 0 && availableShifts.length == 0) || employeeAssignments.length == availableShifts.length;
+        let trigger: JSX.Element | undefined = undefined;
         if (employeeAssignments.length > 0) {
-            body.push(
-                <a href="#" onClick={() => addNewShiftAssignment(employeeId, date)} style={{ paddingTop: 0, paddingBottom: 5 }}>
+            trigger = (
+                <a href="#" style={{ paddingTop: 0, paddingBottom: 5 }}>
                     <Icon name="plus" className="show-on-hover" disabled />
-                </a>,
+                </a>
             );
-        } else if (employeeAssignments.length == 0 && availableShifts.length > 0) {
-            body.push(
-                <a href="#" onClick={() => addNewShiftAssignment(employeeId, date)}>
-                    <Icon name="plus" size={'large'} className="show-on-hover" disabled />
-                </a>,
+        } else if ((employeeAssignments.length == 0 && availableShifts.length > 0) || noShiftsAvailable) {
+            trigger = (
+                <a href="#">
+                    <Icon name="plus" size="large" className="show-on-hover" disabled />
+                </a>
             );
+        }
+        if (trigger) {
+            if (noShiftsAvailable) {
+                body.push(getNoShiftModal(employeeId, date, trigger));
+            } else {
+                body.push(
+                    <AssignmentModal
+                        onConfirmation={(selectedShifts) => onAssignmentConfirmation(selectedShifts, employeeId)}
+                        trigger={trigger}
+                        shifts={availableShifts.filter(
+                            (shift) =>
+                                !employeeAssignments.some(
+                                    (assignment) => assignment.assignmentStart == shift.shiftStart && assignment.assignmentEnd == shift.shiftEnd,
+                                ),
+                        )}
+                    />,
+                );
+            }
         }
 
         return body;
@@ -219,14 +245,6 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
     const onShiftDeleted = (shiftId: number) => {
         setShifts(shifts.filter((shift) => shift.id != shiftId));
         setAvailabilities(availabilities.filter((shift) => shift.shiftId != shiftId));
-    };
-
-    const dateToDurationString = (startDateUnix: number, endDateUnix: number) => {
-        return `${epochToDate(startDateUnix).format('HH:mm')} - ${epochToDate(endDateUnix).format('HH:mm')}`;
-    };
-
-    const shiftToString = (shift: ScheduleShiftResponse) => {
-        return dateToDurationString(shift.shiftStart, shift.shiftEnd);
     };
 
     const getAvailableShiftHeaders = () => {

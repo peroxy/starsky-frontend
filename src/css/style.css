@@ -43,7 +43,7 @@ body {
     margin-bottom: 0;
 }
 
-.button.full-width {
+.button.full-width, .checkbox.full-width {
     width: 100%;
 }
 
