@@ -277,7 +277,7 @@ export class EmployeeAvailabilityApi extends runtime.BaseAPI {
     }
 
     /**
-     * Creates or updates employee availabilities. Please note that this operation can be destructive - it will always delete all of the previous/existing employee availabilities (if they exist) for the specified shift and create or update with the new ones. Authenticated user must have manager role.
+     * Creates or updates employee availabilities. Authenticated user must have manager role.
      * Create or update multiple employee availabilities
      */
     async putEmployeeAvailabilitiesRaw(requestParameters: PutEmployeeAvailabilitiesRequest): Promise<runtime.ApiResponse<void>> {
@@ -311,7 +311,7 @@ export class EmployeeAvailabilityApi extends runtime.BaseAPI {
     }
 
     /**
-     * Creates or updates employee availabilities. Please note that this operation can be destructive - it will always delete all of the previous/existing employee availabilities (if they exist) for the specified shift and create or update with the new ones. Authenticated user must have manager role.
+     * Creates or updates employee availabilities. Authenticated user must have manager role.
      * Create or update multiple employee availabilities
      */
     async putEmployeeAvailabilities(requestParameters: PutEmployeeAvailabilitiesRequest): Promise<void> {

@@ -30,25 +30,25 @@ export interface EmployeeAssignmentResponse {
      * @type {number}
      * @memberof EmployeeAssignmentResponse
      */
-    assignmentStart?: number;
+    assignmentStart: number;
     /**
      * 
      * @type {number}
      * @memberof EmployeeAssignmentResponse
      */
-    assignmentEnd?: number;
+    assignmentEnd: number;
     /**
      * 
      * @type {number}
      * @memberof EmployeeAssignmentResponse
      */
-    employeeId?: number;
+    employeeId: number;
     /**
      * 
      * @type {number}
      * @memberof EmployeeAssignmentResponse
      */
-    shiftId?: number;
+    shiftId: number;
 }
 
 export function EmployeeAssignmentResponseFromJSON(json: any): EmployeeAssignmentResponse {
@@ -62,10 +62,10 @@ export function EmployeeAssignmentResponseFromJSONTyped(json: any, ignoreDiscrim
     return {
         
         'id': !exists(json, 'id') ? undefined : json['id'],
-        'assignmentStart': !exists(json, 'assignment_start') ? undefined : json['assignment_start'],
-        'assignmentEnd': !exists(json, 'assignment_end') ? undefined : json['assignment_end'],
-        'employeeId': !exists(json, 'employee_id') ? undefined : json['employee_id'],
-        'shiftId': !exists(json, 'shift_id') ? undefined : json['shift_id'],
+        'assignmentStart': json['assignment_start'],
+        'assignmentEnd': json['assignment_end'],
+        'employeeId': json['employee_id'],
+        'shiftId': json['shift_id'],
     };
 }
 

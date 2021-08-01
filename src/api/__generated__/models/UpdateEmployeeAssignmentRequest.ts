@@ -16,39 +16,39 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface CreateEmployeeAssignmentRequest
+ * @interface UpdateEmployeeAssignmentRequest
  */
-export interface CreateEmployeeAssignmentRequest {
+export interface UpdateEmployeeAssignmentRequest {
     /**
      * 
      * @type {number}
-     * @memberof CreateEmployeeAssignmentRequest
+     * @memberof UpdateEmployeeAssignmentRequest
      */
-    assignmentStart: number;
+    assignmentStart?: number;
     /**
      * 
      * @type {number}
-     * @memberof CreateEmployeeAssignmentRequest
+     * @memberof UpdateEmployeeAssignmentRequest
      */
-    assignmentEnd: number;
+    assignmentEnd?: number;
 }
 
-export function CreateEmployeeAssignmentRequestFromJSON(json: any): CreateEmployeeAssignmentRequest {
-    return CreateEmployeeAssignmentRequestFromJSONTyped(json, false);
+export function UpdateEmployeeAssignmentRequestFromJSON(json: any): UpdateEmployeeAssignmentRequest {
+    return UpdateEmployeeAssignmentRequestFromJSONTyped(json, false);
 }
 
-export function CreateEmployeeAssignmentRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateEmployeeAssignmentRequest {
+export function UpdateEmployeeAssignmentRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpdateEmployeeAssignmentRequest {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'assignmentStart': json['assignment_start'],
-        'assignmentEnd': json['assignment_end'],
+        'assignmentStart': !exists(json, 'assignment_start') ? undefined : json['assignment_start'],
+        'assignmentEnd': !exists(json, 'assignment_end') ? undefined : json['assignment_end'],
     };
 }
 
-export function CreateEmployeeAssignmentRequestToJSON(value?: CreateEmployeeAssignmentRequest | null): any {
+export function UpdateEmployeeAssignmentRequestToJSON(value?: UpdateEmployeeAssignmentRequest | null): any {
     if (value === undefined) {
         return undefined;
     }

@@ -16,28 +16,40 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface CreateEmployeeAssignmentRequest
+ * @interface PutEmployeeAssignmentRequest
  */
-export interface CreateEmployeeAssignmentRequest {
+export interface PutEmployeeAssignmentRequest {
     /**
      * 
      * @type {number}
-     * @memberof CreateEmployeeAssignmentRequest
+     * @memberof PutEmployeeAssignmentRequest
      */
     assignmentStart: number;
     /**
      * 
      * @type {number}
-     * @memberof CreateEmployeeAssignmentRequest
+     * @memberof PutEmployeeAssignmentRequest
      */
     assignmentEnd: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PutEmployeeAssignmentRequest
+     */
+    employeeId: number;
+    /**
+     * 
+     * @type {number}
+     * @memberof PutEmployeeAssignmentRequest
+     */
+    shiftId: number;
 }
 
-export function CreateEmployeeAssignmentRequestFromJSON(json: any): CreateEmployeeAssignmentRequest {
-    return CreateEmployeeAssignmentRequestFromJSONTyped(json, false);
+export function PutEmployeeAssignmentRequestFromJSON(json: any): PutEmployeeAssignmentRequest {
+    return PutEmployeeAssignmentRequestFromJSONTyped(json, false);
 }
 
-export function CreateEmployeeAssignmentRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateEmployeeAssignmentRequest {
+export function PutEmployeeAssignmentRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): PutEmployeeAssignmentRequest {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -45,10 +57,12 @@ export function CreateEmployeeAssignmentRequestFromJSONTyped(json: any, ignoreDi
         
         'assignmentStart': json['assignment_start'],
         'assignmentEnd': json['assignment_end'],
+        'employeeId': json['employee_id'],
+        'shiftId': json['shift_id'],
     };
 }
 
-export function CreateEmployeeAssignmentRequestToJSON(value?: CreateEmployeeAssignmentRequest | null): any {
+export function PutEmployeeAssignmentRequestToJSON(value?: PutEmployeeAssignmentRequest | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -59,6 +73,8 @@ export function CreateEmployeeAssignmentRequestToJSON(value?: CreateEmployeeAssi
         
         'assignment_start': value.assignmentStart,
         'assignment_end': value.assignmentEnd,
+        'employee_id': value.employeeId,
+        'shift_id': value.shiftId,
     };
 }
 

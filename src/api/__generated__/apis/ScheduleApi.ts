@@ -18,6 +18,9 @@ import {
     CreateScheduleRequest,
     CreateScheduleRequestFromJSON,
     CreateScheduleRequestToJSON,
+    EmployeeAssignmentResponse,
+    EmployeeAssignmentResponseFromJSON,
+    EmployeeAssignmentResponseToJSON,
     ScheduleResponse,
     ScheduleResponseFromJSON,
     ScheduleResponseToJSON,
@@ -277,7 +280,7 @@ export class ScheduleApi extends runtime.BaseAPI {
      * Returns the solved schedule with employee assignments. Manager only route.
      * Get solved schedule\'s employee assignments
      */
-    async solveScheduleByIdRaw(requestParameters: SolveScheduleByIdRequest): Promise<runtime.ApiResponse<string>> {
+    async solveScheduleByIdRaw(requestParameters: SolveScheduleByIdRequest): Promise<runtime.ApiResponse<Array<EmployeeAssignmentResponse>>> {
         if (requestParameters.scheduleId === null || requestParameters.scheduleId === undefined) {
             throw new runtime.RequiredError('scheduleId','Required parameter requestParameters.scheduleId was null or undefined when calling solveScheduleById.');
         }
@@ -301,14 +304,14 @@ export class ScheduleApi extends runtime.BaseAPI {
             query: queryParameters,
         });
 
-        return new runtime.TextApiResponse(response) as any;
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(EmployeeAssignmentResponseFromJSON));
     }
 
     /**
      * Returns the solved schedule with employee assignments. Manager only route.
      * Get solved schedule\'s employee assignments
      */
-    async solveScheduleById(requestParameters: SolveScheduleByIdRequest): Promise<string> {
+    async solveScheduleById(requestParameters: SolveScheduleByIdRequest): Promise<Array<EmployeeAssignmentResponse>> {
         const response = await this.solveScheduleByIdRaw(requestParameters);
         return await response.value();
     }

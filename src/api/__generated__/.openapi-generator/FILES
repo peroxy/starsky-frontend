@@ -26,11 +26,13 @@ models/ForbiddenResponse.ts
 models/InviteInvalidResponse.ts
 models/InviteResponse.ts
 models/LoginRequest.ts
+models/PutEmployeeAssignmentRequest.ts
 models/ScheduleResponse.ts
 models/ScheduleShiftResponse.ts
 models/ScheduleUnsolvableResponse.ts
 models/TeamResponse.ts
 models/TokenResponse.ts
+models/UpdateEmployeeAssignmentRequest.ts
 models/UpdateEmployeeAvailabilityRequest.ts
 models/UpdateEmployeeRequest.ts
 models/UpdateScheduleRequest.ts

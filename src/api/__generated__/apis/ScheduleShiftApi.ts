@@ -275,7 +275,7 @@ export class ScheduleShiftApi extends runtime.BaseAPI {
     }
 
     /**
-     * Creates or updates schedule shifts. Please note that this operation can be destructive - it will always delete all of the previous/existing schedule shifts (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
+     * Creates or updates schedule shifts. Authenticated user must have manager role.
      * Create or update multiple schedule shifts
      */
     async putScheduleShiftsRaw(requestParameters: PutScheduleShiftsRequest): Promise<runtime.ApiResponse<Array<ScheduleShiftResponse>>> {
@@ -313,7 +313,7 @@ export class ScheduleShiftApi extends runtime.BaseAPI {
     }
 
     /**
-     * Creates or updates schedule shifts. Please note that this operation can be destructive - it will always delete all of the previous/existing schedule shifts (if they exist) for the specified schedule and create or update with the new ones. Authenticated user must have manager role.
+     * Creates or updates schedule shifts. Authenticated user must have manager role.
      * Create or update multiple schedule shifts
      */
     async putScheduleShifts(requestParameters: PutScheduleShiftsRequest): Promise<Array<ScheduleShiftResponse>> {
