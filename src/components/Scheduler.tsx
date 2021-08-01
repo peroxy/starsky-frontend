@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useApi } from '../api/starskyApiClient';
-import { Button, Dimmer, Divider, Grid, Icon, Loader, Progress, Ref, Table } from 'semantic-ui-react';
+import { Button, Dimmer, Divider, Grid, Icon, Label, Loader, Progress, Ref, Table } from 'semantic-ui-react';
 import { EmployeeAssignmentResponse, EmployeeAvailabilityResponse, ScheduleResponse, ScheduleShiftResponse, UserResponse } from '../api/__generated__';
 import { dateToDurationString, epochToDate, shiftToString } from '../util/dateHelper';
 import { ShiftsModal } from './modals/ShiftsModal';
@@ -295,6 +295,30 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         return headers;
     };
 
+    const getEmployeeInfoCell = (employee: UserResponse) => {
+        const currentHours = getEmployeeTotalHours(employee.id);
+        const maxHours = props.schedule.maxHoursPerEmployee;
+
+        const currentShifts = assignments.filter((assignment) => assignment.employeeId == employee.id).length;
+        const maxShifts = props.schedule.maxShiftsPerEmployee;
+
+        return (
+            <>
+                {employee.name}
+                <br />
+                <Icon name="clock outline" />
+                <label className={currentHours > maxHours ? 'negativeThick' : 'positiveThick'}>
+                    {currentHours}/{maxHours}h
+                </label>
+                <br />
+                <Icon name="calendar check outline" />
+                <label className={currentShifts > maxShifts ? 'negativeThick' : 'positiveThick'}>
+                    {currentShifts}/{maxShifts} shifts
+                </label>
+            </>
+        );
+    };
+
     return loading ? (
         <Dimmer active inverted>
             <Loader content="Please wait..." />
@@ -324,12 +348,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                 {props.employees.map((employee) => {
                     return (
                         <Table.Row key={employee.id}>
-                            <Table.Cell>
-                                {employee.name}
-                                <br />
-                                <Icon name="clock outline" />
-                                {getEmployeeTotalHours(employee.id)}/{props.schedule.maxHoursPerEmployee}h
-                            </Table.Cell>
+                            <Table.Cell>{getEmployeeInfoCell(employee)}</Table.Cell>
                             {getEmployeeCells(employee.id)}
                         </Table.Row>
                     );

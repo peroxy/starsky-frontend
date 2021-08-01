@@ -69,3 +69,13 @@ body {
 .hoverable:hover .icon.show-on-hover {
     display: inline-block;
 }
+
+.negativeThick {
+    font-weight: bold;
+    color: red;
+}
+
+.positiveThick {
+    font-weight: bold;
+    color: green;
+}
