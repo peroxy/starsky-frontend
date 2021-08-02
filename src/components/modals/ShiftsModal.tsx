@@ -14,6 +14,7 @@ import { useAuth } from '../AuthProvider';
 import { ErrorModal } from './ErrorModal';
 import { logAndFormatError } from '../../util/errorHelper';
 import dayjs, { Dayjs } from 'dayjs';
+import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID';
 
 interface IShiftsModalProps {
     trigger: React.ReactNode;
@@ -259,7 +260,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
         <List bulleted>
             {shifts.map((value, index) => {
                 return (
-                    <List.Item key={value.shiftRequest.shiftStart + index}>
+                    <List.Item key={`shift-item-list-value${value.shiftRequest.shiftStart}${index}}`}>
                         {dayjs.unix(value.shiftRequest.shiftStart).format('ddd, MMM DD: H:mm')} - {dayjs.unix(value.shiftRequest.shiftEnd).format('H:mm')} -{' '}
                         {value.shiftRequest.numberOfRequiredEmployees} employee(s)
                     </List.Item>

@@ -57,7 +57,6 @@ export function LoginPage(): JSX.Element {
         await apis.authenticationApi
             .login({ loginRequest: request })
             .then((response: TokenResponse) => {
-                console.log(response);
                 setLoginStatus('');
                 setToken(response.accessToken);
                 history.push(TEAMS_ROUTE);

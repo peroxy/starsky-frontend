@@ -10,6 +10,7 @@ import { EditShiftModal } from './modals/EditShiftModal';
 import { ErrorModal } from './modals/ErrorModal';
 import { Dayjs } from 'dayjs';
 import { AssignmentModal } from './modals/AssignmentModal';
+import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID';
 
 interface IScheduleShiftProps {
     employees: UserResponse[];
@@ -119,8 +120,9 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             .finally(() => setLoading(false));
     };
 
-    const getNoShiftModal = (employeeId: number, date: Dayjs, trigger: JSX.Element) => (
+    const getNoShiftModal = (employeeId: number, date: Dayjs, trigger: JSX.Element, i: number) => (
         <ShiftsModal
+            key={`noshift-modal-emp-${employeeId}${i}`}
             trigger={trigger}
             employees={props.employees}
             scheduleDates={getScheduleDates()}
@@ -185,7 +187,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         }
         if (trigger) {
             if (noShiftsAvailable) {
-                body.push(getNoShiftModal(employeeId, date, trigger));
+                body.push(getNoShiftModal(employeeId, date, trigger, i));
             } else {
                 body.push(
                     <AssignmentModal
@@ -197,6 +199,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                                     (assignment) => assignment.assignmentStart == shift.shiftStart && assignment.assignmentEnd == shift.shiftEnd,
                                 ),
                         )}
+                        key={`ass-modal-emp-${employeeId}${i}`}
                     />,
                 );
             }
@@ -216,7 +219,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                 (assignment) => assignment.employeeId == employeeId && availableShifts.some((shift) => shift.id == assignment.shiftId),
             );
             cells.push(
-                <Table.Cell key={`tc-${employeeId}-${i}`} selectable className="hoverable">
+                <Table.Cell key={`tc-${i}-employee-${employeeId}`} selectable className="hoverable">
                     {getEmployeeCellBody(employeeAssignments, availableShifts, employeeId, date, i)}
                 </Table.Cell>,
             );
@@ -345,9 +348,9 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             </Table.Header>
             <Table.Body>
                 {error.occurred && <ErrorModal errorMessage={error.message} />}
-                {props.employees.map((employee) => {
+                {props.employees.map((employee, index) => {
                     return (
-                        <Table.Row key={employee.id}>
+                        <Table.Row key={`emp-info-${employee.id}${index}`}>
                             <Table.Cell>{getEmployeeInfoCell(employee)}</Table.Cell>
                             {getEmployeeCells(employee.id)}
                         </Table.Row>
