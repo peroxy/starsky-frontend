@@ -247,7 +247,8 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
 
     const onShiftDeleted = (shiftId: number) => {
         setShifts(shifts.filter((shift) => shift.id != shiftId));
-        setAvailabilities(availabilities.filter((shift) => shift.shiftId != shiftId));
+        setAvailabilities(availabilities.filter((availability) => availability.shiftId != shiftId));
+        setAssignments(assignments.filter((assignment) => assignment.shiftId != shiftId));
     };
 
     const getAvailableShiftHeaders = () => {
