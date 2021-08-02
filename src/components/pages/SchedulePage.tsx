@@ -15,7 +15,7 @@ import { MAX_MOBILE_WIDTH } from '../../util/mediaConstants';
 import { dateToEpoch, epochToDate } from '../../util/dateHelper';
 import { ErrorModal } from '../modals/ErrorModal';
 import { SCHEDULES_ROUTE } from '../../routing/routeConstants';
-import { logAndFormatError } from '../../util/errorHelper';
+import { ErrorDetails, getErrorDetails, getErrorNotOccurred } from '../../util/errorHelper';
 import { Scheduler } from '../Scheduler';
 import { ConfirmActionModal } from '../modals/ConfirmActionModal';
 
@@ -27,7 +27,7 @@ export const SchedulePage: React.FC = () => {
     const [teamMembers, setTeamMembers] = useState<UserResponse[]>([]);
     const [selectedTeamId, setSelectedTeamId] = useState<number>();
     const [notFound, setNotFound] = useState(false);
-    const [error, setError] = useState({ occurred: false, message: '' });
+    const [error, setError] = useState<ErrorDetails>(getErrorNotOccurred());
     const [showTeamFieldError, setShowTeamFieldError] = useState(false);
     const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
 
@@ -178,7 +178,7 @@ export const SchedulePage: React.FC = () => {
             return;
         }
 
-        setError({ occurred: false, message: '' });
+        setError(getErrorNotOccurred());
         setLoading({ initialLoad: false, processing: true });
         const formData = new FormData(event.currentTarget);
         const scheduleName = formData.get(formScheduleName) as string;
@@ -219,7 +219,7 @@ export const SchedulePage: React.FC = () => {
                 window.history.replaceState(null, '', response.id.toString());
                 await apis.teamApi.getTeamMembers({ teamId: response.teamId }).then((members) => setTeamMembers(members));
             })
-            .catch((reason) => setError({ occurred: true, message: logAndFormatError(reason) }))
+            .catch(async (reason) => setError(await getErrorDetails(reason)))
             .finally(() => {
                 setLoading({ initialLoad: false, processing: false });
                 setShowTeamFieldError(false);
@@ -232,12 +232,12 @@ export const SchedulePage: React.FC = () => {
         }
 
         setLoading({ initialLoad: false, processing: true });
-        setError({ occurred: false, message: '' });
+        setError(getErrorNotOccurred());
 
         await apis.scheduleApi
             .deleteSchedule({ scheduleId: schedule.id })
             .then(() => history.push(SCHEDULES_ROUTE, authenticatedUser))
-            .catch((reason) => setError({ occurred: true, message: logAndFormatError(reason) }))
+            .catch(async (reason) => setError(await getErrorDetails(reason)))
             .finally(() => setLoading({ initialLoad: false, processing: false }));
     }
 
@@ -294,7 +294,7 @@ export const SchedulePage: React.FC = () => {
             <>
                 <Segment as={Form} name={formName} className={segmentClass} loading={loading.processing} onSubmit={onSubmit}>
                     {segmentChildren}
-                    {error.occurred ? <ErrorModal errorMessage={error.message} /> : null}
+                    {error.occurred ? <ErrorModal error={error} onOkClick={() => setError(getErrorNotOccurred())} /> : null}
                 </Segment>
                 {schedule ? <Scheduler schedule={schedule} employees={teamMembers} /> : null}
             </>

@@ -12,7 +12,7 @@ import {
 import { useApi } from '../../api/starskyApiClient';
 import { useAuth } from '../AuthProvider';
 import { ErrorModal } from './ErrorModal';
-import { logAndFormatError } from '../../util/errorHelper';
+import { ErrorDetails, getErrorDetails, getErrorNotOccurred } from '../../util/errorHelper';
 import dayjs, { Dayjs } from 'dayjs';
 import { ConfirmActionModal } from './ConfirmActionModal';
 
@@ -37,7 +37,7 @@ export const EditShiftModal: React.FC<EditShiftModalProps> = (props: EditShiftMo
         shiftStart: false,
     });
 
-    const [apiError, setApiError] = useState<{ occurred: boolean; message: string }>({ occurred: false, message: '' });
+    const [apiError, setApiError] = useState<ErrorDetails>(getErrorNotOccurred());
     const [startHour, setStartHour] = useState<Dayjs | null>(dayjs.unix(props.shift.shiftStart));
     const [endHour, setEndHour] = useState<Dayjs | null>(dayjs.unix(props.shift.shiftEnd));
 
@@ -56,7 +56,7 @@ export const EditShiftModal: React.FC<EditShiftModalProps> = (props: EditShiftMo
             shiftEnd: false,
             shiftStart: false,
         });
-        setApiError({ message: '', occurred: false });
+        setApiError(getErrorNotOccurred());
         setLoading(false);
     };
 
@@ -192,14 +192,14 @@ export const EditShiftModal: React.FC<EditShiftModalProps> = (props: EditShiftMo
                             };
                         }),
                     })
-                    .catch((reason) => setApiError({ message: logAndFormatError(reason), occurred: true }))
+                    .catch(async (reason) => setApiError(await getErrorDetails(reason)))
                     .finally(() => {
                         setModalOpen(false);
                         props.onShiftEdited(value);
                     });
             })
-            .catch((reason) => {
-                setApiError({ message: logAndFormatError(reason), occurred: true });
+            .catch(async (reason) => {
+                setApiError(await getErrorDetails(reason));
             })
             .finally(() => {
                 setLoading(false);
@@ -214,8 +214,8 @@ export const EditShiftModal: React.FC<EditShiftModalProps> = (props: EditShiftMo
                 setModalOpen(false);
                 props.onShiftDeleted(props.shift.id);
             })
-            .catch((reason) => {
-                setApiError({ message: logAndFormatError(reason), occurred: true });
+            .catch(async (reason) => {
+                setApiError(await getErrorDetails(reason));
             })
             .finally(() => {
                 setLoading(false);
@@ -236,7 +236,7 @@ export const EditShiftModal: React.FC<EditShiftModalProps> = (props: EditShiftMo
                 />
                 <Button icon="checkmark" content="OK" onClick={onOkClick} loading={loading} positive />
             </Modal.Actions>
-            {apiError.occurred ? <ErrorModal errorMessage={apiError.message} /> : null}
+            {apiError.occurred ? <ErrorModal error={apiError} onOkClick={() => setApiError(getErrorNotOccurred())} /> : null}
         </Modal>
     );
 };

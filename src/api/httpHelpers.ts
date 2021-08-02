@@ -3,7 +3,7 @@ export async function responseToString(response: Response): Promise<string> {
 }
 
 export function statusToString(response: Response): string {
-    return `[${response.status} ${HttpStatusCode[response.status]}]`;
+    return `${response.status} - ${HttpStatusCode[response.status]}`;
 }
 
 export enum HttpStatusCode {

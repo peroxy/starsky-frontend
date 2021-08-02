@@ -1,16 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { useApi } from '../api/starskyApiClient';
-import { Button, Dimmer, Divider, Grid, Icon, Label, Loader, Progress, Ref, Table } from 'semantic-ui-react';
+import { Button, Dimmer, Divider, Grid, Icon, Loader, Progress, Table } from 'semantic-ui-react';
 import { EmployeeAssignmentResponse, EmployeeAvailabilityResponse, ScheduleResponse, ScheduleShiftResponse, UserResponse } from '../api/__generated__';
 import { dateToDurationString, epochToDate, shiftToString } from '../util/dateHelper';
 import { ShiftsModal } from './modals/ShiftsModal';
-import { logAndFormatError } from '../util/errorHelper';
+import { ErrorDetails, getErrorDetails, getErrorNotOccurred } from '../util/errorHelper';
 import { EditShiftModal } from './modals/EditShiftModal';
 import { ErrorModal } from './modals/ErrorModal';
 import { Dayjs } from 'dayjs';
 import { AssignmentModal } from './modals/AssignmentModal';
-import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID';
+import { EditAssignmentModal } from './modals/EditAssignmentModal';
 
 interface IScheduleShiftProps {
     employees: UserResponse[];
@@ -21,7 +21,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
     const [shifts, setShifts] = useState<ScheduleShiftResponse[]>([]);
     const [availabilities, setAvailabilities] = useState<{ shiftId: number; availabilities: EmployeeAvailabilityResponse[] }[]>([]);
     const [assignments, setAssignments] = useState<EmployeeAssignmentResponse[]>([]);
-    const [error, setError] = useState<{ occurred: boolean; message: string }>({ occurred: false, message: '' });
+    const [error, setError] = useState<ErrorDetails>(getErrorNotOccurred());
     const { token } = useAuth();
     const apis = useApi(token);
 
@@ -44,7 +44,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
             .then((assignmentResponse) => {
                 setAssignments(assignmentResponse.sort((a, b) => a.assignmentStart - b.assignmentStart));
             })
-            .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }));
+            .catch(async (reason) => setError(await getErrorDetails(reason)));
 
         await apis.scheduleShiftApi
             .getScheduleShifts({ scheduleId: props.schedule.id })
@@ -58,12 +58,12 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                             .then((availability) => {
                                 setAvailabilities((previousState) => [...previousState, { shiftId: scheduleShift.id, availabilities: availability }]);
                             })
-                            .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true })),
+                            .catch(async (reason) => setError(await getErrorDetails(reason))),
                     );
                 }
                 await Promise.all(requests);
             })
-            .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }))
+            .catch(async (reason) => setError(await getErrorDetails(reason)))
             .finally(() => setLoading(false));
     }
 
@@ -116,7 +116,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         }
         await Promise.all(promises)
             .then(async () => await onLoad())
-            .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }))
+            .catch(async (reason) => setError(await getErrorDetails(reason)))
             .finally(() => setLoading(false));
     };
 
@@ -144,7 +144,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                     createEmployeeAssignmentRequest: { assignmentStart: shift.shiftStart, assignmentEnd: shift.shiftEnd },
                 })
                 .then((assignment) => setAssignments((prevState) => [...prevState, assignment]))
-                .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }));
+                .catch(async (reason) => setError(await getErrorDetails(reason)));
         }
         setLoading(false);
     };
@@ -161,10 +161,23 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
         for (const assignment of employeeAssignments.sort((a, b) => a.assignmentStart - b.assignmentStart)) {
             body.push(
                 <Grid.Row key={`btn-${assignment.id}-${i}`}>
-                    <Button
-                        compact
-                        content={dateToDurationString(assignment.assignmentStart, assignment.assignmentEnd)}
-                        style={{ marginTop: 4, marginBottom: 4 }}
+                    <EditAssignmentModal
+                        onAssignmentUpdate={(updatedAssignment) => {
+                            const updatedAssignments = [...assignments];
+                            updatedAssignments[updatedAssignments.findIndex((x) => x.id == updatedAssignment.id)] = updatedAssignment;
+                            setAssignments(updatedAssignments);
+                        }}
+                        trigger={
+                            <Button
+                                compact
+                                content={dateToDurationString(assignment.assignmentStart, assignment.assignmentEnd)}
+                                style={{ marginTop: 4, marginBottom: 4 }}
+                            />
+                        }
+                        assignment={assignment}
+                        schedule={props.schedule}
+                        onAssignmentDelete={(deletedAssignment) => setAssignments(assignments.filter((ass) => ass.id != deletedAssignment.id))}
+                        shift={availableShifts.find((value) => value.id == assignment.shiftId)!}
                     />
                 </Grid.Row>,
             );
@@ -241,7 +254,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                 updatedAvailabilities[updatedAvailabilities.findIndex((x) => x.shiftId == shift.id)] = { shiftId: shift.id, availabilities: value };
                 setAvailabilities(updatedAvailabilities);
             })
-            .catch((reason) => setError({ message: logAndFormatError(reason), occurred: true }))
+            .catch(async (reason) => setError(await getErrorDetails(reason)))
             .finally(() => setLoading(false));
     };
 
@@ -348,7 +361,7 @@ export const Scheduler: React.FC<IScheduleShiftProps> = (props: IScheduleShiftPr
                 </Table.Row>
             </Table.Header>
             <Table.Body>
-                {error.occurred && <ErrorModal errorMessage={error.message} />}
+                {error.occurred && <ErrorModal error={error} onOkClick={() => setError(getErrorNotOccurred())} />}
                 {props.employees.map((employee, index) => {
                     return (
                         <Table.Row key={`emp-info-${employee.id}${index}`}>

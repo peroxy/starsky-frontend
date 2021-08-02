@@ -12,9 +12,8 @@ import {
 import { useApi } from '../../api/starskyApiClient';
 import { useAuth } from '../AuthProvider';
 import { ErrorModal } from './ErrorModal';
-import { logAndFormatError } from '../../util/errorHelper';
+import { ErrorDetails, getErrorDetails, getErrorNotOccurred } from '../../util/errorHelper';
 import dayjs, { Dayjs } from 'dayjs';
-import { generateUniqueID } from 'web-vitals/dist/lib/generateUniqueID';
 
 interface IShiftsModalProps {
     trigger: React.ReactNode;
@@ -37,8 +36,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
         shiftEnd: false,
         shiftStart: false,
     });
-
-    const [apiError, setApiError] = useState<{ occurred: boolean; message: string }>({ occurred: false, message: '' });
+    const [apiError, setApiError] = useState<ErrorDetails>(getErrorNotOccurred());
 
     // date range can't be dayjs, react date picker library does not like it
     const initialDate = {
@@ -67,7 +65,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
             shiftStart: false,
         });
         setDateRange(initialDate);
-        setApiError({ message: '', occurred: false });
+        setApiError(getErrorNotOccurred());
         setLoading(false);
     };
 
@@ -277,8 +275,8 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
                 scheduleId: props.schedule.id,
                 createScheduleShiftRequest: shifts.map((shift) => shift.shiftRequest),
             })
-            .catch((reason) => {
-                setApiError({ message: logAndFormatError(reason), occurred: true });
+            .catch(async (reason) => {
+                setApiError(await getErrorDetails(reason));
             });
 
         if (!scheduleShifts) {
@@ -301,8 +299,8 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
 
         await apis.employeeAvailabilityApi
             .putEmployeeAvailabilities({ createEmployeeAvailabilitiesRequest: employeeAvailabilities })
-            .catch((reason) => {
-                setApiError({ message: logAndFormatError(reason), occurred: true });
+            .catch(async (reason) => {
+                setApiError(await getErrorDetails(reason));
             })
             .finally(() => {
                 setModalOpen(false);
@@ -320,7 +318,7 @@ export const ShiftsModal: React.FC<IShiftsModalProps> = (props: IShiftsModalProp
                 <Button icon="plus" content="Add shift(s)" type="submit" onClick={onAddShiftClick} primary disabled={loading} />
                 <Button icon="checkmark" content="OK" onClick={onOkClick} loading={loading} positive disabled={shifts.length == 0} />
             </Modal.Actions>
-            {apiError.occurred ? <ErrorModal errorMessage={apiError.message} /> : null}
+            {apiError.occurred ? <ErrorModal error={apiError} onOkClick={() => setApiError(getErrorNotOccurred())} /> : null}
         </Modal>
     );
 };
