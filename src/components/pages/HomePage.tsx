@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { LOGIN_ROUTE, REGISTER_ROUTE, TEAMS_ROUTE } from '../../routing/routeConstants';
 import { Helmet } from 'react-helmet';
 import React, { useEffect, useState } from 'react';
-import { Button, Container, Dimmer, Divider, Grid, Header, Icon, Image, List, Loader, Menu, Segment, Sidebar, Visibility } from 'semantic-ui-react';
+import { Button, Container, Dimmer, Divider, Grid, Header, Icon, Image, Loader, Menu, Segment, Visibility } from 'semantic-ui-react';
 import { createMedia } from '@artsy/fresnel';
 import { useAuth } from '../AuthProvider';
 import { responseToString } from '../../api/httpHelpers';
