@@ -70,7 +70,7 @@ export const NavigationBar: React.FC<INavigationBarProps> = (props: INavigationB
             flowing
             trigger={
                 <Menu.Item position={'right'}>
-                    <Icon name={'user'} />
+                    <Icon name={'user circle'} size={'large'} />
                     <Icon name={'dropdown'} />
                 </Menu.Item>
             }
