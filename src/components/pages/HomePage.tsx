@@ -71,9 +71,6 @@ const DesktopContainer: React.FC<IUserProps> = ({ children, authenticatedUser })
                             <Menu.Item as="a" active>
                                 Home
                             </Menu.Item>
-                            <Menu.Item as="a">Work</Menu.Item>
-                            <Menu.Item as="a">Company</Menu.Item>
-                            <Menu.Item as="a">Careers</Menu.Item>
                             <Menu.Item position="right">
                                 {authenticatedUser ? (
                                     <>Welcome {authenticatedUser?.name}!</>
@@ -104,65 +101,38 @@ const DesktopContainer: React.FC<IUserProps> = ({ children, authenticatedUser })
 };
 
 const MobileContainer: React.FC<IUserProps> = ({ children, authenticatedUser }) => {
-    const [sidebarOpened, setSidebarOpened] = useState(false);
-
     return (
         <Media at="mobile">
-            <Sidebar.Pushable>
-                <Sidebar as={Menu} animation="overlay" inverted onHide={() => setSidebarOpened(false)} vertical visible={sidebarOpened}>
-                    <Menu.Item as="a" active>
-                        Home
-                    </Menu.Item>
-                    <Menu.Item as="a">Work</Menu.Item>
-                    <Menu.Item as="a">Company</Menu.Item>
-                    <Menu.Item as="a">Careers</Menu.Item>
-                    {!authenticatedUser ? (
-                        <>
-                            <Link to={LOGIN_ROUTE}>
-                                <Menu.Item as="a">Login</Menu.Item>
-                            </Link>
-                            <Link to={REGISTER_ROUTE}>
-                                <Menu.Item as="a">Register</Menu.Item>
-                            </Link>
-                        </>
-                    ) : (
-                        <></>
-                    )}
-                </Sidebar>
+            <Segment inverted textAlign="center" style={{ minHeight: 350, padding: '1em 0em' }} vertical>
+                <Container>
+                    <Menu inverted pointing secondary size="large">
+                        <Menu.Item>
+                            <Icon name="home" />
+                        </Menu.Item>
+                        <Menu.Item position="right">
+                            {authenticatedUser ? (
+                                <>Welcome {authenticatedUser?.name}!</>
+                            ) : (
+                                <>
+                                    <Link to={LOGIN_ROUTE}>
+                                        <Button as="a" inverted>
+                                            Login
+                                        </Button>
+                                    </Link>
+                                    <Link to={REGISTER_ROUTE}>
+                                        <Button as="a" inverted style={{ marginLeft: '0.5em' }}>
+                                            Register
+                                        </Button>
+                                    </Link>
+                                </>
+                            )}
+                        </Menu.Item>
+                    </Menu>
+                </Container>
+                <HomepageHeading mobile={true} authenticatedUser={authenticatedUser} />
+            </Segment>
 
-                <Sidebar.Pusher dimmed={sidebarOpened}>
-                    <Segment inverted textAlign="center" style={{ minHeight: 350, padding: '1em 0em' }} vertical>
-                        <Container>
-                            <Menu inverted pointing secondary size="large">
-                                <Menu.Item onClick={() => setSidebarOpened(true)}>
-                                    <Icon name="sidebar" />
-                                </Menu.Item>
-                                <Menu.Item position="right">
-                                    {authenticatedUser ? (
-                                        <>Welcome {authenticatedUser?.name}!</>
-                                    ) : (
-                                        <>
-                                            <Link to={LOGIN_ROUTE}>
-                                                <Button as="a" inverted>
-                                                    Login
-                                                </Button>
-                                            </Link>
-                                            <Link to={REGISTER_ROUTE}>
-                                                <Button as="a" inverted style={{ marginLeft: '0.5em' }}>
-                                                    Register
-                                                </Button>
-                                            </Link>
-                                        </>
-                                    )}
-                                </Menu.Item>
-                            </Menu>
-                        </Container>
-                        <HomepageHeading mobile={true} authenticatedUser={authenticatedUser} />
-                    </Segment>
-
-                    {children}
-                </Sidebar.Pusher>
-            </Sidebar.Pushable>
+            {children}
         </Media>
     );
 };
@@ -291,7 +261,7 @@ const HomePage: React.FC = () => {
                             </Header>
                             <p>
                                 Made with <Icon name={'heart'} />
-                                in Slovenia by <a href={'https://github.com/peroxy'}>peroxy</a>.
+                                by <a href={'https://github.com/peroxy'}>peroxy</a>.
                             </p>
                             <p>
                                 <Icon name={'github'} /> This is an open-source project, check us out on
