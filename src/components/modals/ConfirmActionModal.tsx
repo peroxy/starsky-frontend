@@ -19,7 +19,9 @@ export const ConfirmActionModal: React.FC<IConfirmActionModalProps> = (props: IC
                 {props.title}
             </Header>
             <Modal.Content style={{ textAlign: 'center' }}>
-                <p>{props.message}</p>
+                {props.message.split('\n').map((split, index) => (
+                    <p key={`cam-line${index}`}>{split}</p>
+                ))}
             </Modal.Content>
             <Modal.Actions style={{ textAlign: 'center' }}>
                 <Button
