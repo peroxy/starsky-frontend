@@ -8,6 +8,7 @@ import { Button, Dimmer, Icon, List, Loader } from 'semantic-ui-react';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { epochToDate } from '../../util/dateHelper';
 import { SCHEDULE_ROUTE } from '../../routing/routeConstants';
+import { ContentMissing } from '../ContentMissing';
 
 export const SchedulesPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -64,6 +65,16 @@ export const SchedulesPage: React.FC = () => {
                     size="big"
                     onClick={() => history.push(SCHEDULE_ROUTE.replace(':id', 'new'), authenticatedUser)}
                 />
+                {schedules.length == 0 && (
+                    <ContentMissing
+                        header={'No schedules found!'}
+                        content={
+                            <>
+                                You can create a schedule by clicking on the <i>Create new schedule</i> button.
+                            </>
+                        }
+                    />
+                )}
                 <List divided relaxed size={'big'} selection className={'left-margin'}>
                     {schedules.map((schedule) => (
                         <List.Item key={schedule.id} onClick={() => history.push(SCHEDULE_ROUTE.replace(':id', schedule.id.toString()), authenticatedUser)}>

@@ -8,6 +8,7 @@ import { useApi } from '../../api/starskyApiClient';
 import { useAuth } from '../AuthProvider';
 import { responseToString } from '../../api/httpHelpers';
 import { TeamModal } from '../modals/TeamModal';
+import { ContentMissing } from '../ContentMissing';
 
 export const TeamsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -66,10 +67,19 @@ export const TeamsPage: React.FC = () => {
                     modalHeader={'Create a new team'}
                     employees={employees}
                     modalOkButtonText={'Create'}
-                    trigger={<Button primary icon={'users'} content={'Create a new team'} className={'left-margin right-margin'} size={'big'} />}
+                    trigger={<Button primary icon={'users'} content={'Create new team'} className={'left-margin right-margin'} size={'big'} />}
                     onOkButtonClick={handleCreateTeamButton}
                 />
-
+                {teams.length == 0 && (
+                    <ContentMissing
+                        header={'No teams found!'}
+                        content={
+                            <>
+                                You can create a team by clicking on the <i>Create new team</i> button.
+                            </>
+                        }
+                    />
+                )}
                 <List divided relaxed size={'massive'} className={'left-margin right-margin'} selection>
                     {teams.map((team) => (
                         <List.Item key={team.id}>

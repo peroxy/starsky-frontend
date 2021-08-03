@@ -9,6 +9,7 @@ import { useApi } from '../../api/starskyApiClient';
 import { responseToString } from '../../api/httpHelpers';
 import { EmployeeModal } from '../modals/EmployeeModal';
 import { InviteModal } from '../modals/InviteModal';
+import { ContentMissing } from '../ContentMissing';
 
 export const EmployeesPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -95,6 +96,9 @@ export const EmployeesPage: React.FC = () => {
                         wide={'very'}
                     />
                 </ButtonGroup>
+                {employees.length == 0 && (
+                    <ContentMissing header={'No employees found!'} content={'You can manually create an employee or invite them by email.'} />
+                )}
                 <List divided relaxed size={'big'} selection className={'left-margin right-margin'}>
                     {employees.map((employee) => (
                         <List.Item key={employee.id}>

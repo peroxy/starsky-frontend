@@ -3,12 +3,14 @@ import { Helmet } from 'react-helmet';
 import { Button, Dimmer, Grid, GridColumn, Icon, List, Loader } from 'semantic-ui-react';
 import { ActiveMenuItem, NavigationBar } from '../NavigationBar';
 import { InviteResponse, UserResponse } from '../../api/__generated__';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthProvider';
 import { useApi } from '../../api/starskyApiClient';
 import { ConfirmActionModal } from '../modals/ConfirmActionModal';
 import { ErrorModal } from '../modals/ErrorModal';
 import { ErrorDetails, getErrorDetails, getErrorNotOccurred } from '../../util/errorHelper';
+import { EMPLOYEES_ROUTE } from '../../routing/routeConstants';
+import { ContentMissing } from '../ContentMissing';
 
 export const InvitationsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ export const InvitationsPage: React.FC = () => {
             .finally(() => setLoading(false));
     }
 
-    function getStatus(invite: InviteResponse, expiryDate: Date) {
+    const getStatus = (invite: InviteResponse, expiryDate: Date) => {
         let status;
         let statusIcon: ReactNode;
         if (invite.hasRegistered) {
@@ -66,9 +68,9 @@ export const InvitationsPage: React.FC = () => {
             statusIcon = <Icon name="wait" />;
         }
         return { status, statusIcon };
-    }
+    };
 
-    async function handleOnConfirm(inviteId: number) {
+    const handleOnConfirm = async (inviteId: number) => {
         setError(getErrorNotOccurred());
         setDeleting({ loading: true, inviteId: inviteId });
         await apis.inviteApi
@@ -76,11 +78,9 @@ export const InvitationsPage: React.FC = () => {
             .then(() => {
                 setInvites(invites.filter((invite) => invite.id != inviteId));
             })
-            .catch(async (reason) => {
-                setError(await getErrorDetails(reason));
-            });
+            .catch(async (reason) => setError(await getErrorDetails(reason)));
         setDeleting({ loading: false, inviteId: -1 });
-    }
+    };
 
     return loading ? (
         <Dimmer active inverted>
@@ -90,7 +90,17 @@ export const InvitationsPage: React.FC = () => {
         <>
             <Helmet title={'Invitations | Starsky'} />
             <NavigationBar activeMenuItem={ActiveMenuItem.Invitations} authenticatedUser={authenticatedUser!}>
-                {error.occurred ? <ErrorModal error={error} onOkClick={() => setError(getErrorNotOccurred())} /> : null}
+                {error.occurred && <ErrorModal error={error} onOkClick={() => setError(getErrorNotOccurred())} />}
+                {invites.length == 0 && (
+                    <ContentMissing
+                        header={'No invitations found!'}
+                        content={
+                            <>
+                                You can invite employees in the <Link to={EMPLOYEES_ROUTE}>Employees</Link> section of the application.
+                            </>
+                        }
+                    />
+                )}
                 <List divided relaxed size={'big'} className={'left-margin right-margin'}>
                     {invites.map((invite) => {
                         const expiryDate = new Date(invite.expiresOn * 1000);
@@ -112,11 +122,8 @@ export const InvitationsPage: React.FC = () => {
                                     <GridColumn>
                                         <ConfirmActionModal
                                             title={'Delete Invite'}
-                                            message={
-                                                'Would you like to revoke this invite? ' +
-                                                'This action is permanent - the employee will not be able to register with the invite link again and' +
-                                                ' you will have to re-send the invite.'
-                                            }
+                                            message={`Would you like to revoke this invite? 
+                                                This action is permanent - the employee will not be able to register with the invite link again and you will have to re-send the invite.`}
                                             icon={<Icon name={'trash alternate outline'} />}
                                             onConfirm={() => handleOnConfirm(invite.id)}
                                             trigger={

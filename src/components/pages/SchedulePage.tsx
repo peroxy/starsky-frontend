@@ -345,7 +345,6 @@ export const SchedulePage: React.FC = () => {
                         indicating
                         size={'large'}
                         percent={solvingPercentage}
-                        className={'scheduling'}
                         style={{ margin: 'auto', width: '50%' }}
                     />
                 ) : schedule ? (
