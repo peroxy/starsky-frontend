@@ -31,6 +31,7 @@ export const SchedulePage: React.FC = () => {
     const [error, setError] = useState<ErrorDetails>(getErrorNotOccurred());
     const [showTeamFieldError, setShowTeamFieldError] = useState(false);
     const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
+    const [notificationSent, setNotificationSent] = useState(false);
 
     const { id } = useParams<{ id?: string }>();
     const location = useLocation();
@@ -270,6 +271,19 @@ export const SchedulePage: React.FC = () => {
             });
     };
 
+    const onEmployeeNotifyConfirmed = async () => {
+        if (!schedule) {
+            return;
+        }
+        setLoading({ processing: true, initialLoad: false, autoSolve: false });
+
+        await apis.scheduleApi
+            .notifyScheduleEmployees({ scheduleId: schedule.id })
+            .then(() => setNotificationSent(true))
+            .catch(async (reason) => setError(await getErrorDetails(reason)))
+            .finally(() => setLoading({ initialLoad: false, processing: false, autoSolve: false }));
+    };
+
     const getScheduleButton = () => {
         let content = 'Create';
         if (schedule) {
@@ -290,15 +304,34 @@ export const SchedulePage: React.FC = () => {
                 </GridColumn>
                 <GridColumn textAlign={'center'}>
                     {schedule && (
-                        <ConfirmActionModal
-                            title={'Auto-solve schedule'}
-                            message={`Automatically solve the schedule and suggest employee assignments for the created shifts.
+                        <>
+                            <ConfirmActionModal
+                                title={'Auto-solve schedule'}
+                                message={`Automatically solve the schedule and suggest employee assignments for the created shifts.
                             Make sure you have created shifts for this schedule.
                             Please note that this will delete any existing employee assignments that might exist.`}
-                            icon={<Icon name={'bolt'} />}
-                            onConfirm={onAutoSolveConfirmed}
-                            trigger={<Button content="Auto-solve schedule" primary icon="bolt" type={'button'} disabled={loading.autoSolve} />}
-                        />
+                                icon={<Icon name={'bolt'} />}
+                                onConfirm={onAutoSolveConfirmed}
+                                trigger={<Button content="Auto-solve schedule" primary icon="bolt" type={'button'} disabled={loading.autoSolve} />}
+                            />
+
+                            <ConfirmActionModal
+                                title={'Notify employees'}
+                                message={`Would you like to send an email notification to every employee that has a shift assigned for this schedule?`}
+                                icon={<Icon name={'mail'} />}
+                                onConfirm={onEmployeeNotifyConfirmed}
+                                trigger={
+                                    <Button
+                                        content={notificationSent ? 'Notified successfully!' : 'Notify employees'}
+                                        primary={!notificationSent}
+                                        color={notificationSent ? 'green' : undefined}
+                                        icon="mail"
+                                        type={'button'}
+                                        disabled={loading.autoSolve || notificationSent}
+                                    />
+                                }
+                            />
+                        </>
                     )}
                 </GridColumn>
                 <GridColumn>

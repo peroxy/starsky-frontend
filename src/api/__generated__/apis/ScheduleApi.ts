@@ -44,6 +44,10 @@ export interface GetSchedulesRequest {
     teamId?: number;
 }
 
+export interface NotifyScheduleEmployeesRequest {
+    scheduleId: number;
+}
+
 export interface PatchScheduleRequest {
     scheduleId: number;
     updateScheduleRequest: UpdateScheduleRequest;
@@ -180,6 +184,45 @@ export class ScheduleApi extends runtime.BaseAPI {
     async getSchedules(requestParameters: GetSchedulesRequest): Promise<Array<ScheduleResponse>> {
         const response = await this.getSchedulesRaw(requestParameters);
         return await response.value();
+    }
+
+    /**
+     * Send an email with schedule information to every employee that has an assigned schedule shift. Manager only route.
+     * Notify employees.
+     */
+    async notifyScheduleEmployeesRaw(requestParameters: NotifyScheduleEmployeesRequest): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.scheduleId === null || requestParameters.scheduleId === undefined) {
+            throw new runtime.RequiredError('scheduleId','Required parameter requestParameters.scheduleId was null or undefined when calling notifyScheduleEmployees.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("bearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/user/schedules/{schedule_id}/notify`.replace(`{${"schedule_id"}}`, encodeURIComponent(String(requestParameters.scheduleId))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        });
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Send an email with schedule information to every employee that has an assigned schedule shift. Manager only route.
+     * Notify employees.
+     */
+    async notifyScheduleEmployees(requestParameters: NotifyScheduleEmployeesRequest): Promise<void> {
+        await this.notifyScheduleEmployeesRaw(requestParameters);
     }
 
     /**
