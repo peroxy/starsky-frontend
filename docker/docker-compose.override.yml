@@ -7,7 +7,7 @@ services:
       - POSTGRES_USER=starsky
       - POSTGRES_PASSWORD=starsky
     ports:
-      - 5432:5432
+      - "5432:5432"
     networks:
       - starskynet
     restart: "no"
@@ -35,7 +35,7 @@ services:
     depends_on:
       - database
     ports:
-      - 8080:8080
+      - "8080:8080"
     networks:
       - starskynet
     restart: "no"
@@ -46,7 +46,7 @@ services:
       RABBITMQ_DEFAULT_USER: starsky
       RABBITMQ_DEFAULT_PASS: starsky
     ports:
-      - 5672:5672
+      - "5672:5672"
     networks:
       - starskynet
     restart: "no"
@@ -57,7 +57,7 @@ services:
       "RabbitMQSettings:Username": starsky
       "RabbitMQSettings:Password": starsky
     ports:
-      - 56789:56789
+      - "56789:56789"
     depends_on:
       - rabbitmq
     networks:

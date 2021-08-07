@@ -5,7 +5,7 @@ services:
       context: ../.
       dockerfile: docker/frontend/Dockerfile
     ports:
-      - 3000:3000
+      - "3000:3000"
     networks:
       - starskynet
 networks:
