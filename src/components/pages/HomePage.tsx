@@ -9,7 +9,6 @@ import { useAuth } from '../AuthProvider';
 import { responseToString } from '../../api/httpHelpers';
 import { useApi } from '../../api/starskyApiClient';
 import { UserResponse } from '../../api/__generated__';
-import { IUserProps } from '../props/IUserProps';
 import { MAX_MOBILE_WIDTH, MAX_TABLET_WIDTH } from '../../util/mediaConstants';
 
 export const { MediaContextProvider, Media } = createMedia({
@@ -20,12 +19,16 @@ export const { MediaContextProvider, Media } = createMedia({
     },
 });
 
-interface IProps {
+interface IUserProps {
+    authenticatedUser: UserResponse | null;
+}
+
+interface HomepageHeadingProps {
     mobile: boolean;
     authenticatedUser: UserResponse | null;
 }
 
-function HomepageHeading(props: IProps) {
+function HomepageHeading(props: HomepageHeadingProps) {
     return (
         <Container text>
             <Header
