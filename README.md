@@ -58,9 +58,6 @@ docker-compose up database api
 ```
 2. Run (`npm run start`) and debug the application with your IDE.
 
-### Testing
-TODO :bangbang:
-
 ### OpenAPI client
 We are using the [OpenAPI client generator](https://github.com/OpenAPITools/openapi-generator) library with [typescript-fetch generator](https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/typescript-fetch.md).
 TypeScript code files (using `fetch`) will be output to `src/api/__generated__` folder.
