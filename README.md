@@ -7,14 +7,6 @@ Backend Java REST API is located in a repository called [starsky-backend](https:
 
 ![image](https://user-images.githubusercontent.com/15001760/129161508-35f30c0c-e6b4-4c4d-83bb-6def163b9e58.png)
 
-## Demo
-Live demo can be found at:
-https://nejc.ninja
-
-Use credentials:
-- username: janez@example.com
-- password: test1234
-
 ## Requirements :clipboard:
 
 - [docker](https://docs.docker.com/get-docker/)
